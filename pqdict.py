@@ -41,6 +41,12 @@ class PQEntry(object):
     def __lt__(self, other):
         return self.priority < other.priority
 
+    def __eq__(self, other):
+        return self.priority == other.priority
+
+    def __le__(self, other):
+        return self.priority < other.priority or self.priority == other.priority
+
     def __repr__(self):
         return "PQEntry(" + str(self.key) + ": " + str(self.priority) + ")"
 
@@ -62,7 +68,7 @@ class PriorityQueueDict(collections.MutableMapping):
         self.nodefinder = {}
         if args or kwargs:
             d = dict(*args, **kwargs)
-            for dkey, pkey in zip(d.items()):
+            for dkey, pkey in d.items():
                 self[dkey] = pkey
             self._heapify()
         #TODO: improve constructor?
@@ -131,13 +137,24 @@ class PriorityQueueDict(collections.MutableMapping):
         Remove dict_key item. Raises a KeyError if key is not in the PQD.
 
         """
+        heap = self.heap
+        finder = self.nodefinder
+
         # Remove very last item and place in vacant spot. Let the new item
         # sink until it reaches its new resting place.
-        pos = self.nodefinder[dict_key] #raises KeyError
-        last = heap.pop(-1)
-        heap[pos] = last
-        finder[last.key] = pos
-        self._sink(top=pos)
+        try:
+            pos = finder.pop(dict_key)
+        except KeyError:
+            raise
+        else:
+            entry = heap[pos]
+            last = heap.pop(-1)
+            if entry is not last:
+                heap[pos] = last
+                finder[last.key] = pos
+                self._sink(pos)
+                self._swim(pos)
+            del entry
 
     def __copy__(self):
         """
@@ -152,15 +169,15 @@ class PriorityQueueDict(collections.MutableMapping):
         return other
 
     copy = __copy__
-    __eq__ = MutableMapping.__eq__
-    __ne__ = MutableMapping.__ne__
-    get = MutableMapping.get
-    keys = MutableMapping.keys
-    values = MutableMapping.values
-    items = MutableMapping.items
-    clear = MutableMapping.clear
-    update = MutableMapping.update
-    setdefault = MutableMapping.setdefault
+    __eq__ = collections.MutableMapping.__eq__
+    __ne__ = collections.MutableMapping.__ne__
+    get = collections.MutableMapping.get
+    keys = collections.MutableMapping.keys
+    values = collections.MutableMapping.values
+    items = collections.MutableMapping.items
+    clear = collections.MutableMapping.clear
+    update = collections.MutableMapping.update
+    setdefault = collections.MutableMapping.setdefault
     __marker = object()
 
     def pop(self, dict_key, default=__marker):
@@ -180,9 +197,16 @@ class PriorityQueueDict(collections.MutableMapping):
                 raise
             return default
         else:
-            del_entry = heap[pos]
-            del self[dict_key]
-            return del_entry.priority
+            delentry = heap[pos]
+            last = heap.pop(-1)
+            if delentry is not last:
+                heap[pos] = last
+                finder[last.key] = pos
+                self._sink(pos)
+                self._swim(pos)
+            pkey = delentry.priority
+            del delentry
+            return pkey
 
     def popitem(self):
         """
