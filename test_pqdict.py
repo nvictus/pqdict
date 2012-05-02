@@ -21,7 +21,7 @@ class TestPQD(unittest.TestCase):
         for pos, entry in enumerate(heap):
             if pos: # pos 0 has no parent
                 parentpos = (pos-1) >> 1
-                self.assertTrue(heap[parentpos] <= entry)
+                self.assertTrue(heap[parentpos].pkey <= entry.pkey)
 
     def check_index(self, pq):
         # All heap nodes are pointed to by the index (nodefinder)
@@ -31,7 +31,7 @@ class TestPQD(unittest.TestCase):
         # All indexed items are referenced in their corresponding heap entry
         for dkey in pq.nodefinder.keys():
             entry = pq.heap[pq.nodefinder[dkey]]
-            self.assertTrue(dkey == entry.key)
+            self.assertTrue(dkey == entry.item)
 
     def test_heapify(self):
         for size in range(30):
@@ -62,8 +62,8 @@ class TestPQD(unittest.TestCase):
         pq0 = pqdict.PriorityQueueDict([('A',5), ('B',8), ('C',7), ('D',3), ('E',9), ('F',12), ('G',1)])
         pq1 = pqdict.PriorityQueueDict(zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [5, 8, 7, 3, 9, 12, 1]))
         pq2 = pqdict.PriorityQueueDict({'A':5, 'B':8, 'C':7, 'D':3, 'E':9, 'F':12, 'G':1})
-        pq3 = pqdict.PriorityQueueDict(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-        self.assertTrue(pq0==pq1==pq2==pq3)
+        #pq3 = pqdict.PriorityQueueDict(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertTrue(pq0==pq1==pq2)
 
     def test_copy(self):
         dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
@@ -219,26 +219,6 @@ class TestPQD(unittest.TestCase):
             pkeys_heapsorted = [pair[1] for pair in pairs_heapsorted]
             self.assertEqual(pkeys_heapsorted, sorted(pkeys))
 
-
-
-
-
-
-
-
-# we use a strict < comparison for bubbling the nodes around
-# updating produces lufo ordering of equal keys
-# last-in/updated-first-out. Note that popping/removing updates the bottom-most element,
-# leading to an unpredictable order relative to the insertion sequence.
-
-# heapsort is NOT a stable sorting algorithm. Items with equal keys
-# will not necessarily have the same order as in the input sequence
-
-#if we are doing arbitrary priority key updates or item add/removals,
-#the ordering of items with equal keys will depend on the history
-
-#if we want a strict ordering of items with equal keys, we need to
-#overload __lt__ to handle tie-breaking (resolve into a strict ordering of the entries)
 
 
 
