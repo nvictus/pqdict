@@ -37,7 +37,7 @@ class TestPQD(unittest.TestCase):
         for size in range(30):
             dkeys = self.dkeys[:size]
             pkeys = self.pkeys_float[:size]
-            pq = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
+            pq = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
             self.check_heap_invariant(pq)
             self.assertTrue(len(pq.heap)==size)
             self.check_index(pq)
@@ -46,8 +46,8 @@ class TestPQD(unittest.TestCase):
         # eq, ne
         dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
         pkeys = [5, 8, 7, 3, 9, 12, 1]
-        pq = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
-        pq2 = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
+        pq = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
+        pq2 = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
         self.assertTrue(pq==pq2)
         self.assertFalse(pq!=pq2)
         pq2['B'] = 1000
@@ -59,23 +59,23 @@ class TestPQD(unittest.TestCase):
         self.assertFalse(pq==dkeys)
 
     def test_constructor(self):
-        pq0 = pqdict.PriorityQueueDict([('A',5), ('B',8), ('C',7), ('D',3), ('E',9), ('F',12), ('G',1)])
-        pq1 = pqdict.PriorityQueueDict(zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [5, 8, 7, 3, 9, 12, 1]))
-        pq2 = pqdict.PriorityQueueDict({'A':5, 'B':8, 'C':7, 'D':3, 'E':9, 'F':12, 'G':1})
-        #pq3 = pqdict.PriorityQueueDict(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-        self.assertTrue(pq0==pq1==pq2)
+        pq0 = pqdict.PriorityQueueDictionary([('A',5), ('B',8), ('C',7), ('D',3), ('E',9), ('F',12), ('G',1)])
+        pq1 = pqdict.PriorityQueueDictionary(zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [5, 8, 7, 3, 9, 12, 1]))
+        pq2 = pqdict.PriorityQueueDictionary({'A':5, 'B':8, 'C':7, 'D':3, 'E':9, 'F':12, 'G':1})
+        pq3 = pqdict.PriorityQueueDictionary(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertTrue(pq0==pq1==pq2==pq3)
 
     def test_copy(self):
         dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
         pkeys = [5, 8, 7, 3, 9, 12, 1]
-        pq = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
+        pq = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
         pq2 = pq.copy()
         self.assertTrue(pq == pq2)
         pq2['A'] = 9000
         self.assertFalse(pq['A'] == pq2['A'])
 
     def test_api(self):
-        pq = pqdict.PriorityQueueDict()
+        pq = pqdict.PriorityQueueDictionary()
         self.assertTrue(len(pq)==0)
 
         # add new item:
@@ -107,13 +107,13 @@ class TestPQD(unittest.TestCase):
         del pq
 
         # peek at min item:
-        pq = pqdict.PriorityQueueDict()
+        pq = pqdict.PriorityQueueDictionary()
         self.assertRaises(KeyError, pq.peek)
         for size in range(1,30):
             dkeys = self.dkeys[:size]
             pkeys = self.pkeys_float[:size]
             data = list(zip(dkeys, pkeys))
-            pq = pqdict.PriorityQueueDict(data)
+            pq = pqdict.PriorityQueueDictionary(data)
             self.assertTrue(pq.peek() == min(data, key=lambda x: x[1]))
 
         del pq
@@ -121,7 +121,7 @@ class TestPQD(unittest.TestCase):
         # inherited methods
         dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
         pkeys = [5, 8, 7, 3, 9, 12, 1]
-        pq = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
+        pq = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
 
         # get
         self.assertTrue(pq.get('A')==5)
@@ -140,7 +140,7 @@ class TestPQD(unittest.TestCase):
         self.check_index(pq)
 
         # update
-        pq2 = pqdict.PriorityQueueDict()
+        pq2 = pqdict.PriorityQueueDictionary()
         pq2['C'] = 3000
         pq2['D'] = 4000
         pq2['XYZ'] = 9000
@@ -148,7 +148,7 @@ class TestPQD(unittest.TestCase):
         assert(pq['C']==3000 and pq['D']==4000 and pq['XYZ']==9000)
 
     def test_insert_pop(self):
-        pq = pqdict.PriorityQueueDict()
+        pq = pqdict.PriorityQueueDictionary()
         self.check_heap_invariant(pq)
         self.check_index(pq)
 
@@ -178,13 +178,13 @@ class TestPQD(unittest.TestCase):
         self.assertRaises(TypeError, pq.add, 'b', 5)
 
     def test_update_remove(self):
-        pq = pqdict.PriorityQueueDict()
+        pq = pqdict.PriorityQueueDictionary()
 
         dkeys = self.dkeys
         pkeys = self.pkeys_int
 
         # heapify a sequence of items
-        pq = pqdict.PriorityQueueDict(zip(dkeys, pkeys))
+        pq = pqdict.PriorityQueueDictionary(zip(dkeys, pkeys))
 
         for oper in range(100):
             if oper & 1: #update random item
@@ -207,9 +207,9 @@ class TestPQD(unittest.TestCase):
             data = zip(dkeys, pkeys)
 
             if trial & 1:     # Half of the time, use heapify
-                pq = pqdict.PriorityQueueDict(data)
+                pq = pqdict.PriorityQueueDictionary(data)
             else:             # The rest of the time, insert items sequentially
-                pq = pqdict.PriorityQueueDict()
+                pq = pqdict.PriorityQueueDictionary()
                 for dkey,pkey in data:
                    pq[dkey] = pkey
 

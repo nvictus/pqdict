@@ -39,32 +39,80 @@ class PQDEntry(object):
         self.pkey = pkey
 
     def __lt__(self, other):
-        return self.pkey < other.pkey
+        # override __lt__, e.g. for a MaxPQ or for tie-breaking rules
+        raise NotImplementedError
 
     def __eq__(self, other):
         return self.pkey == other.pkey
 
     def __repr__(self):
-        return "PQDEntry(" + str(self.item) + ": " + str(self.pkey) + ")"
+        return "PQDEntry(%s: %s)"%(repr(self.item),self.pkey)
 
+class MinPQDEntry(PQDEntry):
+    def __lt__(self, other):
+        return self.pkey < other.pkey
 
 class MaxPQDEntry(PQDEntry):
     def __lt__(self, other):
         return self.pkey > other.pkey
 
+class PriorityQueueDictionary(collections.MutableMapping):
+    """
+    Maps dictionary keys (keys) to priority keys (values). Maintains an
+    internal heap so that the highest priority item can always be obtained in
+    constant time. The mapping is fully mutable so items may be added, removed
+    and have their priorities updated.
 
-class PriorityQueueDict(collections.MutableMapping):
-    __slots__ = ('heap', 'nodefinder','cmp')
+    """
+    __slots__ = ('heap', 'nodefinder','create_entry')
 
-    def __init__(self, *args, cmp=MaxPQDEntry):
+    def __init__(self, *args, maxheap=False, **kwargs):
+        """
+        Mimics the standard dict constructor:
+            Accepts a sequence/iterator of (dkey, pkey) tuples.
+            Accepts named arguments as dkey=pkey or an unpacked dictionary.
+            Also accepts a single mapping object to convert it to a pqdict.
+
+        The default priority ranking for entries is in decreasing pkey value
+        (i.e., a min-pq: LOWER pkey values have a HIGHER rank). This is typical
+        for a scheduler, where the higher priority tasks have earlier times.
+        Setting the maxheap parameter to True creates a max-pq where higher pkey
+        values have a higher rank.
+
+        heap (list): stores dkey,pkey-pairs as "entries" (PQDEntry objects).
+        nodefinder (dict): maps each dkey to the index of its entry in the heap
+        create_entry (class): entry type (< comparator is used to rank entries)
+
+        """
         self.heap = []
         self.nodefinder = {}
-        self.cmp = cmp       #override __lt__, e.g. for a MaxPQ or for tie-breaking rules
+        pos = 0
+        if len(args) > 1:
+            raise TypeError
+        if maxheap:
+            self.create_entry = MaxPQDEntry
+        else:
+            self.create_entry = MinPQDEntry
         if args:
-            d = dict(*args)
-            for dkey, pkey in d.items():
-                self[dkey] = pkey
-            self._heapify()
+            if isinstance(args[0], collections.Mapping):
+                seq = args[0].items()
+            else:
+                seq = args[0]
+            try:
+                for dkey, pkey in seq:
+                    entry = self.create_entry(dkey, pkey)
+                    self.heap.append(entry)
+                    self.nodefinder[dkey] = pos
+                    pos += 1
+            except TypeError:
+                raise ValueError
+        if kwargs:
+            for dkey, pkey in kwargs.items():
+                entry = self.create_entry(dkey, pkey)
+                self.heap.append(entry)
+                self.nodefinder[dkey] = pos
+                pos += 1
+        self._heapify()
 
     def __len__(self):
         """
@@ -85,7 +133,8 @@ class PriorityQueueDict(collections.MutableMapping):
         Return an iterator over the keys of the PQD.
 
         """
-        return self.nodefinder.__iter__()
+        for entry in self.heap:
+            yield entry.item
 
     def __getitem__(self, dkey):
         """
@@ -106,7 +155,7 @@ class PriorityQueueDict(collections.MutableMapping):
         except KeyError:
             # add new entry
             n = len(self.heap)
-            self.heap.append(self.cmp(dkey, pkey))
+            self.heap.append(self.create_entry(dkey, pkey))
             self.nodefinder[dkey] = n
             self._swim(n)
         else:
@@ -162,21 +211,16 @@ class PriorityQueueDict(collections.MutableMapping):
         """
         #TODO: deep copy priority keys? shouldn't these always be int/float anyway?
         from copy import copy
-        other = PriorityQueueDict()
+        other = PriorityQueueDictionary()
         other.heap = [copy(entry) for entry in self.heap]
         other.nodefinder = copy(self.nodefinder)
         return other
-
     copy = __copy__
-    __eq__ = collections.MutableMapping.__eq__
-    __ne__ = collections.MutableMapping.__ne__
-    get = collections.MutableMapping.get
-    keys = collections.MutableMapping.keys
-    values = collections.MutableMapping.values
-    items = collections.MutableMapping.items
-    clear = collections.MutableMapping.clear
-    update = collections.MutableMapping.update
-    setdefault = collections.MutableMapping.setdefault
+
+    def __repr__(self):
+        things = ',\n '.join(['%s: %s'%(repr(entry.item), entry.pkey) for entry in self.heap])
+        return 'pqdict(\n{' + things  + '}\n)'
+
     __marker = object()
 
     def pop(self, dkey, default=__marker):
@@ -265,20 +309,24 @@ class PriorityQueueDict(collections.MutableMapping):
             raise KeyError
         return entry.item, entry.pkey
 
+    __eq__ = collections.MutableMapping.__eq__
+    __ne__ = collections.MutableMapping.__ne__
+    get = collections.MutableMapping.get
+    keys = collections.MutableMapping.keys
+    values = collections.MutableMapping.values
+    items = collections.MutableMapping.items
+    clear = collections.MutableMapping.clear
+    update = collections.MutableMapping.update
+    setdefault = collections.MutableMapping.setdefault
+
     @staticmethod
-    def fromkeyfunction(iterable, keyfunc):
+    def fromkeyfunction(iterable, keygen):
         """
         Provide a key function that determines priorities by which to heapify
         the elements of an iterable into a PQD.
 
         """
-        pq = PriorityQueueDict()
-        for pos, item in enumerate(iterable):
-            entry = self.cmp(item, keyfunc(item))
-            pq.heap.append(entry)
-            pq.nodefinder[entry.item] = pos
-        pq._heapify()
-        return pq
+        return PriorityQueueDictionary((item, keygen(item)) for item in iterable)
 
     def _heapify(self):
         n = len(self.heap)
@@ -364,3 +412,32 @@ class PriorityQueueDict(collections.MutableMapping):
 
 # Also, to get max heap behavior, we overload __lt__ to return true when
 # self.pkey > other.pkey
+
+class RankedItemPQD(PriorityQueueDictionary):
+    def __init__(self, *args, **kwargs):
+        # change every pkey to [pkey, rank]
+        pass
+
+    def __setitem__(self, dkey, pkey):
+        # change pkey to [pkey, len(self)+1]
+        pass
+
+    def __getitem__(self, dkey):
+        # call super
+        # return pkey[0]
+        pass
+
+    def peek(self):
+        # call super
+        # return dkey, pkey[0]
+        pass
+
+    def pop(self, dkey):
+        # call super
+        # return pkey[0]
+        pass
+
+    def popitem(self):
+        # call super
+        # return dkey, pkey[0]
+        pass
