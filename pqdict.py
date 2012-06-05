@@ -39,7 +39,6 @@ class PQDEntry(object):
         self.pkey = pkey
 
     def __lt__(self, other):
-        # override __lt__, e.g. for a MaxPQ or for tie-breaking rules
         raise NotImplementedError
 
     def __eq__(self, other):
@@ -60,8 +59,8 @@ class PriorityQueueDictionary(collections.MutableMapping):
     """
     Maps dictionary keys (keys) to priority keys (values). Maintains an
     internal heap so that the highest priority item can always be obtained in
-    constant time. The mapping is fully mutable so items may be added, removed
-    and have their priorities updated.
+    constant time. The mapping is mutable so items may be added, removed and
+    have their priorities updated.
 
     """
     __slots__ = ('heap', 'nodefinder','create_entry')
@@ -69,9 +68,9 @@ class PriorityQueueDictionary(collections.MutableMapping):
     def __init__(self, *args, maxheap=False, **kwargs):
         """
         Mimics the standard dict constructor:
-            Accepts a sequence/iterator of (dkey, pkey) tuples.
-            Accepts named arguments as dkey=pkey or an unpacked dictionary.
-            Also accepts a single mapping object to convert it to a pqdict.
+            Accepts a sequence/iterator of (dkey, pkey) pairs.
+            Accepts named arguments or an unpacked dictionary.
+        Also accepts a single mapping object to convert it to a pqdict.
 
         The default priority ranking for entries is in decreasing pkey value
         (i.e., a min-pq: LOWER pkey values have a HIGHER rank). This is typical
@@ -79,11 +78,12 @@ class PriorityQueueDictionary(collections.MutableMapping):
         Setting the maxheap parameter to True creates a max-pq where higher pkey
         values have a higher rank.
 
-        heap (list): stores dkey,pkey-pairs as "entries" (PQDEntry objects).
-        nodefinder (dict): maps each dkey to the index of its entry in the heap
-        create_entry (class): entry type (< comparator is used to rank entries)
-
         """
+        # Implementation details:
+        # heap (list): stores dkey,pkey-pairs as "entries" (PQDEntry objects).
+        # nodefinder (dict): maps each dkey to the index of its entry in the heap
+        # create_entry (class): entry type (< comparator is used to rank entries)
+
         self.heap = []
         self.nodefinder = {}
         pos = 0
@@ -206,10 +206,22 @@ class PriorityQueueDictionary(collections.MutableMapping):
 
     def __copy__(self):
         """
-        Return a new PQD with the same dkeys (shallow copied) and priority keys.
+        Return a new PQD with the same dkeys associated with the same priority
+        keys.
 
         """
-        #TODO: deep copy priority keys? shouldn't these always be int/float anyway?
+        #   Dictionary keys are immutable.
+        #   Priority keys, typically numeric values, are immutable.
+        #
+        # NOTE: Mutable priority types are currently not supported. I guess
+        # that's part of what makes them "keys". Should they be in the future?
+        #
+        # We want the two PQDs to behave as different schedules on the same
+        # (immutable) items. As a result:
+        # - The new heap list contains copies of all entries because PQDEntry
+        #   objects are mutable and should not be shared by two PQDs.
+        # - The new nodefinder (dkey->heap index) must be a copy of the old
+        #   nodefinder dict since two PQDs do not share the same heap list.
         from copy import copy
         other = PriorityQueueDictionary()
         other.heap = [copy(entry) for entry in self.heap]
