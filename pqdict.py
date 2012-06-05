@@ -30,6 +30,7 @@ sink implementation is non-conventional. See heapq for details about why.
 """
 #!/usr/bin/env python
 __author__ = ('Nezar Abdennur', 'nabdennur@gmail.com')
+__license__ = 'BSD'
 
 import collections
 
