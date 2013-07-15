@@ -9,19 +9,19 @@ A priority queue is an abstract data structure that performs a basic service: se
 ## How does it work?
 The priority queue is implemented as a binary heap (using a python list), which supports:  
 
-- O(1) access to the top priority item
+- O(1) access to the top priority element
 
-- O(log n) deletion of the top priority item
+- O(log n) deletion of the top priority element
 
-- O(log n) insertion of a new item
+- O(log n) insertion of a new element
 
-In addition, an internal dictionary or "index" maps items to their position in the heap. This index is synchronized with the heap as the heap is manipulated. As a result, `PQDict` also supports:     
+In addition, an internal dictionary or "index" maps elements to their position in the heap. This index is synchronized with the heap as the heap is manipulated. As a result, `PQDict` also supports:     
 
-- O(1) lookup of an arbitrary item's priority key
+- O(1) lookup of an arbitrary element's priority key
 
-- O(log n) deletion of an arbitrary item     
+- O(log n) deletion of an arbitrary element 
 
-- O(log n) updating of an arbitrary item's priority key
+- O(log n) updating of an arbitrary element's priority key
 
 ## Why would I want that?
 Indexed priority queues can be very useful as schedulers for applications like simulations, or in efficient implementations of Dijkstra's shortest-path algorithm. Basically, whenever it is not only important to be able to find the minimum or maximum element efficiently, but we also need to be able to efficiently modify the priorities of arbitrary elements in the queue.
