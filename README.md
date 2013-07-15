@@ -91,3 +91,6 @@ print pq.popitem() #('d', 6.5)
 # we're empty!
 pq.popitem()       #KeyError
 ```
+
+## License
+This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the `heapq` module, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
