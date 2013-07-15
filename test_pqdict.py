@@ -50,7 +50,7 @@ class TestAPI(TestPQDict):
         self.items = list(zip(self.dkeys, self.pkeys))
 
     def test_constructor(self):
-        # list of pairs
+        # sequence of pairs
         pq0 = pqd([('A',5), ('B',8), ('C',7), ('D',3), ('E',9), ('F',12), ('G',1)])
         pq1 = pqd(zip(['A', 'B', 'C', 'D', 'E', 'F', 'G'], [5, 8, 7, 3, 9, 12, 1]))
         # dictionary
