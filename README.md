@@ -32,12 +32,12 @@ By default, `PQDict` uses a min-heap, meaning **smaller** priority keys have **h
 ```python
 from pqdict import PQDict
 
-# same input signatures as dict()
+# same input signature as dict()
 #pq = PQDict(a=3, b=5, c=8)
 #pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
 
 pq = PQDict({'a':3, 'b':5, 'c':8})          
-print pq.tiems()     # [('a',3), ('b',5), ('c',8)]
+print pq.items()     # [('a',3), ('b',5), ('c',8)]
 ```
 
 ```python
