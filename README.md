@@ -1,10 +1,10 @@
 Priority Queue Dictionary (pqdict)
 =========================
 
-An indexed priority queue data implementation written in Python. The `PQDict` class provides the `MutableMapping` protocol and instances operate like a regular python dictionary with a couple extra methods. Think of a Priority Queue Dictionary as a mapping of "dictionary keys" to "priority keys".
+An indexed priority queue implementation written in Python. The `PQDict` class provides the `MutableMapping` protocol and instances operate like a regular python dictionary with a couple extra methods. Think of a Priority Queue Dictionary as a mapping of "dictionary keys" to "priority keys".
 
 ## What is an "indexed" priority queue?
-A [priority queue](http://en.wikipedia.org/wiki/Priority_queue) is an abstract data structure that performs a basic service: serve the element of highest priority first. You can insert elements with priorities, and remove or peek at the top priority element. Unlike standard priority queues, an _indexed_ priority queue additionally allows you to alter the priority of any element in the queue. With the right implementation, each of these operations can be done quite efficiently.
+A [priority queue](http://en.wikipedia.org/wiki/Priority_queue) is an abstract data structure that offers a basic service: serve the element of highest priority first. You can insert elements with priorities, and remove or peek at the top priority element. Unlike standard priority queues, an _indexed_ priority queue additionally allows you to alter the priority of any element in the queue. With the right implementation, each of these operations can be done quite efficiently.
 
 ## How does it work?
 The priority queue is implemented as a binary heap (using a python list), which supports:  
@@ -24,7 +24,7 @@ In addition, an internal dictionary or "index" maps elements to their position i
 - O(log n) updating of an arbitrary element's priority key
 
 ## Why would I want something like that?
-Indexed priority queues can be very useful as schedulers for applications like simulations. They can also be used in efficient implementations of Dijkstra's shortest-path algorithm. Basically, whenever we not only want to be able to quickly find the minimum or maximum element, but we also need to be able to dynamically find and modify the priorities of existing elements in the queue efficiently.
+Indexed priority queues can be very useful as schedulers for applications like [simulations](http://pubs.acs.org/doi/abs/10.1021/jp993732q). They can also be used in efficient implementations of Dijkstra's shortest-path algorithm. Basically, whenever we not only want to be able to quickly find the minimum or maximum element, but we also need to be able to dynamically find and modify the priorities of existing elements in the queue efficiently.
 
 ## Examples
 By default, `PQDict` uses a min-heap, meaning **smaller** priority keys have **higher** priority. Use `PQDict.maxpq()` to create a max-heap priority queue.
