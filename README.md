@@ -1,10 +1,10 @@
 Priority Queue Dictionary (pqdict)
 =========================
 
-An indexed priority queue data implementation written in python. The `PQDict` class provides the `MutableMapping` protocol and operates like a python dictionary with a couple extra methods. Think of it as a mapping of "dictionary keys" to "priority keys".
+An indexed priority queue data implementation written in python. The `PQDict` class provides the `MutableMapping` protocol and operates like a regular python dictionary with a couple extra methods. Think of it as a mapping of "dictionary keys" to "priority keys".
 
-## What is an _indexed_ priority queue?
-A priority queue is an abstract data structure that performs a basic service: serve the element of highest priority first. You can insert elements with priorities, and remove or peek at the top priority element. An indexed priority queue additionally allows you to alter the priority of a particular element. With the right implementation, these operations can be done efficiently.
+## What is an "indexed" priority queue?
+A priority queue is an abstract data structure that performs a basic service: serve the element of highest priority first. You can insert elements with priorities, and remove or peek at the top priority element. Unlike standard priority queues, an indexed priority queue additionally allows you to alter the priority of any element in the queue. With the right implementation, each of these operations can be done efficiently.
 
 ## How does it work?
 The priority queue is implemented as a binary heap (using a python list), which supports:  
@@ -15,7 +15,7 @@ The priority queue is implemented as a binary heap (using a python list), which 
 
 - O(log n) insertion of a new item
 
-In addition, an internal dictionary or "index" maps items to their position in the heap. This index is synchronized with the heap as it is manipulated. As a result, `PQDict` also supports:     
+In addition, an internal dictionary or "index" maps items to their position in the heap. This index is synchronized with the heap as the heap is manipulated. As a result, `PQDict` also supports:     
 
 - O(1) lookup of an arbitrary item's priority key
 
@@ -24,10 +24,10 @@ In addition, an internal dictionary or "index" maps items to their position in t
 - O(log n) updating of an arbitrary item's priority key
 
 ## Why would I want that?
-Indexed priority queues can be very useful as schedulers for applications like simulation, or in efficient implementations of Dijkstra's shortest-path algorithm. Basically, when not only is efficiently extracting the minimum or maximum important, but also the ability to efficiently modify the priority of an arbitrary element in the queue.
+Indexed priority queues can be very useful as schedulers for applications like simulations, or in efficient implementations of Dijkstra's shortest-path algorithm. Basically, whenever it is not only important to be able to find the minimum or maximum element efficiently, but we also need to be able to efficiently modify the priorities of arbitrary elements in the queue.
 
 ## Examples
-By default, `PQDict` uses a min-heap, meaning **smaller** priority keys have "higher" priority. Use `PQDict.maxpq()` to create a max-heap priority queue.
+By default, `PQDict` uses a min-heap, meaning **smaller** priority keys have **higher** priority. Use `PQDict.maxpq()` to create a max-heap priority queue.
 
 ```python
 from pqdict import PQDict
@@ -50,7 +50,7 @@ pq['d'] = 6.5
 pq['e'] = 2
 pq['f'] = -5
 
-print pq           #PQDict({'f': -5, 'c': 1, 'a': 3, 'd': 6.5, 'e': 2, 'b': 5})
+print pq.keys()    #['f', 'c', 'a', 'd', 'e', 'b']
 ```
 
 
@@ -70,7 +70,7 @@ print pkey         #None
 
 # or just delete an element
 del pq['e']
-print pq           #PQDict({'c': 1, 'b': 5, 'a': 3, 'd': 6.5})
+print pq.keys()    #['c', 'b', 'a', 'd']
 ```
 
 ```python
