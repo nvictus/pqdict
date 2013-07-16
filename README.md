@@ -88,7 +88,7 @@ for customer in queue:
 ```
 This also applies to `pq.keys()`, `pq.values()`, `pq.items()` and using `iter()`.
 ```python
->>> PQDict({'a', 1, 'b', 2, 'c', 3, 'd', 4}).keys()
+>>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys()
 ['a', 'c', 'b', 'd']
 ```
 
