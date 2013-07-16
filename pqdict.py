@@ -211,7 +211,9 @@ class PQDict(MutableMapping):
 
     def __iter__(self):
         """
-        Return an iterator over the dictionary keys of the PQD.
+        Return an iterator over the dictionary keys of the PQD. The order 
+        of iteration is undefined! Use iterkeys() to iterate over dictionary 
+        keys sorted by priority.
 
         """
         for entry in self.heap:
@@ -400,6 +402,39 @@ class PQDict(MutableMapping):
             raise KeyError
         return entry.dkey, entry.pkey
 
+    def iterkeys(self):
+        """
+        Destructive heapsort iterator over dictionary keys ordered by priority.
+
+        """
+        try:
+            while True:
+                yield self.popitem()[0]
+        except KeyError:
+            return
+
+    def itervalues(self):
+        """
+        Destructive heapsort iterator over priority keys.
+
+        """
+        try:
+            while True:
+                yield self.popitem()[1]
+        except KeyError:
+            return
+
+    def iteritems(self):
+        """
+        Destructive heapsort iterator over items ordered by priority key.
+
+        """
+        try:
+            while True:
+                yield self.popitem()
+        except KeyError:
+            return
+
     def _heapify(self):
         n = len(self.heap)
         for pos in reversed(range(n//2)):
@@ -456,3 +491,20 @@ class PQDict(MutableMapping):
         # Put item in its new place
         heap[pos] = entry
         finder[entry.dkey] = pos
+
+    
+
+def heapsort(mapping, maxheap=False):
+    """
+    Takes an arbitrary mapping and, treating the values as priority keys, sorts
+    the items by priority via heapsort.
+
+    Returns:
+        a generator that yields the items sorted by value
+
+    """
+    if maxheap:
+        pq = PQDict.maxpq(mapping)
+    else:
+        pq = PQDict(mapping)
+    return pq.iteritems()
