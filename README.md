@@ -100,7 +100,7 @@ for customer in queue.iterkeys():
 ```
 The destructive iterators are `pq.iterkeys()`, `pq.itervalues()`, and `pq.iteritems()`.
 
-There is also a convenience method to sort a dictionary-like object by value using a PQDict. It is non-destructive and returns a sorted list of dictionary items.
+There is also a convenience function to sort a dictionary-like object by value using a `PQDict`. It is non-destructive and returns a sorted list of dictionary items.
 ```python
 from pqdict import heapsort
 
