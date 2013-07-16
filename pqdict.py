@@ -404,7 +404,8 @@ class PQDict(MutableMapping):
 
     def iterkeys(self):
         """
-        Destructive heapsort iterator over dictionary keys ordered by priority.
+        Destructive heapsort iterator over dictionary keys, ordered by priority
+        key.
 
         """
         try:
@@ -426,7 +427,7 @@ class PQDict(MutableMapping):
 
     def iteritems(self):
         """
-        Destructive heapsort iterator over items ordered by priority key.
+        Destructive heapsort iterator over items, ordered by priority key.
 
         """
         try:
@@ -497,14 +498,14 @@ class PQDict(MutableMapping):
 def heapsort(mapping, maxheap=False):
     """
     Takes an arbitrary mapping and, treating the values as priority keys, sorts
-    the items by priority via heapsort.
+    its items by priority via heapsort using a PQDict.
 
     Returns:
-        a generator that yields the items sorted by value
+        a list of the dictionary items sorted by value
 
     """
     if maxheap:
         pq = PQDict.maxpq(mapping)
     else:
         pq = PQDict(mapping)
-    return pq.iteritems()
+    return [item for item in pq.iteritems()]
