@@ -4,7 +4,7 @@ Priority Queue Dictionary (pqdict)
 An indexed priority queue implementation written in Python. The `PQDict` class provides the `MutableMapping` protocol and its instances operate like regular Python dictionaries with a couple extra methods. Think of a Priority Queue Dictionary as a mapping of "dictionary keys" to "priority keys".
 
 ## What is an "indexed" priority queue?
-A [priority queue](http://en.wikipedia.org/wiki/Priority_queue) is an abstract data structure that offers a basic service: serve the element of highest priority first. You can insert elements with priorities, and remove or peek at the top priority element. Unlike a standard priority queue, an _indexed_ priority queue additionally allows you to alter the priority of any element in the queue. With the right implementation, each of these operations can be done quite efficiently.
+A [priority queue](http://en.wikipedia.org/wiki/Priority_queue) is an abstract data structure that allows you to serve elements in a prioritized fashion. You can insert elements with priorities, and remove or peek at the top priority element. Unlike a standard priority queue, an _indexed_ priority queue additionally allows you to alter the priority of any element in the queue. With the right implementation, each of these operations can be done quite efficiently.
 
 ## How does it work?
 The priority queue is implemented as a binary heap (using a python list), which supports:  
@@ -33,11 +33,12 @@ By default, `PQDict` uses a min-heap, meaning **smaller** priority keys have **h
 from pqdict import PQDict
 
 # same input signature as dict()
-#pq = PQDict(a=3, b=5, c=8)
-#pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
-
+pq = PQDict(a=3, b=5, c=8)
+pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
 pq = PQDict({'a':3, 'b':5, 'c':8})          
+
 print pq.items()     # [('a',3), ('b',5), ('c',8)]
+
 
 
 # add/update items this way...
@@ -50,6 +51,7 @@ pq['e'] = 2
 pq['f'] = -5
 
 print pq.keys()     # ['f', 'c', 'a', 'd', 'e', 'b']
+
 
 
 # get an element's priority
