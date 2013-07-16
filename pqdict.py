@@ -54,8 +54,7 @@ why.
 
 """ 
 __author__ = ('Nezar Abdennur', 'nabdennur@gmail.com') 
-__license__ = 'MIT'
-__all__ = ['PQDict', 'PQDictEntry']
+__all__ = ['PQDict', 'PQDictEntry', 'heapsort_by_value']
 
 from collections import Mapping, MutableMapping
 from abc import ABCMeta, abstractmethod
@@ -495,7 +494,7 @@ class PQDict(MutableMapping):
 
     
 
-def heapsort(mapping, maxheap=False):
+def heapsort_by_value(mapping, maxheap=False):
     """
     Takes an arbitrary mapping and, treating the values as priority keys, sorts
     its items by priority via heapsort using a PQDict.

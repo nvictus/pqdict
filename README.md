@@ -92,7 +92,7 @@ This also applies to `pq.keys()`, `pq.values()`, `pq.items()` and using `iter()`
 ['a', 'c', 'b', 'd']
 ```
 
-Destructive iteration methods return generators that use heapsort:
+Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort:
 ```python
 for customer in queue.iterkeys():
 	serve(customer) # Customer satisfaction guaranteed :)
@@ -102,10 +102,10 @@ The destructive iterators are `pq.iterkeys()`, `pq.itervalues()`, and `pq.iterit
 
 There is also a convenience function to sort a dictionary-like object by value using a `PQDict`. It is non-destructive and returns a sorted list of dictionary items.
 ```python
-from pqdict import heapsort
+from pqdict import heapsort_by_value
 
 billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
-top10_richest = heapsort(billionaires, maxheap=True)[:10]
+top10_richest = heapsort_by_value(billionaires, maxheap=True)[:10]
 ```
 ## License
 This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the `heapq` module, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
