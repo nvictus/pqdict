@@ -37,9 +37,6 @@ pq = PQDict(a=3, b=5, c=8)
 pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
 pq = PQDict({'a':3, 'b':5, 'c':8})          
 
-print pq.items()     # [('a',3), ('b',5), ('c',8)]
-
-
 
 # add/update items this way...
 pq.additem('d', 15)
@@ -49,9 +46,6 @@ pq.updateitem('c', 1)
 pq['d'] = 6.5
 pq['e'] = 2
 pq['f'] = -5
-
-print pq.keys()     # ['f', 'c', 'a', 'd', 'e', 'b']
-
 
 
 # get an element's priority
@@ -69,13 +63,10 @@ print pkey          # None
 
 # or just delete an element
 del pq['e']
-print pq.keys()     # ['c', 'b', 'a', 'd']
-
 
 
 # peek at the top priority item
 print pq.peek()     # ('c', 1)
-
 
 
 # let's do a manual heapsort
@@ -85,40 +76,36 @@ print pq.popitem()  # ('b', 5)
 print pq.popitem()  # ('d', 6.5)
 
 
-
 # and we're empty!
 pq.popitem()        # KeyError
 ```
 
-Regular iterators have no prescribed order and are non-destructive:
+Regular iteration has no prescribed order and is non-destructive.
 ```python
 queue = PQDict({'Alice':1, 'Bob':2})
 for customer in queue:
-	serve(customer) #Bob may be served before Alice!
-
-pq.keys()
-pq.values()
-pq.items()
+	serve(customer) # Bob may be served before Alice!
+```
+This also applies to `pq.keys()`, `pq.values()`, `pq.items()` and using `iter()`.
+```python
+>>> PQDict({'a', 1, 'b', 2, 'c', 3, 'd', 4}).keys()
+['a', 'c', 'b', 'd']
 ```
 
 Destructive iteration methods return generators that use heapsort:
 ```python
 for customer in queue.iterkeys():
-	serve(customer) #Customers satisfaction guaranteed
+	serve(customer) # Customer satisfaction guaranteed :)
 # queue is now empty
-
-pq.iterkeys()
-pq.itervalues()
-pq.iteritems()
 ```
+The destructive iterators are `pq.iterkeys()`, `pq.itervalues()`, and `pq.iteritems()`.
 
-There is also a convenience method to sort a dictionary-like object by value using a PQDict. It is non-destructive:
+There is also a convenience method to sort a dictionary-like object by value using a PQDict. It is non-destructive and returns a sorted list of dictionary items.
 ```python
 from pqdict import heapsort
 
 billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
-for person, wealth in heapsort(billionaires, maxheap=True):
-	print person + 'has $' + wealth + 'B'
+top10_richest = heapsort(billionaires, maxheap=True)[:10]
 ```
 ## License
 This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the `heapq` module, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
