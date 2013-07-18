@@ -129,7 +129,8 @@ Destructive iteration methods return generators that pop items out of the heap, 
 
 .. code:: python 
 
-    for customer in queue.iterkeys():     serve(customer) # Customer satisfaction guaranteed :) # queue is now empty
+    for customer in queue.iterkeys():     serve(customer) # Customer satisfaction guaranteed :) 
+    # queue is now empty
 
 The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``.
 
