@@ -1,7 +1,7 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-An indexed priority queue implementation written in Python. The
+Implementation of an indexed priority queue written in pure Python. The
 ``PQDict`` class provides the ``MutableMapping`` protocol and its
 instances operate like regular Python dictionaries with a couple extra
 methods. Think of a Priority Queue Dictionary as a mapping of
