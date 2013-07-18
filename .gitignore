@@ -3,6 +3,7 @@ __pycache__
 
 # distutils #
 dist/
+build/
 MANIFEST
 
 # OS-generated files #
