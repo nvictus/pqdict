@@ -68,7 +68,6 @@ max-heap priority queue.
     pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
     pq = PQDict({'a':3, 'b':5, 'c':8})          
 
-
     # add/update items this way...
     pq.additem('d', 15)
     pq.updateitem('c', 1)
@@ -77,7 +76,6 @@ max-heap priority queue.
     pq['d'] = 6.5
     pq['e'] = 2
     pq['f'] = -5
-
 
     # get an element's priority
     pkey = pq['f']
@@ -95,17 +93,14 @@ max-heap priority queue.
     # or just delete an element
     del pq['e']
 
-
     # peek at the top priority item
     print pq.peek()     # ('c', 1)
-
 
     # let's do a manual heapsort
     print pq.popitem()  # ('c', 1)
     print pq.popitem()  # ('a', 3)
     print pq.popitem()  # ('b', 5)
     print pq.popitem()  # ('d', 6.5)
-
 
     # and we're empty!
     pq.popitem()        # KeyError
