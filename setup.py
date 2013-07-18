@@ -14,12 +14,12 @@ setup(name='pqdict',
       test_suite='test_pqdict',
       long_description=open(README).read(),
       classifiers=["Development Status :: 4 - Beta",
-      			   "Operating System :: OS Independent",
+"Operating System :: OS Independent",
                    "License :: OSI Approved :: MIT License",
                    "Programming Language :: Python",
                    "Programming Language :: Python :: 2.7",
                    "Programming Language :: Python :: 3",
                    "Topic :: Software Development",
                    "Topic :: Software Development :: Libraries",
-				   "Topic :: Software Development :: Libraries :: Python Modules"]
+                   "Topic :: Software Development :: Libraries :: Python Modules"]
      )
