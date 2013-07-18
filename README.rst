@@ -113,6 +113,7 @@ max-heap priority queue.
 Regular iteration has no prescribed order and is non-destructive.
 
 .. code:: python
+
     queue = PQDict({'Alice':1, 'Bob':2}) 
     for customer in queue:     
         serve(customer) # Bob may be served before Alice!
@@ -120,12 +121,14 @@ Regular iteration has no prescribed order and is non-destructive.
 This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``.
 
 .. code:: python 
+
     >>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys() 
     ['a', 'c', 'b', 'd']
 
 Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort:
 
 .. code:: python 
+
     for customer in queue.iterkeys():     serve(customer) # Customer satisfaction guaranteed :) # queue is now empty
 
 The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``.
@@ -133,6 +136,7 @@ The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.i
 There is also a convenience function to sort a dictionary-like object by value using a ``PQDict``. It is non-destructive and returns a sorted list of dictionary items. 
 
 .. code:: python 
+
     from pqdict import heapsorted_by_value
 
     billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
