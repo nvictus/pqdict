@@ -111,24 +111,34 @@ max-heap priority queue.
     pq.popitem()        # KeyError
 
 Regular iteration has no prescribed order and is non-destructive.
-``python queue = PQDict({'Alice':1, 'Bob':2}) for customer in queue:     serve(customer) # Bob may be served before Alice!``
-This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and
-using ``iter()``.
-``python >>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys() ['a', 'c', 'b', 'd']``
 
-Destructive iteration methods return generators that pop items out of
-the heap, which amounts to performing a heapsort:
-``python for customer in queue.iterkeys():     serve(customer) # Customer satisfaction guaranteed :) # queue is now empty``
-The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``,
-and ``pq.iteritems()``.
+.. code:: python
+    queue = PQDict({'Alice':1, 'Bob':2}) 
+    for customer in queue:     
+        serve(customer) # Bob may be served before Alice!
 
-There is also a convenience function to sort a dictionary-like object by
-value using a ``PQDict``. It is non-destructive and returns a sorted
-list of dictionary items. \`\`\`python from pqdict import
-heapsort\_by\_value
+This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``.
 
-billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
-top10\_richest = heapsort\_by\_value(billionaires, maxheap=True)[:10]
-\`\`\ ``## License This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the``\ heapq\`
-module, which was written by Kevin O'Connor and augmented by Tim Peters
-and Raymond Hettinger.
+.. code:: python 
+    >>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys() 
+    ['a', 'c', 'b', 'd']
+
+Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort:
+
+.. code:: python 
+    for customer in queue.iterkeys():     serve(customer) # Customer satisfaction guaranteed :) # queue is now empty
+
+The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``.
+
+There is also a convenience function to sort a dictionary-like object by value using a ``PQDict``. It is non-destructive and returns a sorted list of dictionary items. 
+
+.. code:: python 
+    from pqdict import heapsorted_by_value
+
+    billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
+    top10_richest = heapsorted_by_value(billionaires, maxheap=True)[:10]
+
+License 
+-------
+
+This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the ``heapq`` module, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
