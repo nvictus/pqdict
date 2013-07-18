@@ -25,19 +25,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Priority Queue Dictionary -- An indexed priority queue data structure.
 
-Stores a set of prioritized hashable items. Useful as an updatable schedule.
+Stores a set of prioritized hashable elements. Can be used as an updatable
+schedule.
 
-The priority queue is implemented as a binary heap, which supports:    
-    - O(1) access to the top priority item     
-    - O(log n) deletion of the top priority item
-    - O(log n) insertion of a new item
+The priority queue is implemented as a binary heap, which supports:         
+    - O(1) access to the top priority element        
+    - O(log n) removal of the top priority element     
+    - O(log n) insertion of a new element
 
-In addition, an internal dictionary or "index" maps items to their position in
-the heap array. This index is kept up-to-date when the heap is manipulated. As a
-result, PQD also supports:     
-    - O(1) lookup of an arbitrary item's priority key
-    - O(log n) deletion of an arbitrary item     
-    - O(log n) updating of an arbitrary item's priority key
+In addition, an internal dictionary or "index" maps elements to their position
+in the heap array. This index is kept up-to-date when the heap is manipulated.
+As a result, PQD also supports:          
+    - O(1) lookup of an arbitrary element's priority key     
+    - O(log n) removal of an arbitrary element          
+    - O(log n) updating of an arbitrary element's priority key
 
 The standard heap operations used internally (here, called "sink" and "swim")
 are based on the code in the python heapq module.* These operations are extended
@@ -53,7 +54,7 @@ that the sink implementation is non-conventional. See heapq for details about
 why.
 
 """ 
-__author__ = ('Nezar Abdennur', 'nabdennur@gmail.com') 
+__author__ = ('Nezar Abdennur', 'nabdennur@gmail.com')  
 __all__ = ['PQDict', 'PQDictEntry', 'heapsort_by_value']
 
 from collections import Mapping, MutableMapping
@@ -494,7 +495,7 @@ class PQDict(MutableMapping):
 
     
 
-def heapsort_by_value(mapping, maxheap=False):
+def heapsorted_by_value(mapping, maxheap=False):
     """
     Takes an arbitrary mapping and, treating the values as priority keys, sorts
     its items by priority via heapsort using a PQDict.
