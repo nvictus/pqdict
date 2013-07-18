@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pqdict import PQDict as pqd
 from itertools import combinations
-import random
+import sys, random
 import unittest
 
 def generateData(pkey_type, num_items=None):
@@ -221,6 +221,7 @@ class TestAPI(TestPQDict):
 
 
 class TestOperations(TestPQDict):
+    @unittest.skipIf(sys.version_info[0] < 3, "only applies to Python 3")
     def test_uncomparable(self):
         # non-comparable priority keys (Python 3 only) 
         # Python 3 has stricter comparison than Python 2
