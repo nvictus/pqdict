@@ -1,1 +1,4 @@
 v0.1, 2012-07-17 -- First release.
+
+v0.2, 2012-07-18
+	* fixed spelling error in __all__
