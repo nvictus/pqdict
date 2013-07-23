@@ -61,6 +61,14 @@ from collections import Mapping, MutableMapping
 from abc import ABCMeta, abstractmethod
 
 class PQDictEntry(object):
+    """
+    Abstract class that defines the heap elements that back a PQDict.
+
+    Subclass to customize the ranking behavior of the priority queue. Since the 
+    heap algorithms of PQDict use the "<" comparator to compare entries, 
+    subclasses must implement __lt__.
+
+    """
     __metaclass__ = ABCMeta
     def __init__(self, dkey, pkey):
         self.dkey = dkey
@@ -70,9 +78,6 @@ class PQDictEntry(object):
     def __lt__(self, other):
         return NotImplemented
 
-    # def set_pkey(self, pkey):
-    #     pass
-
     def __eq__(self, other):
         return self.pkey == other.pkey
 
@@ -80,7 +85,13 @@ class PQDictEntry(object):
         return self.__class__.__name__ + \
             "(%s: %s)" % (repr(self.dkey), self.pkey)
 
+    # pkey = property(get_pkey, set_pkey)
+
 class MinPQDEntry(PQDictEntry):
+    """
+    Defines entries for a PQDict backed by a min-heap.
+
+    """
     __init__ = PQDictEntry.__init__
     __eq__ = PQDictEntry.__eq__
 
@@ -88,6 +99,10 @@ class MinPQDEntry(PQDictEntry):
         return self.pkey < other.pkey
 
 class MaxPQDEntry(PQDictEntry):
+    """
+    Defines entries for a PQDict backed by a max-heap.
+
+    """
     __init__ = PQDictEntry.__init__
     __eq__ = PQDictEntry.__eq__
 
@@ -97,17 +112,17 @@ class MaxPQDEntry(PQDictEntry):
 
 class PQDict(MutableMapping):
     """
-    Maps dictionary keys (keys) to priority keys (values). Maintains an
+    Maps dictionary keys (dkeys) to priority keys (pkeys). Maintains an
     internal heap so that the highest priority item can always be obtained in
     constant time. The mapping is mutable so items may be added, removed and
-    have their priorities updated.
+    have their priorities updated without breaking the heap.
 
     """
     # Implementation details:
-    #   - _heap (list): stores (dkey,pkey)-pairs as "entries" (PQDEntry objects).
-    #   - _posfinder (dict): maps each dkey to the position of its entry in the 
+    #   * _heap (list): stores (dkey,pkey)-pairs as "entries" (PQDEntry objects).
+    #   * _posfinder (dict): maps each dkey to the position of its entry in the 
     #     heap
-    #   - the < comparator is used to rank entries
+    #   * the < comparator is used to rank entries
     __slots__ = ('_posfinder', '_heap', 'create_entry')
     create_entry = MinPQDEntry
 
@@ -120,18 +135,19 @@ class PQDict(MutableMapping):
     clear = MutableMapping.clear
     update = MutableMapping.update
     setdefault = MutableMapping.setdefault
-    #fromkeys
+    #fromkeys not included
 
     def __init__(self, *args, **kwargs):
         """
-        Mimics the standard dict constructor:
+        Same input signature as dict:
             Accepts a sequence/iterator of (dkey, pkey) pairs.
             Accepts named arguments or an unpacked dictionary.
         Also accepts a single mapping object to convert it to a pqdict.
 
-        The default priority ranking for entries is in decreasing pkey value
+        The default priority ordering for entries is in decreasing pkey value
         (i.e., a min-pq: LOWER pkey values have a HIGHER rank). This is typical
-        for a scheduler, where the higher ranked tasks have earlier times.
+        for a scheduler, where more highly-ranked tasks have earlier execution
+        times.
 
         """
         if len(args) > 1:
@@ -298,8 +314,9 @@ class PQDict(MutableMapping):
         """
         # We want the two PQDs to behave as different schedules on the same
         # set of dkeys. As a result:
-        #   - The new heap list contains copies of all entries because PQDEntry
-        #     objects are mutable and should not be shared by two PQDicts.
+        #   - The new heap list contains copies of all entries because 
+        #     PQDictEntry objects are mutable and should not be shared by two 
+        #     PQDicts.
         #   - The new _posfinder dict (dkey->heap positions) must be a copy of 
         #     the old _posfinder dict since it maps the same dkeys to positions 
         #     in a different list.
@@ -444,14 +461,15 @@ class PQDict(MutableMapping):
             self._sink(pos)
 
     def _sink(self, top=0):
+        # Floyd's "sink-to-the-bottom-then-swim" algorithm (1964)
         heap = self._heap
         finder = self._posfinder
 
-        # Peel off top item
+        # Grab the top item
         pos = top
         entry = heap[pos]
 
-        # Sift up a trail of child nodes
+        # Yank up a chain of child nodes
         child_pos = 2*pos + 1
         while child_pos < len(heap):
             # Choose the index of smaller child.
@@ -459,7 +477,7 @@ class PQDict(MutableMapping):
             if right_pos < len(heap) and not heap[child_pos] < heap[right_pos]:
                 child_pos = right_pos
 
-            # Move the smaller child up.
+            # Move it up one level.
             child_entry = heap[child_pos]
             heap[pos] = child_entry
             finder[child_entry.dkey] = pos
@@ -467,8 +485,8 @@ class PQDict(MutableMapping):
             pos = child_pos
             child_pos = 2*pos + 1
 
-        # We are now at a leaf. Put item there and let it swim until it reaches
-        # its new resting place.
+        # We are left with a "vacant" leaf. Put our item there and let it swim 
+        # until it reaches its new resting place.
         heap[pos] = entry
         finder[entry.dkey] = pos
         self._swim(pos, top)
@@ -477,10 +495,10 @@ class PQDict(MutableMapping):
         heap = self._heap
         finder = self._posfinder
 
-        # Remove item from its place
+        # Grab the item from its place
         entry = heap[pos]
 
-        # Bubble item up by sifting parents down until finding a place it fits.
+        # Pull parents down until we find a place where the item fits.
         while pos > top:
             parent_pos = (pos - 1) >> 1
             parent_entry = heap[parent_pos]
