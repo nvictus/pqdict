@@ -13,7 +13,7 @@ def generateData(pkey_type, num_items=None):
         num_items = len(dkeys)
     else:
         pairs = combinations('ABCDEFGHIJKLMNOP', 2)
-        dkeys = [''.join(pairs.__next__()) for _ in range(num_items)]
+        dkeys = [''.join(next(pairs)) for _ in range(num_items)]
         random.shuffle(dkeys)
         
     # different sets of priority keys
