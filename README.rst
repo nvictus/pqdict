@@ -1,28 +1,18 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-Implementation of an indexed priority queue written in pure Python. The
-``PQDict`` class provides the ``MutableMapping`` protocol and its
-instances operate like regular Python dictionaries with a couple extra
-methods. Think of a Priority Queue Dictionary as a mapping of
-"dictionary keys" to "priority keys".
+Indexed priority queue implemented in pure Python as a dict-like class. ``PQDict`` instances map hashable "dictionary keys" to comparable "priority keys" and operate for the most part like regular Python dictionaries but with added priority queue functionality.
 
 What is an "indexed" priority queue?
 ------------------------------------
 
 A `priority queue <http://en.wikipedia.org/wiki/Priority_queue>`__ is an
-abstract data structure that allows you to serve elements in a
-prioritized fashion. You can insert elements with priorities, and remove
-or peek at the top priority element. Unlike a standard priority queue,
-an *indexed* priority queue additionally allows you to alter the
-priority of any element in the queue. With the right implementation,
-each of these operations can be done quite efficiently.
+abstract data structure that allows you to serve or retrieve items in a
+prioritized fashion. A vanilla priority queue lets you insert elements with priorities, and remove or peek at the top priority element. 
 
-How does it work?
------------------
+One enhancement to the basic priority queue interface is to let you access and/or alter the priority of any existing element in the queue. An *indexed* priority queue does this efficiently.
 
-The priority queue is implemented as a binary heap (using a python
-list), which supports:
+The queue is implemented as a binary heap (using a python list), which supports the standard:
 
 -  O(1) access to the top priority element
 
@@ -43,16 +33,12 @@ heap is manipulated. As a result, ``PQDict`` also supports:
 Why would I want something like that?
 -------------------------------------
 
-Indexed priority queues can be very useful as schedulers for
-applications like
-`simulations <http://pubs.acs.org/doi/abs/10.1021/jp993732q>`__. They
-can also be used in efficient implementations of Dijkstra's
-shortest-path algorithm. Basically, whenever we not only want to be able
-to quickly find the minimum or maximum element, but we also need to be
-able to dynamically find and modify the priorities of existing elements
-in the queue efficiently.
+Indexed priority queues can be used to drive simulations, priority schedulers, optimization algorithms, multiway merging of streams of prioritized data, and other applications where priorities of already enqueued items may frequently change.
 
-Examples
+A simple and well-known application for mutable priorities is
+`Dijkstra's algorithm <https://gist.github.com/nvictus/6260717>`__. Another use case example is simulating stochastic chemical reaction networks.  
+
+Usage
 --------
 
 By default, ``PQDict`` uses a min-heap, meaning **smaller** priority
@@ -79,33 +65,30 @@ max-heap priority queue.
 
     # get an element's priority
     pkey = pq['f']
-    print pkey          # -5
-    print 'f' in pq     # True
+    print pkey               # -5
+    print 'f' in pq          # True
 
     # remove an element and get its priority key
-    pkey = pq.pop('f')
-    print pkey          # -5
-    print 'f' in pq     # False
-
-    pkey = pq.get('f', None)
-    print pkey          # None
+    print pq.pop('f')        # -5
+    print 'f' in pq          # False             
+    print pq.get('f', None)  # None
 
     # or just delete an element
     del pq['e']
 
     # peek at the top priority item
-    print pq.peek()     # ('c', 1)
+    print pq.peek()          # ('c', 1)
 
     # let's do a manual heapsort
-    print pq.popitem()  # ('c', 1)
-    print pq.popitem()  # ('a', 3)
-    print pq.popitem()  # ('b', 5)
-    print pq.popitem()  # ('d', 6.5)
+    print pq.popitem()       # ('c', 1)
+    print pq.popitem()       # ('a', 3)
+    print pq.popitem()       # ('b', 5)
+    print pq.popitem()       # ('d', 6.5)
 
     # and we're empty!
-    pq.popitem()        # KeyError
+    pq.popitem()             # KeyError
 
-Regular iteration has no prescribed order and is non-destructive.
+**Regular iteration** has no prescribed order and is non-destructive.
 
 .. code:: python
 
@@ -120,7 +103,7 @@ This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``
     >>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys() 
     ['a', 'c', 'b', 'd']
 
-Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort:
+**Destructive iteration** methods return generators that pop items out of the heap, which amounts to performing a heapsort:
 
 .. code:: python 
 
@@ -134,12 +117,12 @@ There is also a convenience function to sort a dictionary-like object by value u
 
 .. code:: python 
 
-    from pqdict import heapsorted_by_value
+    from pqdict import sort_by_value
 
     billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
-    top10_richest = heapsorted_by_value(billionaires, maxheap=True)[:10]
+    top10_richest = sort_by_value(billionaires, maxheap=True)[:10]
 
 License 
 -------
 
-This module was written by Nezar Abdennur and is released under the MIT license. It makes use of some code that was adapted from the Python implementation of the ``heapq`` module, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
+This module was written by Nezar Abdennur and is released under the MIT license. The modified heap implementation was adapted from the ``heapq`` module in the Python standard library, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
