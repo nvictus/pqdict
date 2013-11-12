@@ -38,11 +38,11 @@ class TestPQDict(unittest.TestCase):
     def check_index(self, pq):
         # All heap entries are pointed to by the index (nodefinder)
         n = len(pq._heap)
-        nodes = pq._posfinder.values()
+        nodes = pq._position.values()
         self.assertEqual(list(range(n)), sorted(nodes))
         # All heap entries map back to the correct dictionary key
-        for dkey in pq._posfinder:
-            entry = pq._heap[pq._posfinder[dkey]]
+        for dkey in pq._position:
+            entry = pq._heap[pq._position[dkey]]
             self.assertEqual(dkey, entry.dkey)
 
 class TestAPI(TestPQDict):

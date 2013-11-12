@@ -48,14 +48,19 @@ to preserve correctness of the internal dictionary.
 of the items being compared to, rather than the item being operated on as is
 normally done in textbooks (i.e. bubble down/up, instead). I stuck to the
 textbook convention, but using the sink/swim nomenclature from Sedgewick et al:
-the way I see it, an item that is too "heavy" (low-priority) should sink down
-the tree, while one that is too "light" should float or swim up. Note, however,
-that the sink implementation is non-conventional. See heapq for details about
-why.
+the way I like to think of it, an item that is too "heavy" (low-priority) should 
+sink down the tree, while one that is too "light" should float or swim up. Note, 
+however, that the sink implementation is non-conventional. See heapq for details 
+about why.
+
+Implementation details:
+    - heap (list): stores (dkey,pkey) pairs as "entries" (PQDEntry objects).
+    - position (dict): maps each dkey to the index of its entry in the heap
+    - the < comparator is used to compare entries
 
 """ 
 __author__ = ('Nezar Abdennur', 'nabdennur@gmail.com')  
-__all__ = ['PQDict', 'PQDictEntry', 'heapsorted_by_value']
+__all__ = ['PQDict', 'PQDictEntry', 'sorted_by_value']
 
 from collections import Mapping, MutableMapping
 from abc import ABCMeta, abstractmethod
@@ -118,12 +123,7 @@ class PQDict(MutableMapping):
     have their priorities updated without breaking the heap.
 
     """
-    # Implementation details:
-    #   * _heap (list): stores (dkey,pkey)-pairs as "entries" (PQDEntry objects).
-    #   * _posfinder (dict): maps each dkey to the position of its entry in the 
-    #     heap
-    #   * the < comparator is used to rank entries
-    __slots__ = ('_posfinder', '_heap', 'create_entry')
+    __slots__ = ('_position', '_heap', 'create_entry')
     create_entry = MinPQDEntry
 
     __eq__ = MutableMapping.__eq__
@@ -140,9 +140,10 @@ class PQDict(MutableMapping):
     def __init__(self, *args, **kwargs):
         """
         Same input signature as dict:
-            Accepts a sequence/iterator of (dkey, pkey) pairs.
-            Accepts named arguments or an unpacked dictionary.
-        Also accepts a single mapping object to convert it to a pqdict.
+            Accepts at most one positional argument:
+                - a sequence/iterator of (dkey, pkey) pairs
+                - a mapping object
+            Accepts keyword arguments
 
         The default priority ordering for entries is in decreasing pkey value
         (i.e., a min-pq: LOWER pkey values have a HIGHER rank). This is typical
@@ -154,26 +155,24 @@ class PQDict(MutableMapping):
             raise TypeError
 
         self._heap = []
-        self._posfinder = {}
+        self._position = {}
+
         pos = 0
         if args:
             if isinstance(args[0], Mapping):
                 seq = args[0].items()
             else:
                 seq = args[0]
-            try:
-                for dkey, pkey in seq:
-                    entry = self.create_entry(dkey, pkey)
-                    self._heap.append(entry)
-                    self._posfinder[dkey] = pos
-                    pos += 1
-            except TypeError:
-                raise ValueError
+            for dkey, pkey in seq:
+                entry = self.create_entry(dkey, pkey)
+                self._heap.append(entry)
+                self._position[dkey] = pos
+                pos += 1
         if kwargs:
             for dkey, pkey in kwargs.items():
                 entry = self.create_entry(dkey, pkey)
                 self._heap.append(entry)
-                self._posfinder[dkey] = pos
+                self._position[dkey] = pos
                 pos += 1
         self._heapify()
 
@@ -216,14 +215,14 @@ class PQDict(MutableMapping):
         Return number of items in the PQD.
 
         """
-        return len(self._posfinder)
+        return len(self._heap)
 
     def __contains__(self, dkey):
         """
         Return True if dkey is in the PQD else return False.
 
         """
-        return dkey in self._posfinder
+        return dkey in self._position
 
     def __iter__(self):
         """
@@ -240,7 +239,7 @@ class PQDict(MutableMapping):
         Return the priority of dkey. Raises a KeyError if not in the PQD.
 
         """
-        return self._heap[self._posfinder[dkey]].pkey #raises KeyError
+        return self._heap[self._position[dkey]].pkey #raises KeyError
 
     def __setitem__(self, dkey, pkey):
         """
@@ -248,27 +247,29 @@ class PQDict(MutableMapping):
 
         """
         heap = self._heap
-        finder = self._posfinder
+        position = self._position
         try:
-            pos = finder[dkey]
+            pos = position[dkey]
         except KeyError:
-            # add new entry
+            # add new entry:
+            # put the new entry at the end and let it bubble up
             n = len(self._heap)
             self._heap.append(self.create_entry(dkey, pkey))
-            self._posfinder[dkey] = n
+            self._position[dkey] = n
             self._swim(n)
         else:
-            # update existing entry
+            # update existing entry:
+            # bubble up or down depending on pkeys of parent and children
             heap[pos].pkey = pkey
             parent_pos = (pos - 1) >> 1
             child_pos = 2*pos + 1
             if parent_pos > -1 and heap[pos] < heap[parent_pos]:
                 self._swim(pos)
             elif child_pos < len(heap):
-                child2_pos = child_pos + 1
-                if (child2_pos < len(heap) 
-                        and not heap[child_pos] < heap[child2_pos]):
-                    child_pos = child2_pos
+                other_pos = child_pos + 1
+                if (other_pos < len(heap) 
+                        and not heap[child_pos] < heap[other_pos]):
+                    child_pos = other_pos
                 if heap[child_pos] < heap[pos]:
                     self._sink(pos)
 
@@ -278,30 +279,29 @@ class PQDict(MutableMapping):
 
         """
         heap = self._heap
-        finder = self._posfinder
-
-        # Remove very last item and place in vacant spot. Let the new item
-        # sink until it reaches its new resting place.
+        position = self._position
         try:
-            pos = finder.pop(dkey)
+            pos = position.pop(dkey)
         except KeyError:
             raise
         else:
+            # Take the very last entry and place it in the vacated spot. Let it
+            # sink or swim until it reaches its new resting place.
             entry_to_delete = heap[pos]
-            last_entry = heap.pop(-1)
-            if entry_to_delete is not last_entry:
-                heap[pos] = last_entry
-                finder[last_entry.dkey] = pos
+            end = heap.pop(-1)
+            if end is not entry_to_delete:
+                heap[pos] = end
+                position[end.dkey] = pos
 
                 parent_pos = (pos - 1) >> 1
                 child_pos = 2*pos + 1
                 if parent_pos > -1 and heap[pos] < heap[parent_pos]:
                     self._swim(pos)
                 elif child_pos < len(heap):
-                    child2_pos = child_pos + 1
-                    if (child2_pos < len(heap) and
-                            not heap[child_pos] < heap[child2_pos]):
-                        child_pos = child2_pos
+                    other_pos = child_pos + 1
+                    if (other_pos < len(heap) and
+                            not heap[child_pos] < heap[other_pos]):
+                        child_pos = other_pos
                     if heap[child_pos] < heap[pos]:
                         self._sink(pos)
             del entry_to_delete
@@ -312,18 +312,13 @@ class PQDict(MutableMapping):
         keys.
 
         """
-        # We want the two PQDs to behave as different schedules on the same
-        # set of dkeys. As a result:
-        #   - The new heap list contains copies of all entries because 
-        #     PQDictEntry objects are mutable and should not be shared by two 
-        #     PQDicts.
-        #   - The new _posfinder dict (dkey->heap positions) must be a copy of 
-        #     the old _posfinder dict since it maps the same dkeys to positions 
-        #     in a different list.
+        #  - It's safe to just copy the _position dict (dkeys->int)
+        #  - Make a new heap list and copy the heap entries because PQDictEntry 
+        #    objects are mutable and should not be shared by two PQDicts.
         from copy import copy
         other = self.__class__()
         other._heap = [copy(entry) for entry in self._heap]
-        other._posfinder = copy(self._posfinder)
+        other._position = copy(self._position)
         return other
     copy = __copy__
 
@@ -341,10 +336,10 @@ class PQDict(MutableMapping):
 
         """
         heap = self._heap
-        finder = self._posfinder
+        position = self._position
 
         try:
-            pos = finder.pop(dkey)
+            pos = position.pop(dkey)
         except KeyError:
             if default is self.__marker:
                 raise
@@ -352,20 +347,20 @@ class PQDict(MutableMapping):
         else:
             entry_to_delete = heap[pos]
             pkey = entry_to_delete.pkey
-            last_entry = heap.pop(-1)
-            if entry_to_delete is not last_entry:
-                heap[pos] = last_entry
-                finder[last_entry.dkey] = pos
+            end = heap.pop(-1)
+            if end is not entry_to_delete:
+                heap[pos] = end
+                position[end.dkey] = pos
 
                 parent_pos = (pos - 1) >> 1
                 child_pos = 2*pos + 1
                 if parent_pos > -1 and heap[pos] < heap[parent_pos]:
                     self._swim(pos)
                 elif child_pos < len(heap):
-                    child2_pos = child_pos + 1
-                    if (child2_pos < len(heap) 
-                            and not heap[child_pos] < heap[child2_pos]):
-                        child_pos = child2_pos
+                    other_pos = child_pos + 1
+                    if (other_pos < len(heap) 
+                            and not heap[child_pos] < heap[other_pos]):
+                        child_pos = other_pos
                     if heap[child_pos] < heap[pos]:
                         self._sink(pos)
             del entry_to_delete
@@ -376,27 +371,30 @@ class PQDict(MutableMapping):
         Extract top priority item. Raises KeyError if PQD is empty.
 
         """
+        heap = self._heap
+        position = self._position
+
         try:
-            last = self._heap.pop(-1)
+            end = heap.pop(-1)
         except IndexError:
             raise KeyError
+
+        if heap:
+            entry = heap[0]
+            heap[0] = end
+            position[end.dkey] = 0
+            self._sink(0)
         else:
-            if self._heap:
-                entry = self._heap[0]
-                self._heap[0] = last
-                self._posfinder[last.dkey] = 0
-                self._sink(0)
-            else:
-                entry = last
-            self._posfinder.pop(entry.dkey)
-            return entry.dkey, entry.pkey
+            entry = end
+        del position[entry.dkey]
+        return entry.dkey, entry.pkey
 
     def additem(self, dkey, pkey):
         """
         Add a new item. Raises KeyError if item is already in the PQD.
 
         """
-        if dkey in self._posfinder:
+        if dkey in self._position:
             raise KeyError
         self[dkey] = pkey
 
@@ -406,9 +404,20 @@ class PQDict(MutableMapping):
         not in the PQD.
 
         """
-        if dkey not in self._posfinder:
+        if dkey not in self._position:
             raise KeyError
         self[dkey] = new_pkey
+
+    # def replaceitem(self, dkey, new_dkey, new_pkey): #Do we need this???
+    #     if new_dkey in self_position:
+    #         raise KeyError
+    #     pos = self._position.pop(dkey)
+    #     self._position[new_dkey] = pos
+    #     self._heap[pos].dkey = new_dkey
+    #     self[new_dkey] = new_pkey
+
+    def pushpopitem(self, dkey, pkey):
+        raise NotImplementedError
 
     def peek(self):
         """
@@ -461,61 +470,64 @@ class PQDict(MutableMapping):
             self._sink(pos)
 
     def _sink(self, top=0):
-        # Floyd's "sink-to-the-bottom-then-swim" algorithm (1964)
+        # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
+        # Tends to reduce the number of comparisons when inserting "heavy" items
+        # at the top, e.g. during a heap pop.
         heap = self._heap
-        finder = self._posfinder
+        position = self._position
 
-        # Grab the top item
+        # Grab the top entry
         pos = top
         entry = heap[pos]
 
-        # Yank up a chain of child nodes
+        # Sift up a chain of child nodes
         child_pos = 2*pos + 1
         while child_pos < len(heap):
-            # Choose the index of smaller child.
-            right_pos = child_pos + 1
-            if right_pos < len(heap) and not heap[child_pos] < heap[right_pos]:
-                child_pos = right_pos
+            # Choose the smaller child.
+            other_pos = child_pos + 1
+            if other_pos < len(heap) and not heap[child_pos] < heap[other_pos]:
+                child_pos = other_pos
+            child_entry = heap[child_pos]
 
             # Move it up one level.
-            child_entry = heap[child_pos]
             heap[pos] = child_entry
-            finder[child_entry.dkey] = pos
+            position[child_entry.dkey] = pos
 
+            # Next level
             pos = child_pos
             child_pos = 2*pos + 1
 
-        # We are left with a "vacant" leaf. Put our item there and let it swim 
+        # We are left with a "vacant" leaf. Put our entry there and let it swim 
         # until it reaches its new resting place.
         heap[pos] = entry
-        finder[entry.dkey] = pos
+        position[entry.dkey] = pos
         self._swim(pos, top)
 
     def _swim(self, pos, top=0):
         heap = self._heap
-        finder = self._posfinder
+        position = self._position
 
-        # Grab the item from its place
+        # Grab the entry from its place
         entry = heap[pos]
 
-        # Pull parents down until we find a place where the item fits.
+        # Sift parents down until we find a place where the entry fits.
         while pos > top:
             parent_pos = (pos - 1) >> 1
             parent_entry = heap[parent_pos]
             if entry < parent_entry:
                 heap[pos] = parent_entry
-                finder[parent_entry.dkey] = pos
+                position[parent_entry.dkey] = pos
                 pos = parent_pos
                 continue
             break
 
-        # Put item in its new place
+        # Put entry in its new place
         heap[pos] = entry
-        finder[entry.dkey] = pos
+        position[entry.dkey] = pos
 
     
 
-def heapsorted_by_value(mapping, maxheap=False):
+def sorted_by_value(mapping, maxheap=False):
     """
     Takes an arbitrary mapping and, treating the values as priority keys, sorts
     its items by priority via heapsort using a PQDict.
