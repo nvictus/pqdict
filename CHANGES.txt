@@ -1,8 +1,8 @@
 v0.1, 2013-07-17 -- First release.
 
 v0.2, 2013-07-18
-	* fixed spelling error in __all__
+	* fixed error in __all__ list
 
 v0.3, 2013-07-23
 	* bug fix:
-		off-by one error caused the queue to not reheapify properly in rare cases when an existing item in position 2 had its pkey was decreased below that of its parent (the root).
+		off-by one error caused the queue to not reheapify properly in the special case when an existing item in position 1 had its pkey decreased below that of its parent at position 0 (the root).
