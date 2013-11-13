@@ -42,25 +42,23 @@ As a result, PQD also supports:
 
 The standard heap operations used internally (here, called "sink" and "swim")
 are based on the code in the python heapq module.* These operations are extended
-to preserve correctness of the internal dictionary.
+to maintain the internal dictionary.
 
 * The names of the methods in heapq (sift up/down) seem to refer to the motion
 of the items being compared to, rather than the item being operated on as is
 normally done in textbooks (i.e. bubble down/up, instead). I stuck to the
 textbook convention, but using the sink/swim nomenclature from Sedgewick et al:
 the way I like to think of it, an item that is too "heavy" (low-priority) should 
-sink down the tree, while one that is too "light" should float or swim up. Note, 
-however, that the sink implementation is non-conventional. See heapq for details 
-about why.
+sink down the tree, while one that is too "light" should float or swim up.
 
 Implementation details:
-    - heap (list): stores (dkey,pkey) pairs as "entries" (PQDEntry objects).
+    - heap (list): stores (dkey,pkey) pairs as "entries" (entry objects) that
+      implement __lt__ which defines how their pkeys are compared
     - position (dict): maps each dkey to the index of its entry in the heap
-    - the < comparator is used to compare entries
 
 """ 
 __author__ = ('Nezar Abdennur', 'nabdennur@gmail.com')  
-__all__ = ['PQDict', 'PQDictEntry', 'sorted_by_value']
+__all__ = ['PQDict', 'PQDictEntry', 'sort_by_value']
 
 from collections import Mapping, MutableMapping
 from abc import ABCMeta, abstractmethod
@@ -92,7 +90,7 @@ class PQDictEntry(object):
 
     # pkey = property(get_pkey, set_pkey)
 
-class MinPQDEntry(PQDictEntry):
+class _MinEntry(PQDictEntry):
     """
     Defines entries for a PQDict backed by a min-heap.
 
@@ -103,7 +101,7 @@ class MinPQDEntry(PQDictEntry):
     def __lt__(self, other):
         return self.pkey < other.pkey
 
-class MaxPQDEntry(PQDictEntry):
+class _MaxEntry(PQDictEntry):
     """
     Defines entries for a PQDict backed by a max-heap.
 
@@ -123,8 +121,7 @@ class PQDict(MutableMapping):
     have their priorities updated without breaking the heap.
 
     """
-    __slots__ = ('_position', '_heap', 'create_entry')
-    create_entry = MinPQDEntry
+    create_entry = _MinEntry
 
     __eq__ = MutableMapping.__eq__
     __ne__ = MutableMapping.__ne__
@@ -135,7 +132,6 @@ class PQDict(MutableMapping):
     clear = MutableMapping.clear
     update = MutableMapping.update
     setdefault = MutableMapping.setdefault
-    #fromkeys not included
 
     def __init__(self, *args, **kwargs):
         """
@@ -146,13 +142,11 @@ class PQDict(MutableMapping):
             Accepts keyword arguments
 
         The default priority ordering for entries is in decreasing pkey value
-        (i.e., a min-pq: LOWER pkey values have a HIGHER rank). This is typical
-        for a scheduler, where more highly-ranked tasks have earlier execution
-        times.
+        (i.e., a min-pq: SMALLER pkey values have a HIGHER rank).
 
         """
         if len(args) > 1:
-            raise TypeError
+            raise TypeError('Too many arguments')
 
         self._heap = []
         self._position = {}
@@ -179,14 +173,14 @@ class PQDict(MutableMapping):
     @classmethod
     def minpq(cls, *args, **kwargs):
         pq = cls()
-        pq.create_entry = MinPQDEntry
+        pq.create_entry = _MinEntry
         pq.__init__(*args, **kwargs)
         return pq
 
     @classmethod
     def maxpq(cls, *args, **kwargs):
         pq = cls()
-        pq.create_entry = MaxPQDEntry
+        pq.create_entry = _MaxEntry
         pq.__init__(*args, **kwargs)
         return pq
 
@@ -280,31 +274,28 @@ class PQDict(MutableMapping):
         """
         heap = self._heap
         position = self._position
-        try:
-            pos = position.pop(dkey)
-        except KeyError:
-            raise
-        else:
-            # Take the very last entry and place it in the vacated spot. Let it
-            # sink or swim until it reaches its new resting place.
-            entry_to_delete = heap[pos]
-            end = heap.pop(-1)
-            if end is not entry_to_delete:
-                heap[pos] = end
-                position[end.dkey] = pos
+        pos = position.pop(dkey) #raises appropriate KeyError
 
-                parent_pos = (pos - 1) >> 1
-                child_pos = 2*pos + 1
-                if parent_pos > -1 and heap[pos] < heap[parent_pos]:
-                    self._swim(pos)
-                elif child_pos < len(heap):
-                    other_pos = child_pos + 1
-                    if (other_pos < len(heap) and
-                            not heap[child_pos] < heap[other_pos]):
-                        child_pos = other_pos
-                    if heap[child_pos] < heap[pos]:
-                        self._sink(pos)
-            del entry_to_delete
+        # Take the very last entry and place it in the vacated spot. Let it
+        # sink or swim until it reaches its new resting place.
+        entry_to_delete = heap[pos]
+        end = heap.pop(-1)
+        if end is not entry_to_delete:
+            heap[pos] = end
+            position[end.dkey] = pos
+
+            parent_pos = (pos - 1) >> 1
+            child_pos = 2*pos + 1
+            if parent_pos > -1 and heap[pos] < heap[parent_pos]:
+                self._swim(pos)
+            elif child_pos < len(heap):
+                other_pos = child_pos + 1
+                if (other_pos < len(heap) and
+                        not heap[child_pos] < heap[other_pos]):
+                    child_pos = other_pos
+                if heap[child_pos] < heap[pos]:
+                    self._sink(pos)
+        del entry_to_delete
 
     def __copy__(self):
         """
@@ -312,12 +303,11 @@ class PQDict(MutableMapping):
         keys.
 
         """
-        #  - It's safe to just copy the _position dict (dkeys->int)
-        #  - Make a new heap list and copy the heap entries because PQDictEntry 
-        #    objects are mutable and should not be shared by two PQDicts.
         from copy import copy
         other = self.__class__()
+        # Entry objects are mutable and should not be shared by different PQDs.
         other._heap = [copy(entry) for entry in self._heap]
+        # It's safe to just copy the _position dict (dkeys->int)
         other._position = copy(self._position)
         return other
     copy = __copy__
@@ -339,7 +329,7 @@ class PQDict(MutableMapping):
         position = self._position
 
         try:
-            pos = position.pop(dkey)
+            pos = position.pop(dkey) #raises appropriate KeyError
         except KeyError:
             if default is self.__marker:
                 raise
@@ -377,7 +367,7 @@ class PQDict(MutableMapping):
         try:
             end = heap.pop(-1)
         except IndexError:
-            raise KeyError
+            raise KeyError('PQDict is empty')
 
         if heap:
             entry = heap[0]
@@ -395,7 +385,7 @@ class PQDict(MutableMapping):
 
         """
         if dkey in self._position:
-            raise KeyError
+            raise KeyError(dkey)
         self[dkey] = pkey
 
     def updateitem(self, dkey, new_pkey):
@@ -405,19 +395,49 @@ class PQDict(MutableMapping):
 
         """
         if dkey not in self._position:
-            raise KeyError
+            raise KeyError(dkey)
         self[dkey] = new_pkey
 
-    # def replaceitem(self, dkey, new_dkey, new_pkey): #Do we need this???
-    #     if new_dkey in self_position:
+    # def replacewith(self, dkey, pkey, target=None):
+    #     """
+    #     Equivalent to removing an item followed by inserting a new one, but 
+    #     faster. Default item to remove is the top priority item.
+
+    #     """
+    #     heap = self._heap
+    #     position = self._position
+
+    #     if not heap:
     #         raise KeyError
-    #     pos = self._position.pop(dkey)
-    #     self._position[new_dkey] = pos
-    #     self._heap[pos].dkey = new_dkey
-    #     self[new_dkey] = new_pkey
+
+    #     if target is not None:
+    #         target = heap[0]
+
+    #     if dkey in self and dkey is not target:
+    #         raise KeyError
+
+    #     pos = position.pop(target) #raises appropriate KeyError
+    #     target_pkey = heap[pos].pkey
+    #     position[dkey] = pos
+    #     heap[pos].dkey = dkey
+    #     self.updateitem(dkey, pkey)
+    #     return target, target_pkey
 
     def pushpopitem(self, dkey, pkey):
-        raise NotImplementedError
+        """
+        Equivalent to inserting a new item followed by removing the top priority 
+        item, but faster.
+
+        """
+        heap = self._heap
+        position = self_position
+        entry = self.create_entry(dkey, key)
+
+        if heap and heap[0] < entry:
+            entry, heap[0] = heap[0], entry
+            self._sink(0)
+
+        return entry.dkey, entry.pkey
 
     def peek(self):
         """
@@ -472,9 +492,10 @@ class PQDict(MutableMapping):
     def _sink(self, top=0):
         # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
         # Tends to reduce the number of comparisons when inserting "heavy" items
-        # at the top, e.g. during a heap pop.
+        # at the top, e.g. during a heap pop. See heapq for more details.
         heap = self._heap
         position = self._position
+        endpos = len(heap)
 
         # Grab the top entry
         pos = top
@@ -482,10 +503,10 @@ class PQDict(MutableMapping):
 
         # Sift up a chain of child nodes
         child_pos = 2*pos + 1
-        while child_pos < len(heap):
+        while child_pos < endpos:
             # Choose the smaller child.
             other_pos = child_pos + 1
-            if other_pos < len(heap) and not heap[child_pos] < heap[other_pos]:
+            if other_pos < endpos and not heap[child_pos] < heap[other_pos]:
                 child_pos = other_pos
             child_entry = heap[child_pos]
 
@@ -525,9 +546,7 @@ class PQDict(MutableMapping):
         heap[pos] = entry
         position[entry.dkey] = pos
 
-    
-
-def sorted_by_value(mapping, maxheap=False):
+def sort_by_value(mapping, reverse=False):
     """
     Takes an arbitrary mapping and, treating the values as priority keys, sorts
     its items by priority via heapsort using a PQDict.
@@ -536,7 +555,7 @@ def sorted_by_value(mapping, maxheap=False):
         a list of the dictionary items sorted by value
 
     """
-    if maxheap:
+    if reverse:
         pq = PQDict.maxpq(mapping)
     else:
         pq = PQDict(mapping)
