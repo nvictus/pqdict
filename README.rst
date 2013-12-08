@@ -33,16 +33,13 @@ heap is manipulated. As a result, ``PQDict`` also supports:
 Why would I want something like that?
 -------------------------------------
 
-Indexed priority queues can be used to drive simulations, priority schedulers, optimization algorithms, multiway merging of streams of prioritized data, and other applications where priorities of already enqueued items may frequently change.
-
-A simple and well-known application for mutable priorities is
-`Dijkstra's algorithm <https://gist.github.com/nvictus/6260717>`__. Another use case example from my experience is to speed up simulations of stochastic processes such as chemical reaction networks.
+Indexed priority queues can be used to drive simulations, priority schedulers, and optimization algorithms, merge of streams of prioritized data, and other applications where priorities of already enqueued items may frequently change.
 
 Usage
 --------
 
 By default, ``PQDict`` uses a min-heap, meaning **smaller** priority
-keys have **higher** priority. Use ``PQDict.maxpq()`` to create a
+keys give an item **higher** priority. Use ``PQDict.maxpq()`` to create a
 max-heap priority queue.
 
 .. code:: python
@@ -54,7 +51,7 @@ max-heap priority queue.
     pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
     pq = PQDict({'a':3, 'b':5, 'c':8})          
 
-    # add/update items this way...
+    # you can add/update items this way...
     pq.additem('d', 15)
     pq.updateitem('c', 1)
 
@@ -68,15 +65,15 @@ max-heap priority queue.
     print pq['f']            # -5               
     
     # remove an element and get its priority key
-    pkey = pq.pop('f')        
-    print 'f' in pq          # False             
+    pkey = pq.pop('f')                    
     print pq.get('f', None)  # None
 
     # or just delete an element
     del pq['e']
 
     # peek at the top priority item
-    print pq.peek()          # ('c', 1)
+    print pq.top()           # 'c'
+    print pq.topitem()       # ('c', 1)
 
     # let's do a manual heapsort
     print pq.popitem()       # ('c', 1)
@@ -87,7 +84,7 @@ max-heap priority queue.
     # and we're empty!
     pq.popitem()             # KeyError
 
-**Regular iteration** has no prescribed order and is non-destructive.
+**Regular iteration** has no prescribed order and is non-destructive:
 
 .. code:: python
 
@@ -95,7 +92,7 @@ max-heap priority queue.
     for customer in queue:     
         serve(customer) # Bob may be served before Alice!
 
-This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``.
+This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``:
 
 .. code:: python 
 
@@ -112,14 +109,8 @@ This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``
 
 The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``.
 
-There is also a convenience function to sort a dictionary-like object by value using a ``PQDict``. It is non-destructive and returns a sorted list of dictionary items. 
+There are also additional convenience functions that use ``PQDict`` to order objects in a dictionary. 
 
-.. code:: python 
-
-    from pqdict import sort_by_value
-
-    billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
-    top10_richest = sort_by_value(billionaires, reverse=True)[:10]
 
 License 
 -------

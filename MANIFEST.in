@@ -1,3 +1,5 @@
-include *.txt
 include README.rst
-include test*
+include LICENSE.txt
+include MANIFEST.in
+include tests/test_pqdict.py
+recursive-include doc *

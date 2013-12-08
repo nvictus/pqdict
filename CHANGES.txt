@@ -6,3 +6,17 @@ v0.2, 2013-07-18
 v0.3, 2013-07-23
 	* bug fix:
 		off-by one error caused the queue to not reheapify properly in the special case when an existing item in position 1 had its pkey decreased below that of its parent at position 0 (the root).
+
+v0.4, 2013-12-08
+	* Several API changes:
+		- renamed peek() to top()
+		- semantics of top, pop, vs. topitem, popitem, *item, now hopefully more consistent
+		- prioritykeys() and iterprioritykeys() are aliases for values() and itervalues()
+	* Added new PQDict methods: 
+		- pushpopitem
+		- swap_priority
+		- replace_key
+	* Added new functions:
+		- nsmallest, nlargest
+		- consume
+	* Added Sphinx documentation
