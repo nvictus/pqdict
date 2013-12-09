@@ -1,7 +1,15 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-``pqdict`` provides an indexed priority queue data structure implemented in pure Python as a dict-like class. ``pqdict.PQDict`` instances map hashable dictionary keys to comparable priority keys and operate like regular Python dictionaries but with added priority queue functionality.
+``pqdict`` provides an indexed priority queue data structure implemented in pure Python as a dict-like class. ``pqdict.PQDict`` instances map hashable dictionary keys to mutable priority keys.
+
+.. image:: https://pypip.in/v/pqdict/badge.png
+    :target: http://pythonhosted.org/pqdict/index.html
+    :alt: Latest PyPI version
+
+.. image:: https://pypip.in/d/pqdict/badge.png
+    :target: https://pypi.python.org/pypi/pqdict/
+    :alt: Number of PyPI downloads
 
 What is an "indexed" priority queue?
 ------------------------------------
