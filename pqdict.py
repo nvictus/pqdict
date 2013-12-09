@@ -210,8 +210,9 @@ class PQDict(MutableMapping):
         """
         Create a new PQDict with dictionary keys from an iterable and priority 
         keys set to value (default value is infinite to start items off at the 
-        bottom of the queue). If a function sort_by is provided, that function
-        is used to compute priority keys for each item in the iterable.
+        bottom of the queue). If a function sort_by is provided instead, that 
+        function is used to a compute priority key for each object in the 
+        iterable.
 
         """
         if value is None:
@@ -283,14 +284,14 @@ class PQDict(MutableMapping):
 
     def __getitem__(self, dkey):
         """
-        Return the priority of dkey. Raises a KeyError if not in the PQD.
+        Return the priority key of dkey. Raises a KeyError if not in the PQD.
 
         """
         return self._heap[self._position[dkey]].pkey #raises KeyError
 
     def __setitem__(self, dkey, pkey):
         """
-        Assign priority to dictionary key.
+        Assign a priority key to a dictionary key.
 
         """
         heap = self._heap
@@ -352,8 +353,8 @@ class PQDict(MutableMapping):
 
     def __copy__(self):
         """
-        Return a new PQD with the same dkeys associated with the same priority
-        key values.
+        Return a new PQD containing the same dkeys associated with the same 
+        priority key values.
 
         """
         from copy import copy
@@ -421,7 +422,7 @@ class PQDict(MutableMapping):
 
     def top(self):
         """
-        Get the top priority item. Raises KeyError if PQD is empty.
+        Get the top priority dictionary key. Raises KeyError if PQD is empty.
 
         """
         try:
@@ -432,7 +433,8 @@ class PQDict(MutableMapping):
 
     def popitem(self):
         """
-        Extract top priority item and priority. Raises KeyError if PQD is empty.
+        Extract top priority dictionary key and priority key. Raises KeyError if 
+        PQD is empty.
 
         """
         heap = self._heap
@@ -455,7 +457,8 @@ class PQDict(MutableMapping):
 
     def topitem(self):
         """
-        Get top priority item and priority. Raises KeyError if PQD is empty.
+        Get top priority dictionary key and priority key. Raises KeyError if PQD 
+        is empty.
 
         """
         try:
@@ -466,7 +469,7 @@ class PQDict(MutableMapping):
 
     def additem(self, dkey, pkey):
         """
-        Add a new item. Raises KeyError if item is already in the PQD.
+        Add a new item. Raises KeyError if dkey is already in the PQD.
 
         """
         if dkey in self._position:
@@ -476,7 +479,7 @@ class PQDict(MutableMapping):
     def pushpopitem(self, dkey, pkey):
         """
         Equivalent to inserting a new item followed by removing the top priority 
-        item, but faster. Raises KeyError if the new item is already in the PQD.
+        item, but faster. Raises KeyError if the new dkey is already in the PQD.
 
         """
         heap = self._heap
@@ -496,7 +499,7 @@ class PQDict(MutableMapping):
 
     def updateitem(self, dkey, new_pkey):
         """
-        Update the priority key of an existing item. Raises KeyError if item is
+        Update the priority key of an existing item. Raises KeyError if dkey is
         not in the PQD.
 
         """
@@ -507,7 +510,7 @@ class PQDict(MutableMapping):
     def replace_key(self, dkey, new_dkey):
         """
         Replace the dictionary key of an existing heap entry in place. Raises 
-        KeyError if the item to replace does not exist or if the new item is 
+        KeyError if the dkey to replace does not exist or if the new dkey is 
         already in the PQD.
 
         """
@@ -524,7 +527,7 @@ class PQDict(MutableMapping):
     def swap_priority(self, dkey1, dkey2):
         """
         Fast way to swap the priorities of two items in the PQD. Raises KeyError
-        if either item does not exist.
+        if either dictionary key does not exist.
 
         """
         heap = self._heap
