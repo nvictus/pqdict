@@ -124,3 +124,9 @@ License
 -------
 
 This module was written by Nezar Abdennur and is released under the MIT license. The augmented heap implementation was adapted from the ``heapq`` module in the Python standard library, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/nvictus/priority-queue-dictionary/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
