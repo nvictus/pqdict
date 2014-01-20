@@ -473,6 +473,12 @@ class PQDict(MutableMapping):
             raise KeyError('%s is already in the queue' % repr(dkey))
         self[dkey] = pkey
 
+    def getposition(self, dkey):
+        """
+        Returns position of the key.
+        """
+        return self._position.get(dkey)
+
     def pushpopitem(self, dkey, pkey):
         """
         Equivalent to inserting a new item followed by removing the top priority 
