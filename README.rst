@@ -59,6 +59,9 @@ max-heap priority queue.
     pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
     pq = PQDict({'a':3, 'b':5, 'c':8})          
 
+    # you can get item position this way...
+    pq.getposition('a')     # 0
+
     # you can add/update items this way...
     pq.additem('d', 15)
     pq.updateitem('c', 1)

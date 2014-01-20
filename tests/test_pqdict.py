@@ -110,6 +110,16 @@ class TestNewPQDict(TestPQDict):
         self.assertEqual(pq['foo', 'bar', 'baz'], 3)
         self.assertEqual(pq[1,2,3,4], 4)
 
+    def test_getposition(self):
+        pq = PQDict({'a': 1, 'b': 4, 'c': 8, 'd': 3})
+        self.assertEqual(0, pq.getposition('a'))
+        self.assertEqual(1, pq.getposition('d'))
+        self.assertEqual(2, pq.getposition('b'))
+        self.assertEqual(3, pq.getposition('c'))
+        pq = PQDict()
+        self.assertEqual(None, pq.getposition('foo'))
+
+
 class TestDictAPI(TestPQDict):
     def test_len(self):
         pq = PQDict()
