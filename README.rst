@@ -11,6 +11,10 @@ Priority Queue Dictionary (pqdict)
     :target: https://pypi.python.org/pypi/pqdict/
     :alt: Number of PyPI downloads
 
+.. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
+    :target: https://travis-ci.org/nvictus/priority-queue-dictionary
+    :alt: CI Build State
+
 What is an "indexed" priority queue?
 ------------------------------------
 
