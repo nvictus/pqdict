@@ -1,19 +1,20 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-``pqdict`` provides an indexed priority queue data structure implemented in pure Python as a dict-like class. ``pqdict.PQDict`` instances map hashable dictionary keys to priority keys.
+``pqdict`` provides a pure Python indexed priority queue data structure with a dict-like interface. ``pqdict.PQDict`` instances map hashable *dictionary keys* to rank-determining *priority keys*.
 
 .. image:: https://pypip.in/v/pqdict/badge.png
     :target: http://pythonhosted.org/pqdict/index.html
     :alt: Latest PyPI version
 
+.. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
+    :target: https://travis-ci.org/nvictus/priority-queue-dictionary
+    :alt: CI Build State
+
 .. image:: https://pypip.in/d/pqdict/badge.png
     :target: https://pypi.python.org/pypi/pqdict/
     :alt: Number of PyPI downloads
 
-.. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
-    :target: https://travis-ci.org/nvictus/priority-queue-dictionary
-    :alt: CI Build State
 
 What is an "indexed" priority queue?
 ------------------------------------
@@ -58,36 +59,37 @@ max-heap priority queue.
 
     from pqdict import PQDict
 
-    # same input signature as dict()
+    # same input signature as dict
     pq = PQDict(a=3, b=5, c=8)
     pq = PQDict(zip(['a','b','c'], [3, 5, 8]))
     pq = PQDict({'a':3, 'b':5, 'c':8})          
 
-    # you can add/update items this way...
-    pq.additem('d', 15)
-    pq.updateitem('c', 1)
-
-    # ...or this way
+    # add/update items
     pq['d'] = 6.5
     pq['e'] = 2
     pq['f'] = -5
 
-    # read an element's priority
-    print 'f' in pq          # True
-    print pq['f']            # -5               
-    
-    # remove an element and get its priority key
-    pkey = pq.pop('f')                    
-    print pq.get('f', None)  # None
+    # or more stringently
+    pq.additem('d', 15)
+    pq.updateitem('c', 1)
+    pq.additem('c', 4)       # KeyError
+    pq.updateitem('x', 4)    # KeyError
 
-    # or just delete an element
+    # get an element's priority key
+    print 'f' in pq          # True
+    print pq['f']            # -5
+
+    # remove elements
+    print pq.pop('f')        # -5
+    print 'f' in pq          # False
     del pq['e']
+    print pq.get('e', None)  # None
 
     # peek at the top priority item
     print pq.top()           # 'c'
     print pq.topitem()       # ('c', 1)
 
-    # let's do a manual heapsort
+    # Now, let's do a manual heapsort...
     print pq.popitem()       # ('c', 1)
     print pq.popitem()       # ('a', 3)
     print pq.popitem()       # ('b', 5)
@@ -96,7 +98,8 @@ max-heap priority queue.
     # and we're empty!
     pq.popitem()             # KeyError
 
-**Regular iteration** has no prescribed order and is non-destructive:
+.. note::
+    **Regular iteration** is **NOT** sorted! However, regular iteration methods are non-destructive: they don't affect the heap. This applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``:
 
 .. code:: python
 
@@ -104,14 +107,13 @@ max-heap priority queue.
     for customer in queue:     
         serve(customer) # Bob may be served before Alice!
 
-This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()``:
-
 .. code:: python 
 
     >>> PQDict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys() 
     ['a', 'c', 'b', 'd']
 
-**Destructive iteration** methods return generators that pop items out of the heap, which amounts to performing a heapsort:
+.. note::
+    Only **destructive iteration** is sorted. Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort. The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``:
 
 .. code:: python 
 
@@ -119,9 +121,40 @@ This also applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``
         serve(customer) # Customer satisfaction guaranteed :) 
     # queue is now empty
 
-The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``.
 
 There are also additional convenience functions that use ``PQDict`` to order objects in a dictionary. 
+
+
+Module functions
+----------------
+Some additional convenience functions are also provided in addition to the ``PQDict`` class.
+
+:py:meth:`pqdict.sort_by_value` is a convenience function that returns a heapsort iterator over the items of a mapping. Generator equivalent of ``sorted(mapping.items(), key=itemgetter(1), reverse=reverse)``.
+
+
+:py:meth:`pqdict.nsmallest` and :py:meth:`pqdict.nlargest` work just like the same functions in ``heapq`` but act on dictionaries and dict-like objects instead of sequences, sorting by value:
+
+.. code:: python 
+
+    from pqdict import nlargest
+
+    billionaires = {'Bill Gates': 72.7, 'Warren Buffett': 60.0, ...}
+    top10_richest = nlargest(10, billionaires)
+
+
+:py:meth:`pqdict.consume` consumes the items from multiple priority queue dictionaries into a single sorted output stream:
+
+.. code:: python
+
+    pqA = PQDict(parse_feed(urlA))
+    pqB = PQDict(parse_feed(urlB))
+    pqC = PQDict(parse_feed(urlC))
+
+    aggregator = pqdict.consume(pqA, pqB, pqC)
+
+    for entry, date in aggregator:
+        print '%s was posted on %s' % (entry, date)
+    ...
 
 
 License 

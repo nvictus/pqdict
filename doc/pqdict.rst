@@ -74,7 +74,10 @@ Iteration
 ^^^^^^^^^
     .. method:: iter(pq)
 
-        Returns an iterator over the dictionary keys of the PQD. **The order of iteration is arbitrary!**
+        Returns an iterator over the dictionary keys of the PQD. 
+
+        .. warning:: 
+        WARNING: The order of iteration is arbitrary!
 
     .. automethod:: pqdict.PQDict.iterkeys
 

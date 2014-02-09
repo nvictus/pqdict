@@ -2,7 +2,7 @@
 __pycache__
 
 # distutils #
-doc/_build
+doc/_*
 dist/
 build/
 MANIFEST
