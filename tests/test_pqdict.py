@@ -1,6 +1,7 @@
 from pqdict import *
 from itertools import combinations
 from operator import itemgetter
+from datetime import datetime, timedelta
 import sys, random
 import unittest
 
@@ -23,7 +24,7 @@ def generateData(pkey_type, num_items=None):
         pkeys = [random.random() for i in range(num_items)]
     elif pkey_type == 'unique':
         pkeys = list(range(num_items))
-        random.shuffle(pkeys) 
+        random.shuffle(pkeys)
     return list(zip(dkeys, pkeys))
 
 
@@ -450,6 +451,13 @@ class TestOperations(TestPQDict):
         self.assertEqual(dkeys_sorted[0], 'top')
         self.assertEqual(dkeys_sorted[-1], 'bot')
 
+    def test_datetime(self):
+        pq = PQDict()
+        dt = datetime.now()
+        pq['a'] = dt
+        pq['b'] = dt + timedelta(days=5)
+        pq['c'] = dt + timedelta(seconds=5)
+        self.assertEqual(list(pq.iterkeys()), ['a', 'c', 'b'])
 
 class TestModuleFunctions(TestPQDict):
 
