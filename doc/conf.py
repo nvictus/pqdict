@@ -113,7 +113,7 @@ html_theme_options = {
     'github_repo': 'priority-queue-dictionary',
     'twitter_username': 'nv1ctus',
     'home_url': 'https://github.com/nvictus/priority-queue-dictionary',
-    'disqus_shortname': '',
+    'disqus_shortname': 'pqdict-docs',
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
