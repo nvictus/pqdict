@@ -6,7 +6,7 @@ README = os.path.join(os.path.dirname(__file__), 'README.rst')
 
 setup(name='pqdict',
       version='%d.%d' % pqdict.__version__[:-1],
-      description='An indexed priority queue implementation with a dictionary interface',
+      description='A dictionary-like indexed priority queue',
       author='Nezar Abdennur',
       author_email='nabdennur@gmail.com',
       url='https://github.com/nvictus/priority-queue-dictionary',
@@ -21,6 +21,9 @@ setup(name='pqdict',
                    "Programming Language :: Python :: 2",
                    "Programming Language :: Python :: 2.7",
                    "Programming Language :: Python :: 3",
+                   "Programming Language :: Python :: 3.2",
+                   "Programming Language :: Python :: 3.3",
+                   "Programming Language :: Python :: Implementation :: PyPy",
                    "Topic :: Software Development",
                    "Topic :: Software Development :: Libraries",
                    "Topic :: Software Development :: Libraries :: Python Modules"]

@@ -4,7 +4,7 @@ Priority Queue Dictionary (pqdict)
 ``pqdict`` provides a pure Python indexed priority queue data structure with a dict-like interface. ``pqdict.PQDict`` instances map hashable *dictionary keys* to rank-determining *priority keys*.
 
 .. image:: https://pypip.in/v/pqdict/badge.png
-    :target: http://pythonhosted.org/pqdict/index.html
+    :target: http://pythonhosted.org/pqdict
     :alt: Latest PyPI version
 
 .. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
@@ -122,17 +122,14 @@ max-heap priority queue.
     # queue is now empty
 
 
-There are also additional convenience functions that use ``PQDict`` to order objects in a dictionary. 
-
-
 Module functions
 ----------------
-Some additional convenience functions are also provided in addition to the ``PQDict`` class.
+Some functions are provided in addition to the ``PQDict`` class.
 
-:py:meth:`pqdict.sort_by_value` is a convenience function that returns a heapsort iterator over the items of a mapping. Generator equivalent of ``sorted(mapping.items(), key=itemgetter(1), reverse=reverse)``.
+``pqdict.sort_by_value`` is a convenience function that returns a heapsort iterator over the items of a mapping. Generator equivalent of ``sorted(mapping.items(), key=itemgetter(1), reverse=reverse)``.
 
 
-:py:meth:`pqdict.nsmallest` and :py:meth:`pqdict.nlargest` work just like the same functions in ``heapq`` but act on dictionaries and dict-like objects instead of sequences, sorting by value:
+``pqdict.nsmallest`` and ``pqdict.nlargest`` work just like the same functions in ``heapq`` but act on dictionaries and dict-like objects instead of sequences, sorting by value:
 
 .. code:: python 
 
@@ -142,7 +139,7 @@ Some additional convenience functions are also provided in addition to the ``PQD
     top10_richest = nlargest(10, billionaires)
 
 
-:py:meth:`pqdict.consume` consumes the items from multiple priority queue dictionaries into a single sorted output stream:
+``pqdict.consume`` consumes the items from multiple priority queue dictionaries into a single sorted output stream:
 
 .. code:: python
 

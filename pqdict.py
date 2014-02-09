@@ -25,7 +25,7 @@ Inspired by the Python implementation of the heapq module, which was written by
 Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
 
 A dict-like heap queue to prioritize hashable objects while providing random 
-access and mutable priorities.
+access and updatable priorities.
 
 The priority queue is implemented as a binary heap, which supports:         
     - O(1) access to the top priority element        
@@ -51,12 +51,12 @@ I like to think of it, an item that is too "heavy" (low-priority) should sink
 down the tree, while one that is too "light" should float or swim up.
 
 Implementation details:
-    heap (list): stores (dkey, pkey) pairs as "entry" objects that implement
-                 __lt__ which defines how their priority keys are compared
-    position (dict): maps each dkey to the index of its entry in the heap
+    _heap (list): stores (dkey, pkey) pairs as "entry" objects that implement
+                  __lt__ which defines how their priority keys are compared
+    _position (dict): maps each dkey to the index of its entry in the heap
 
 """ 
-__version__ = (0, 4, 0)
+__version__ = (0, 5, 0)
 __all__ = ['PQDict', 'sort_by_value', 'nlargest', 'nsmallest', 'consume']
 
 import sys
@@ -659,10 +659,12 @@ def sort_by_value(mapping, reverse=False):
 
 def nlargest(n, mapping):
     """
-    Takes a mapping and returns the n keys with the largest values.
+    Takes a mapping and returns the n keys associated with the largest values 
+    in descending order. If the mapping has fewer than n items, all its keys are
+    returned.
 
     Returns:
-        a list of n dictionary keys
+        a list of up to n dictionary keys
 
     """
     try:
@@ -689,10 +691,12 @@ def nlargest(n, mapping):
 
 def nsmallest(n, mapping):
     """
-    Takes a mapping and returns the n keys with the smallest values.
+    Takes a mapping and returns the n keys associated with the smallest values 
+    in ascending order. If the mapping has fewer than n items, all its keys are
+    returned.
 
     Returns:
-        a list of n dictionary keys
+        a list of up to n dictionary keys
 
     """
     try:
