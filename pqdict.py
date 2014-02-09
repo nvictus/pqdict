@@ -668,7 +668,7 @@ def nlargest(n, mapping):
     try:
         it = mapping.iteritems()
     except AttributeError:
-        it = mapping.items()
+        it = iter(mapping.items())
 
     pq = PQDict.minpq()
     try:
@@ -698,7 +698,7 @@ def nsmallest(n, mapping):
     try:
         it = mapping.iteritems()
     except AttributeError:
-        it = mapping.items()
+        it = iter(mapping.items())
 
     pq = PQDict.maxpq()
     try:
