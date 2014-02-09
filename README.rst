@@ -3,13 +3,13 @@ Priority Queue Dictionary (pqdict)
 
 ``pqdict`` provides a pure Python indexed priority queue data structure with a dict-like interface. ``pqdict.PQDict`` instances map hashable *dictionary keys* to rank-determining *priority keys*.
 
-.. image:: https://pypip.in/v/pqdict/badge.png
-    :target: http://pythonhosted.org/pqdict
-    :alt: Latest PyPI version
-
 .. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
     :target: https://travis-ci.org/nvictus/priority-queue-dictionary
     :alt: CI Build State
+
+.. image:: https://pypip.in/v/pqdict/badge.png
+    :target: http://pythonhosted.org/pqdict
+    :alt: Latest PyPI version
 
 .. image:: https://pypip.in/d/pqdict/badge.png
     :target: https://pypi.python.org/pypi/pqdict/
