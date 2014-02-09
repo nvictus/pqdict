@@ -1,7 +1,7 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-``pqdict`` provides an indexed priority queue data structure implemented in pure Python as a dict-like class. ``pqdict.PQDict`` instances map hashable dictionary keys to mutable priority keys.
+``pqdict`` provides an indexed priority queue data structure implemented in pure Python as a dict-like class. ``pqdict.PQDict`` instances map hashable dictionary keys to priority keys.
 
 .. image:: https://pypip.in/v/pqdict/badge.png
     :target: http://pythonhosted.org/pqdict/index.html
@@ -124,3 +124,9 @@ License
 -------
 
 This module was written by Nezar Abdennur and is released under the MIT license. The augmented heap implementation was adapted from the ``heapq`` module in the Python standard library, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/nvictus/priority-queue-dictionary/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
