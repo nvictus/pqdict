@@ -57,7 +57,6 @@ Implementation details:
 
 """ 
 __version__ = (0, 4, 0)
-__author__ = ('Nezar Abdennur', 'nabdennur@gmail.com')  
 __all__ = ['PQDict', 'sort_by_value', 'nlargest', 'nsmallest', 'consume']
 
 import sys
@@ -166,7 +165,7 @@ class PQDict(MutableMapping):
 
         pos = 0
         if args:
-            if isinstance(args[0], Mapping):
+            if isinstance(args[0], Mapping) or hasattr(args[0], 'items'):
                 seq = args[0].items()
             else:
                 seq = args[0]
@@ -186,7 +185,7 @@ class PQDict(MutableMapping):
     @classmethod
     def minpq(cls, *args, **kwargs):
         """
-        Create a new Min-PQDict. Smaller priority keys give higher rank.
+        Create a new Min-PQDict. Smaller priority keys confer higher rank.
 
         """
         pq = cls()
@@ -197,7 +196,7 @@ class PQDict(MutableMapping):
     @classmethod
     def maxpq(cls, *args, **kwargs):
         """
-        Create a new Max-PQDict. Larger priority keys give higher rank.
+        Create a new Max-PQDict. Larger priority keys confer higher rank.
 
         """
         pq = cls()
@@ -206,50 +205,53 @@ class PQDict(MutableMapping):
         return pq
 
     @classmethod
-    def fromkeys(cls, iterable, value=None, sort_by=None, maxpq=False):
+    def fromkeys(cls, iterable, value=None, rank_by=None, maxpq=False):
         """
         Create a new PQDict with dictionary keys from an iterable and priority 
-        keys set to value (default value is infinite to start items off at the 
-        bottom of the queue). If a function sort_by is provided instead, that 
-        function is used to a compute priority key for each object in the 
+        keys set to value (default value is +inf or -inf to start items off at
+        the bottom of the queue). If a function rank_by is provided instead, 
+        that function is used to compute a priority key for each object in the 
         iterable.
 
         """
+        if value and rank_by:
+            raise TypeError("Received both 'value' and 'rank_by' argument.")
+
         if value is None:
             value = float('-inf') if maxpq else float('inf')
 
         if maxpq:
             cls = cls.maxpq
 
-        if sort_by is None:
+        if rank_by is None:
             return cls( (dkey, value) for dkey in iterable )
         else:
-            return cls( (dkey, sort_by(dkey)) for dkey in iterable )
+            return cls( (dkey, rank_by(dkey)) for dkey in iterable )
 
     @classmethod
-    def create(cls, cmp):
+    def create(cls, prio):
         """
         Create an empty PQDict that uses a custom comparator. The comparator 
         should have the form:
 
-            cmp( self, other ) --> bool
+            prio( self, other ) --> bool
 
         where self and other are entry instances (have dkey and pkey members).
         The function should return True if self has higher priority than other 
         and False otherwise.
 
-        If cmp is a PQDict instance instead of a function, then a PQDict using 
-        the same comparator is returned.
+        If prio is a PQDict instance instead of a function, then an empty PQDict 
+        using the same comparator is returned.
 
         """
         pq = cls()
-        if isinstance(cmp, PQDict):
-            pq._entry_class = cmp._entry_class
+        if isinstance(prio, PQDict):
+            pq._entry_class = prio._entry_class
         else:
-            pq._entry_class = new_entry_class(cmp)
-        pq.__init__(*args, **kwargs)
+            pq._entry_class = new_entry_class(prio)
         return pq
 
+    @property
     def pq_type(self):
         if self._entry_class == _MinEntry:
             return 'min'
@@ -642,17 +644,18 @@ def sort_by_value(mapping, reverse=False):
     Takes a mapping and, treating the values as priority keys, sorts its items 
     by value via heapsort using a PQDict.
 
-    Equivalent to: sorted(mapping.items(), key=itemgetter(1), reverse=reverse)
+    Equivalent to: sorted(mapping.items(), key=itemgetter(1), reverse=reverse),
+    except it returns a generator.
 
     Returns:
-        a list of the dictionary items sorted by value
+        an iterator over the dictionary items sorted by value
 
     """
     if reverse:
         pq = PQDict.maxpq(mapping)
     else:
         pq = PQDict(mapping)
-    return list(pq.iteritems)
+    return pq.iteritems()
 
 def nlargest(n, mapping):
     """
@@ -731,16 +734,16 @@ def consume(*pq_dicts):
     collector = PQDict.create(pq)
     for i, it in enumerate(iterators): 
         try:
-            collector[i] = next(it)
+            collector[i] = next(it)[::-1]
         except StopIteration:
             pass
 
     while collector:
         i, item = collector.popitem()
-        yield item
+        yield item[::-1]
 
         try:
-            collector[i] = next(iterators[i])
+            collector[i] = next(iterators[i])[::-1]
         except StopIteration:
             pass
     return

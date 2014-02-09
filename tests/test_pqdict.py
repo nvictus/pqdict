@@ -1,5 +1,6 @@
-from pqdict import PQDict
+from pqdict import *
 from itertools import combinations
+from operator import itemgetter
 import sys, random
 import unittest
 
@@ -49,7 +50,9 @@ class TestPQDict(unittest.TestCase):
             entry = pq._heap[pq._position[dkey]]
             self.assertEqual(dkey, entry.dkey)
 
+
 class TestNewPQDict(TestPQDict):
+
     def test_constructor(self):
         # sequence of pairs
         pq0 = PQDict([('A',5), ('B',8), ('C',7), ('D',3), ('E',9), ('F',12), ('G',1)])
@@ -59,36 +62,58 @@ class TestNewPQDict(TestPQDict):
         # keyword arguments
         pq3 = PQDict(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
         self.assertTrue(pq0==pq1==pq2==pq3)
+        # default pqtype is minpq
+        self.assertEqual(pq0.pq_type, 'min')
 
     def test_equality(self):
-        # eq, ne
+        # eq
         pq1 = PQDict(self.items)
         pq2 = PQDict(self.items)
         self.assertTrue(pq1 == pq2)
         self.assertFalse(pq1 != pq2)
 
+        # ne
         pq2[random.choice(self.dkeys)] += 1
-        self.assertTrue(pq1 != pq2)
         self.assertFalse(pq1 == pq2)
+        self.assertTrue(pq1 != pq2)
 
-        # PQDict == regular dict should be legal and True if they have same key/value pairs
+        # PQDict == regular dict if they have same key/value pairs
         adict = dict(self.items)
         self.assertEqual(pq1, adict)
 
-        # False for seq of dkeys though
-        self.assertNotEqual(pq1, self.dkeys)
-
-    def test_inequalities(self):
-        pass
+        # XXX: FIX? - PQDicts evaluate as equal even if they have different pq-types
+        pq3 = PQDict.maxpq(self.items)
+        self.assertEqual(pq1, pq3)
 
     def test_minpq(self):
-        pass
+        pq = PQDict.minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertEqual(list(pq.iterprioritykeys()), 
+            [1, 3, 5, 7, 8, 9, 12])
+        self.assertEqual(pq.pq_type, 'min')
 
     def test_maxpq(self):
-        pass
+        pq = PQDict.maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertEqual(list(pq.iterprioritykeys()), 
+            [12, 9, 8 ,7, 5, 3, 1])
+        self.assertEqual(pq.pq_type, 'max')
 
     def test_create(self):
-        pass
+        # custom comparator
+        def prio(entry, other):
+            return len(entry.pkey) > len(other.pkey)
+        pq = PQDict.create(prio)
+        pq['a'] = (1,2)
+        pq['b'] = (1,2,3,4)
+        pq['c'] = ('foo', 'bar', 'baz')
+        pq['d'] = ()
+        self.assertEqual(list(pq.iterkeys()),
+            ['b', 'c', 'a', 'd'])
+        self.assertEqual(pq.pq_type, 'custom')
+
+        # or create empty pqdict with same comparator
+        pq = PQDict.create(PQDict.maxpq(self.items))
+        self.assertFalse(pq)
+        self.assertEqual(pq.pq_type, 'max')
 
     def test_fromkeys(self):
         # assign same value to all
@@ -105,12 +130,14 @@ class TestNewPQDict(TestPQDict):
 
         # use function to calculate pkeys
         seq = [ (1,2), (1,2,3,4), ('foo', 'bar', 'baz') ]
-        pq = PQDict.fromkeys(seq, sort_by=len)
+        pq = PQDict.fromkeys(seq, rank_by=len)
         self.assertEqual(pq[1,2], 2)
         self.assertEqual(pq['foo', 'bar', 'baz'], 3)
         self.assertEqual(pq[1,2,3,4], 4)
 
+
 class TestDictAPI(TestPQDict):
+
     def test_len(self):
         pq = PQDict()
         self.assertEqual(len(pq), 0)
@@ -193,9 +220,9 @@ class TestDictAPI(TestPQDict):
         pq2['D'] = 4000
         pq2['XYZ'] = 9000
         pq1.update(pq2)
-        self.assertEqual(pq1['C'],3000) and \
-        self.assertEqual(pq1['D'],4000) and \
-        self.assertIn('XYZ',pq1) and \
+        self.assertEqual(pq1['C'],3000) 
+        self.assertEqual(pq1['D'],4000)
+        self.assertIn('XYZ',pq1)
         self.assertEqual(pq1['XYZ'],9000)
 
     def test_keys(self):
@@ -217,6 +244,7 @@ class TestDictAPI(TestPQDict):
 
 
 class TestPQAPI(TestPQDict):
+
     def test_pop(self):
         # pop selected item - return pkey
         pq = PQDict(A=5, B=8, C=1)
@@ -246,7 +274,8 @@ class TestPQAPI(TestPQDict):
         pq = PQDict(A=5, B=8, C=1)
         # pop top item
         dkey, pkey = pq.popitem()
-        self.assertEqual(dkey,'C') and self.assertEqual(pkey,1)
+        self.assertEqual(dkey,'C')
+        self.assertEqual(pkey,1)
 
     def test_topitem(self):
         # empty
@@ -320,7 +349,9 @@ class TestPQAPI(TestPQDict):
             pkeys_heapsorted = list(pq.iterprioritykeys())
             self.assertEqual(pkeys_heapsorted, sorted(pkeys))
 
+
 class TestOperations(TestPQDict):
+
     @unittest.skipIf(sys.version_info[0] < 3, "only applies to Python 3")
     def test_uncomparable(self):
         # non-comparable priority keys (Python 3 only) 
@@ -420,6 +451,26 @@ class TestOperations(TestPQDict):
         self.assertEqual(dkeys_sorted[-1], 'bot')
 
 
+class TestModuleFunctions(TestPQDict):
+
+    def test_sortbyvalue(self):
+        hsort = sort_by_value(dict(self.items))
+        items_sorted = sorted(self.items, key=itemgetter(1))
+        self.assertEqual(list(hsort), items_sorted)
+
+    def test_nbest(self):
+        top3 = nlargest(3, dict(self.items))
+        self.assertEqual(top3, ['F', 'E', 'B'])
+        bot3 = nsmallest(3, dict(self.items))
+        self.assertEqual(bot3, ['G', 'D', 'A'])
+
+    def test_consume(self):
+        x = PQDict(a=15, b=0, c=6)
+        y = PQDict(d=18, e=3, f=5)
+        z = PQDict(g=16, h=13, i=4, j=99)
+        it = consume(x,y,z)
+        self.assertEqual(list(el[0] for el in it), 
+            ['b', 'e', 'i', 'f', 'c', 'h', 'a', 'g', 'd', 'j'])
 
 if __name__ == '__main__':
     unittest.main()
