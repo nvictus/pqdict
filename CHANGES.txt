@@ -20,3 +20,14 @@ v0.4, 2013-12-08
 		- nsmallest, nlargest
 		- consume
 	* Added Sphinx documentation
+
+v0.5, 2014-02-09
+	* API changes:
+		- PQDict.pq_type is now a property: 'min', 'max' or 'custom'
+		- fromkeys keyword 'sort_by' is replaced with 'rank_by'
+	* Bug fixes:
+		- turns out PQDict.create and sort_by_value were broken! (oops!)
+		- consume: the collector was comparing the wrong pkeys
+	* Improved test coverage:
+		- all new features have unit tests now
+		- using travis-ci
