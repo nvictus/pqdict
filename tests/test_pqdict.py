@@ -459,6 +459,15 @@ class TestOperations(TestPQDict):
         pq['c'] = dt + timedelta(seconds=5)
         self.assertEqual(list(pq.iterkeys()), ['a', 'c', 'b'])
 
+    def test_relocate(self):
+        mutable_pkey = [3]
+        pq = PQDict(A=[1], B=[2], C=mutable_pkey)
+        self.assertEqual(pq[pq.top()], [1])
+        mutable_pkey[0] = 0
+        self.assertEqual(pq[pq.top()], [1])
+        pq._relocate('C')
+        self.assertEqual(pq[pq.top()], [0])
+
 class TestModuleFunctions(TestPQDict):
 
     def test_sortbyvalue(self):

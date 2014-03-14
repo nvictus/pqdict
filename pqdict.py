@@ -323,33 +323,6 @@ class PQDict(MutableMapping):
                 if heap[child_pos] < heap[pos]:
                     self._sink(pos)
 
-    def relocate(self, dkey):
-        """
-        If the objects priority values change without knowledge of PQDict,
-        you can re-sort the relevant key only.
-        """
-
-        heap = self._heap
-        position = self._position
-        try:
-            pos = position[dkey]
-        except KeyError:
-            raise KeyError(dkey)
-
-        # update existing entry:
-        # bubble up or down depending on pkeys of parent and children
-        parent_pos = (pos - 1) >> 1
-        child_pos = 2*pos + 1
-        if parent_pos > -1 and heap[pos] < heap[parent_pos]:
-            self._swim(pos)
-        elif child_pos < len(heap):
-            other_pos = child_pos + 1
-            if (other_pos < len(heap) 
-                    and not heap[child_pos] < heap[other_pos]):
-                child_pos = other_pos
-            if heap[child_pos] < heap[pos]:
-                self._sink(pos)
-
     def __delitem__(self, dkey):
         """
         Remove item. Raises a KeyError if dkey is not in the PQD.
@@ -608,6 +581,33 @@ class PQDict(MutableMapping):
         n = len(self._heap)
         for pos in reversed(range(n//2)):
             self._sink(pos)
+
+    def _relocate(self, dkey):
+        """
+        If the objects priority values change without knowledge of PQDict,
+        you can re-sort the relevant key only.
+
+        """
+        heap = self._heap
+        position = self._position
+        try:
+            pos = position[dkey]
+        except KeyError:
+            raise KeyError(dkey)
+
+        # update existing entry:
+        # bubble up or down depending on pkeys of parent and children
+        parent_pos = (pos - 1) >> 1
+        child_pos = 2*pos + 1
+        if parent_pos > -1 and heap[pos] < heap[parent_pos]:
+            self._swim(pos)
+        elif child_pos < len(heap):
+            other_pos = child_pos + 1
+            if (other_pos < len(heap) 
+                    and not heap[child_pos] < heap[other_pos]):
+                child_pos = other_pos
+            if heap[child_pos] < heap[pos]:
+                self._sink(pos)
 
     def _sink(self, top=0):
         # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
