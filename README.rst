@@ -113,7 +113,7 @@ max-heap priority queue.
     ['a', 'c', 'b', 'd']
 
 .. note::
-    Only **destructive iteration** is sorted. Destructive iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort. The destructive iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``:
+    **Heapsort iteration** is sorted, but destructive. Heapsort iteration methods return generators that pop items out of the heap, which amounts to performing a heapsort. The heapsort iterators are ``pq.iterkeys()``, ``pq.itervalues()``, and ``pq.iteritems()``:
 
 .. code:: python 
 
