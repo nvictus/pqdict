@@ -1,7 +1,7 @@
 Priority Queue Dictionary (pqdict)
 ==================================
 
-``pqdict`` provides a pure Python indexed priority queue data structure with a dict-like interface. ``pqdict.PQDict`` instances map hashable *dictionary keys* to rank-determining *priority keys*.
+``pqdict`` provides a pure Python indexed priority queue data structure with a dictionary interface. ``pqdict.PQDict`` instances map hashable *dictionary keys* to rank-determining *priority keys*.
 
 .. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
     :target: https://travis-ci.org/nvictus/priority-queue-dictionary
@@ -121,6 +121,16 @@ max-heap priority queue.
         serve(customer) # Customer satisfaction guaranteed :) 
     # queue is now empty
 
+Priority keys and mutability
+----------------------------
+The ``PQDict`` mapping is updateable: the priority key assigned to any dictionary key can be updated to a new one.
+
+By constrast, *priority keys* themselves are intended to be objects whose rank-determining state is **immutable**.  Such a restriction prevents priority keys from changing behind your back and breaking the heap, but it is not enforced.
+
+For example, instances of immutable types (e.g., numbers, strings, tuples, frozensets, datetime, etc.) make excellent priority keys, but lists do not. In general, however, there's nothing wrong with using mutable objects as priority keys provided you are confident that the rank-determining state of those objects won't change.
+
+.. note::
+    If you insist on storing priority keys in a PQDict that get updated outside of the PQDict, you can make use of the ``_heapify()`` or ``_relocate()`` methods to repair the heap explicitly.
 
 Module functions
 ----------------

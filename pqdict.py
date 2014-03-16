@@ -33,7 +33,7 @@ The priority queue is implemented as a binary heap, which supports:
     - O(log n) insertion of a new element
 
 In addition, an internal dictionary or "index" maps elements to their position
-in the heap array. This index is kept up-to-date when the heap is manipulated.
+in the heap array. This index is kept up to date when the heap is manipulated.
 As a result, PQD also supports:          
     - O(1) lookup of an arbitrary element's priority key     
     - O(log n) removal of an arbitrary element          
@@ -51,9 +51,12 @@ I like to think of it, an item that is too "heavy" (low-priority) should sink
 down the tree, while one that is too "light" should float or swim up.
 
 Implementation details:
-    _heap (list): stores (dkey, pkey) pairs as "entry" objects that implement
-                  __lt__ which defines how their priority keys are compared
-    _position (dict): maps each dkey to the index of its entry in the heap
+    _heap (list): 
+        Stores (dkey, pkey) pairs as "entry" objects that implement __lt__ which 
+        defines how priority keys are compared.
+
+    _position (dict): 
+        Maps each dkey to the positional index of its entry in the heap.
 
 """ 
 __version__ = (0, 5, 0)
