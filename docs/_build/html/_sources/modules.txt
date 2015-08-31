@@ -1,7 +1,0 @@
-pqdict
-======
-
-.. toctree::
-   :maxdepth: 4
-
-   pqdict
