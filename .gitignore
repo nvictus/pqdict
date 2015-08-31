@@ -1,8 +1,8 @@
 *.py[co]
 __pycache__
 
-# distutils #
-doc/_*
+# setup and installation #
+docs/_*
 dist/
 build/
 MANIFEST
