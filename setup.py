@@ -55,5 +55,7 @@ setup(
     url='https://github.com/nvictus/priority-queue-dictionary',
     packages=['pqdict'],
     zip_safe=False,
-    classifiers=[s.strip() for s in classifiers.split('\n') if s]
+    classifiers=[s.strip() for s in classifiers.split('\n') if s],
+    tests_require=['nose'],
+    extras_require={'docs': ['Sphinx>=1.1', 'numpydoc']},
 )
