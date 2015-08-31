@@ -123,7 +123,7 @@ class pqdict(_MutableMapping):
         Return a new pqict mapping keys from an iterable to the same value.
 
         """
-        return cls((k, value) for k in iterable, **kwargs)
+        return cls(((k, value) for k in iterable), **kwargs)
 
     def __len__(self):
         """
