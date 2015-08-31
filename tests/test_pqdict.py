@@ -1,58 +1,63 @@
-from pqdict import *
+# -*- coding: utf-8 -*-
+from datetime import datetime, timedelta
 from itertools import combinations
 from operator import itemgetter
-from datetime import datetime, timedelta
-import sys, random
+import operator
+import random
+import sys
+
+from pqdict import *
 import unittest
 
-def generateData(pkey_type, num_items=None):
+
+def generateData(value_type, num_items=None):
     # shuffled set of two-letter dictionary keys
     if num_items is None:
-        pairs = combinations('ABCDEFGHIJKLMNOP', 2) #120 keys
-        dkeys = [''.join(pair) for pair in pairs]
-        random.shuffle(dkeys)
-        num_items = len(dkeys)
+        pairs = combinations('ABCDEFGHIJKLMNOP', 2)  # 120 keys
+        keys = [''.join(pair) for pair in pairs]
+        random.shuffle(keys)
+        num_items = len(keys)
     else:
         pairs = combinations('ABCDEFGHIJKLMNOP', 2)
-        dkeys = [''.join(next(pairs)) for _ in range(num_items)]
-        random.shuffle(dkeys)
+        keys = [''.join(next(pairs)) for _ in range(num_items)]
+        random.shuffle(keys)
         
     # different sets of priority keys
-    if pkey_type == 'int':
-        pkeys = [random.randint(0,100) for i in range(num_items)]
-    elif pkey_type == 'float':
-        pkeys = [random.random() for i in range(num_items)]
-    elif pkey_type == 'unique':
-        pkeys = list(range(num_items))
-        random.shuffle(pkeys)
-    return list(zip(dkeys, pkeys))
+    if value_type == 'int':
+        value = [random.randint(0,100) for i in range(num_items)]
+    elif value_type == 'float':
+        value = [random.random() for i in range(num_items)]
+    elif value_type == 'unique':
+        value = list(range(num_items))
+        random.shuffle(value)
+    return list(zip(keys, value))
 
 
 class TestPQDict(unittest.TestCase):
     def setUp(self):
-        self.dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        self.pkeys = [5, 8, 7, 3, 9, 12, 1]
-        self.items = list(zip(self.dkeys, self.pkeys))
+        self.keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        self.values = [5, 8, 7, 3, 9, 12, 1]
+        self.items = list(zip(self.keys, self.values))
 
-    def check_heap_invariant(self, pq):
+    def _check_heap_invariant(self, pq):
         heap = pq._heap
-        for pos, entry in enumerate(heap):
-            if pos: # pos 0 has no parent
+        for pos, node in enumerate(heap):
+            if pos:  # pos 0 has no parent
                 parentpos = (pos-1) >> 1
-                self.assertLessEqual(heap[parentpos].pkey, entry.pkey)
+                self.assertLessEqual(heap[parentpos].value, node.value)
 
-    def check_index(self, pq):
+    def _check_index(self, pq):
         # All heap entries are pointed to by the index (_position)
         n = len(pq._heap)
         nodes = pq._position.values()
         self.assertEqual(list(range(n)), sorted(nodes))
         # All heap entries map back to the correct dictionary key
-        for dkey in pq._position:
-            entry = pq._heap[pq._position[dkey]]
-            self.assertEqual(dkey, entry.dkey)
+        for key in pq._position:
+            node = pq._heap[pq._position[key]]
+            self.assertEqual(key, node.key)
 
 
-class TestNewPQDict(TestPQDict):
+class TestNew(TestPQDict):
 
     def test_constructor(self):
         # sequence of pairs
@@ -61,10 +66,8 @@ class TestNewPQDict(TestPQDict):
         # dictionary
         pq2 = PQDict({'A':5, 'B':8, 'C':7, 'D':3, 'E':9, 'F':12, 'G':1})
         # keyword arguments
-        pq3 = PQDict(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        pq3 = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
         self.assertTrue(pq0==pq1==pq2==pq3)
-        # default pqtype is minpq
-        self.assertEqual(pq0.pq_type, 'min')
 
     def test_equality(self):
         # eq
@@ -72,69 +75,43 @@ class TestNewPQDict(TestPQDict):
         pq2 = PQDict(self.items)
         self.assertTrue(pq1 == pq2)
         self.assertFalse(pq1 != pq2)
-
         # ne
-        pq2[random.choice(self.dkeys)] += 1
+        pq2[random.choice(self.keys)] += 1
         self.assertFalse(pq1 == pq2)
         self.assertTrue(pq1 != pq2)
-
         # PQDict == regular dict if they have same key/value pairs
         adict = dict(self.items)
         self.assertEqual(pq1, adict)
-
         # XXX: FIX? - PQDicts evaluate as equal even if they have different pq-types
-        pq3 = PQDict.maxpq(self.items)
+        pq3 = maxpq(self.items)
         self.assertEqual(pq1, pq3)
 
     def test_minpq(self):
-        pq = PQDict.minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-        self.assertEqual(list(pq.iterprioritykeys()), 
+        pq = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertEqual(
+            list(pq.popvalues()), 
             [1, 3, 5, 7, 8, 9, 12])
-        self.assertEqual(pq.pq_type, 'min')
+        self.assertEqual(pq.precedes, operator.lt)
 
     def test_maxpq(self):
-        pq = PQDict.maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-        self.assertEqual(list(pq.iterprioritykeys()), 
+        pq = maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+        self.assertEqual(
+            list(pq.popvalues()), 
             [12, 9, 8 ,7, 5, 3, 1])
-        self.assertEqual(pq.pq_type, 'max')
-
-    def test_create(self):
-        # custom comparator
-        def prio(entry, other):
-            return len(entry.pkey) > len(other.pkey)
-        pq = PQDict.create(prio)
-        pq['a'] = (1,2)
-        pq['b'] = (1,2,3,4)
-        pq['c'] = ('foo', 'bar', 'baz')
-        pq['d'] = ()
-        self.assertEqual(list(pq.iterkeys()),
-            ['b', 'c', 'a', 'd'])
-        self.assertEqual(pq.pq_type, 'custom')
-
-        # or create empty pqdict with same comparator
-        pq = PQDict.create(PQDict.maxpq(self.items))
-        self.assertFalse(pq)
-        self.assertEqual(pq.pq_type, 'max')
+        self.assertEqual(pq.precedes, operator.gt)
 
     def test_fromkeys(self):
         # assign same value to all
         seq = ['foo', 'bar', 'baz']
-        pq = PQDict.fromkeys(seq)
+        pq = PQDict.fromkeys(seq, float('inf'))
         for k in pq:
             self.assertEqual(pq[k], float('inf'))
         pq = PQDict.fromkeys(seq, 10)
         for k in pq:
             self.assertEqual(pq[k], 10)
-        pq = PQDict.fromkeys(seq, maxpq=True)
+        pq = PQDict.fromkeys(seq, float('-inf'), precedes=operator.gt)
         for k in pq:
             self.assertEqual(pq[k], float('-inf'))
-
-        # use function to calculate pkeys
-        seq = [ (1,2), (1,2,3,4), ('foo', 'bar', 'baz') ]
-        pq = PQDict.fromkeys(seq, rank_by=len)
-        self.assertEqual(pq[1,2], 2)
-        self.assertEqual(pq['foo', 'bar', 'baz'], 3)
-        self.assertEqual(pq[1,2,3,4], 4)
 
 
 class TestDictAPI(TestPQDict):
@@ -147,22 +124,13 @@ class TestDictAPI(TestPQDict):
 
     def test_contains(self):
         pq = PQDict(self.items)
-        for dkey in self.dkeys:
-            self.assertIn(dkey, pq)
-
-    def test_iter(self):
-        # non-destructive
-        n = len(self.items)
-        pq = PQDict(self.items)
-        for val in iter(pq):
-            self.assertIn(val, self.dkeys)
-        self.assertEqual(len(list(iter(pq))), len(self.dkeys))
-        self.assertEqual(len(pq), n)
+        for key in self.keys:
+            self.assertIn(key, pq)
 
     def test_getitem(self):
         pq = PQDict(self.items)
-        for dkey, pkey in self.items:
-            self.assertEqual(pq[dkey], pkey)
+        for key, value in self.items:
+            self.assertEqual(pq[key], value)
 
     def test_setitem(self):
         n = len(self.items)
@@ -177,11 +145,11 @@ class TestDictAPI(TestPQDict):
     def test_delitem(self):
         n = len(self.items)
         pq = PQDict(self.items)
-        dkey = random.choice(self.dkeys)
-        del pq[dkey]
+        key = random.choice(self.keys)
+        del pq[key]
         self.assertEqual(len(pq), n-1)
-        self.assertNotIn(dkey, pq)
-        self.assertRaises(KeyError, pq.pop, dkey)
+        self.assertNotIn(key, pq)
+        self.assertRaises(KeyError, pq.pop, key)
 
     def test_copy(self):
         pq1 = PQDict(self.items)
@@ -189,12 +157,12 @@ class TestDictAPI(TestPQDict):
         # equality by value
         self.assertEqual(pq1, pq2)
 
-        dkey = random.choice(self.dkeys)
-        pq2[dkey] += 1  
-        self.assertNotEqual(pq1[dkey], pq2[dkey])
+        key = random.choice(self.keys)
+        pq2[key] += 1  
+        self.assertNotEqual(pq1[key], pq2[key])
         self.assertNotEqual(pq1, pq2)
 
-    # inherited methods
+    # inherited implementations
     def test_get(self):
         pq = PQDict(self.items)
         self.assertEqual(pq.get('A'), 5)
@@ -206,7 +174,7 @@ class TestDictAPI(TestPQDict):
         pq = PQDict(self.items)
         pq.clear()
         self.assertEqual(len(pq), 0)
-        self.check_index(pq)
+        self._check_index(pq)
 
     def test_setdefault(self):
         pq = PQDict(self.items)
@@ -226,39 +194,49 @@ class TestDictAPI(TestPQDict):
         self.assertIn('XYZ',pq1)
         self.assertEqual(pq1['XYZ'],9000)
 
+    # non-destructive iterators
+    def test_iter(self):
+        # non-destructive
+        n = len(self.items)
+        pq = PQDict(self.items)
+        for val in iter(pq):
+            self.assertIn(val, self.keys)
+        self.assertEqual(len(list(iter(pq))), len(self.keys))
+        self.assertEqual(len(pq), n)
+
     def test_keys(self):
         # the "keys" are dictionary keys
         pq = PQDict(self.items)
-        self.assertEqual(sorted(self.dkeys), sorted(pq.keys()))
-        self.assertEqual(sorted(self.pkeys), [pq[dkey] for dkey in pq.copy().iterkeys()])
+        self.assertEqual(sorted(self.keys), sorted(pq.keys()))
+        self.assertEqual(sorted(self.values), [pq[key] for key in pq.copy().popkeys()])
 
     def test_values(self):
         # the "values" are priority keys
         pq = PQDict(self.items)   
-        self.assertEqual(sorted(self.pkeys), sorted(pq.values()))
-        self.assertEqual(sorted(self.pkeys), list(pq.itervalues()))
+        self.assertEqual(sorted(self.values), sorted(pq.values()))
+        self.assertEqual(sorted(self.values), list(pq.popvalues()))
 
     def test_items(self):
         pq = PQDict(self.items)
         self.assertEqual(sorted(self.items), sorted(pq.items()))
-        self.assertEqual(sorted(self.pkeys), [item[1] for item in pq.iteritems()])
+        self.assertEqual(sorted(self.values), [item[1] for item in pq.popitems()])
 
 
 class TestPQAPI(TestPQDict):
 
     def test_pop(self):
-        # pop selected item - return pkey
-        pq = PQDict(A=5, B=8, C=1)
-        pkey = pq.pop('B')
-        self.assertEqual(pkey, 8)
+        # pop selected item - return value
+        pq = minpq(A=5, B=8, C=1)
+        value = pq.pop('B')
+        self.assertEqual(value, 8)
         pq.pop('A')
         pq.pop('C')
         self.assertRaises(KeyError, pq.pop, 'A')
         self.assertRaises(KeyError, pq.pop, 'does_not_exist')
         # no args and empty - throws
         self.assertRaises(KeyError, pq.pop) #pq is now empty
-        # no args - return top dkey
-        pq = PQDict(A=5, B=8, C=1)
+        # no args - return top key
+        pq = minpq(A=5, B=8, C=1)
         self.assertEqual(pq.pop(), 'C')
 
     def test_top(self):
@@ -272,11 +250,11 @@ class TestPQAPI(TestPQDict):
             self.assertEqual(pq.top(), min(items, key=lambda x: x[1])[0])
 
     def test_popitem(self):
-        pq = PQDict(A=5, B=8, C=1)
+        pq = minpq(A=5, B=8, C=1)
         # pop top item
-        dkey, pkey = pq.popitem()
-        self.assertEqual(dkey,'C')
-        self.assertEqual(pkey,1)
+        key, value = pq.popitem()
+        self.assertEqual(key,'C')
+        self.assertEqual(value,1)
 
     def test_topitem(self):
         # empty
@@ -296,27 +274,27 @@ class TestPQAPI(TestPQDict):
 
     def test_updateitem(self):
         pq = PQDict(self.items)
-        dkey, pkey = random.choice(self.items)
+        key, value = random.choice(self.items)
         # assign same value
-        pq.updateitem(dkey, pkey)
-        self.assertEqual(pq[dkey], pkey)
+        pq.updateitem(key, value)
+        self.assertEqual(pq[key], value)
         # assign new value
-        pq.updateitem(dkey, pkey + 1.0)
-        self.assertEqual(pq[dkey], pkey + 1.0)
-        # can only update existing dkeys
+        pq.updateitem(key, value + 1.0)
+        self.assertEqual(pq[key], value + 1.0)
+        # can only update existing keys
         self.assertRaises(KeyError, pq.updateitem, 'does_not_exist', 99.0)  
 
     def test_pushpopitem(self):
-        pq = PQDict(A=5, B=8, C=1)
+        pq = minpq(A=5, B=8, C=1)
         self.assertEqual(pq.pushpopitem('D', 10), ('C', 1))
         self.assertEqual(pq.pushpopitem('E', 5), ('E', 5))
         self.assertRaises(KeyError, pq.pushpopitem, 'A', 99)
 
     def test_replace_key(self):
-        pq = PQDict(A=5, B=8, C=1)
+        pq = minpq(A=5, B=8, C=1)
         pq.replace_key('A', 'Alice')
         pq.replace_key('B', 'Bob')
-        self.check_index(pq)
+        self._check_index(pq)
         self.assertEqual(pq['Alice'], 5)
         self.assertEqual(pq['Bob'], 8)
         self.assertRaises(KeyError, pq.__getitem__, 'A')
@@ -324,9 +302,9 @@ class TestPQAPI(TestPQDict):
         self.assertRaises(KeyError, pq.replace_key, 'C', 'Bob')
 
     def test_swap_priority(self):
-        pq = PQDict(A=5, B=8, C=1)
+        pq = minpq(A=5, B=8, C=1)
         pq.swap_priority('A', 'C')
-        self.check_index(pq)
+        self._check_index(pq)
         self.assertEqual(pq['A'], 1)
         self.assertEqual(pq['C'], 5)
         self.assertEqual(pq.top(), 'A')
@@ -336,19 +314,19 @@ class TestPQAPI(TestPQDict):
         for trial in range(100):
             size = random.randrange(1,50)
             items = generateData('float', size)
-            dkeys, pkeys = zip(*items)
+            keys, values = zip(*items)
 
             if trial & 1:     # Half of the time, heapify using the constructor
                 pq = PQDict(items)
             else:             # The rest of the time, insert items sequentially
                 pq = PQDict()
-                for dkey, pkey in items:
-                   pq[dkey] = pkey
+                for key, value in items:
+                   pq[key] = value
 
-            # NOTE: heapsort is NOT a stable sorting method, so dkeys with equal priority keys
+            # NOTE: heapsort is NOT a stable sorting method, so keys with equal priority keys
             # are not guaranteed to have the same order as in the original sequence.
-            pkeys_heapsorted = list(pq.iterprioritykeys())
-            self.assertEqual(pkeys_heapsorted, sorted(pkeys))
+            values_heapsorted = list(pq.popvalues())
+            self.assertEqual(values_heapsorted, sorted(values))
 
 
 class TestOperations(TestPQDict):
@@ -365,91 +343,91 @@ class TestOperations(TestPQDict):
         for size in range(30):
             items = generateData('int', size)
             pq = PQDict(items)
-            self.check_heap_invariant(pq)
+            self._check_heap_invariant(pq)
             self.assertTrue(len(pq._heap)==size)
-            self.check_index(pq)
+            self._check_index(pq)
 
     def test_heapsort(self):
         # sequences of operations
         pq = PQDict()
-        self.check_heap_invariant(pq)
-        self.check_index(pq)
+        self._check_heap_invariant(pq)
+        self._check_index(pq)
 
         items = generateData('int')
 
         # push in a sequence of items
         added_items = []
-        for dkey, pkey in items:
-            pq.additem(dkey, pkey)
-            self.check_heap_invariant(pq)
-            self.check_index(pq)
-            added_items.append( (dkey,pkey) )
+        for key, value in items:
+            pq.additem(key, value)
+            self._check_heap_invariant(pq)
+            self._check_index(pq)
+            added_items.append( (key,value) )
 
         # pop out all the items
         popped_items = []
         while pq:
-            dkey_pkey = pq.popitem()
-            self.check_heap_invariant(pq)
-            self.check_index(pq)
-            popped_items.append(dkey_pkey)
+            key_value = pq.popitem()
+            self._check_heap_invariant(pq)
+            self._check_index(pq)
+            popped_items.append(key_value)
 
         self.assertTrue(len(pq._heap)==0)
-        self.check_index(pq)
+        self._check_index(pq)
 
     def test_updates(self):
         pq = PQDict()
         items = generateData('int')
-        dkeys, pkeys = zip(*items)
+        keys, values = zip(*items)
         pq = PQDict(items)
         for _ in range(100):
-            pq[random.choice(dkeys)] = random.randrange(25)
-            self.check_heap_invariant(pq)
-            self.check_index(pq)
+            pq[random.choice(keys)] = random.randrange(25)
+            self._check_heap_invariant(pq)
+            self._check_index(pq)
 
     def test_updates_and_deletes(self):
         pq = PQDict()
 
         items = generateData('int')
-        dkeys, pkeys = zip(*items)
+        keys, values = zip(*items)
 
         # heapify a sequence of items
         pq = PQDict(items)
 
         for oper in range(100):
             if oper & 1: #update random item
-                dkey = random.choice(dkeys)
+                key = random.choice(keys)
                 p_new = random.randrange(25)
-                pq[dkey] = p_new
-                self.assertTrue(pq[dkey]==p_new)
+                pq[key] = p_new
+                self.assertTrue(pq[key]==p_new)
             elif pq: #delete random item
-                dkey = random.choice(list(pq.keys()))
-                del pq[dkey]
-                self.assertTrue(dkey not in pq)
-            self.check_heap_invariant(pq)
-            self.check_index(pq)
+                key = random.choice(list(pq.keys()))
+                del pq[key]
+                self.assertTrue(key not in pq)
+            self._check_heap_invariant(pq)
+            self._check_index(pq)
 
     def test_edgecases(self):
-        dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        pkeys = [1, 1, 1, 1, 1, 1, 1]
-        pq = PQDict(zip(dkeys, pkeys))
+        keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        values = [1, 1, 1, 1, 1, 1, 1]
+        pq = PQDict(zip(keys, values))
         pq['B'] = 2
-        self.check_heap_invariant(pq)
+        self._check_heap_invariant(pq)
 
-        dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        pkeys = [1, 1, 1, 1, 1, 1, 1]
-        pq = PQDict(zip(dkeys, pkeys))
+        keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        values = [1, 1, 1, 1, 1, 1, 1]
+        pq = PQDict(zip(keys, values))
         pq['B'] = 0
-        self.check_heap_invariant(pq)
+        self._check_heap_invariant(pq)
 
-    def test_infpkey(self):
-        dkeys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-        pkeys = [1, 2, 3, 4, 5, 6, 7]
-        pq = PQDict(zip(dkeys, pkeys))
+    def test_infvalue(self):
+        keys = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+        values = [1, 2, 3, 4, 5, 6, 7]
+        pq = PQDict(zip(keys, values))
         pq.additem('top', -float('inf'))
         pq.additem('bot', float('inf'))
-        dkeys_sorted = [key for key in pq.iterkeys()]
-        self.assertEqual(dkeys_sorted[0], 'top')
-        self.assertEqual(dkeys_sorted[-1], 'bot')
+        keys_sorted = [key for key in pq.popkeys()]
+        self.assertEqual(keys_sorted[0], 'top')
+        self.assertEqual(keys_sorted[-1], 'bot')
 
     def test_datetime(self):
         pq = PQDict()
@@ -457,37 +435,25 @@ class TestOperations(TestPQDict):
         pq['a'] = dt
         pq['b'] = dt + timedelta(days=5)
         pq['c'] = dt + timedelta(seconds=5)
-        self.assertEqual(list(pq.iterkeys()), ['a', 'c', 'b'])
+        self.assertEqual(list(pq.popkeys()), ['a', 'c', 'b'])
 
-    def test_relocate(self):
-        mutable_pkey = [3]
-        pq = PQDict(A=[1], B=[2], C=mutable_pkey)
+    def test_repair(self):
+        mutable_value = [3]
+        pq = minpq(A=[1], B=[2], C=mutable_value)
         self.assertEqual(pq[pq.top()], [1])
-        mutable_pkey[0] = 0
+        mutable_value[0] = 0
         self.assertEqual(pq[pq.top()], [1])
-        pq._relocate('C')
+        pq.heapify('C')
         self.assertEqual(pq[pq.top()], [0])
 
+
 class TestModuleFunctions(TestPQDict):
-
-    def test_sortbyvalue(self):
-        hsort = sort_by_value(dict(self.items))
-        items_sorted = sorted(self.items, key=itemgetter(1))
-        self.assertEqual(list(hsort), items_sorted)
-
     def test_nbest(self):
         top3 = nlargest(3, dict(self.items))
-        self.assertEqual(top3, ['F', 'E', 'B'])
+        self.assertEqual(list(top3), ['F', 'E', 'B'])
         bot3 = nsmallest(3, dict(self.items))
-        self.assertEqual(bot3, ['G', 'D', 'A'])
+        self.assertEqual(list(bot3), ['G', 'D', 'A'])
 
-    def test_consume(self):
-        x = PQDict(a=15, b=0, c=6)
-        y = PQDict(d=18, e=3, f=5)
-        z = PQDict(g=16, h=13, i=4, j=99)
-        it = consume(x,y,z)
-        self.assertEqual(list(el[0] for el in it), 
-            ['b', 'e', 'i', 'f', 'c', 'h', 'a', 'g', 'd', 'j'])
 
 if __name__ == '__main__':
     unittest.main()
