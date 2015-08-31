@@ -31,3 +31,16 @@ v0.5, 2014-02-09
 	* Improved test coverage:
 		- all new features have unit tests now
 		- using travis-ci
+
+v0.6, 2015-08-31
+	* Conceptual changes:
+		- Clearer terminology in API and documentation (e.g., value vs. priority key).
+		- Functional philosophy: pqdict accepts optional sort key function and precedence function.
+	* API changes:
+		- ``PQDict`` name is deprecated.
+		- Several backwards-incompatible changes to fit the new conceptual model.Heapsort iterators (iterkeys, itervalues, iteritems) were renamed (popkeys, popvalues, popitems). In Python 2, the old names persist as regular iterators.
+		- Killed all module functions except for nlargest and nsmallest.
+	* Docs:
+		- Revised and updated
+		- Switch to RTD theme
+

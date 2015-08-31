@@ -1,9 +1,9 @@
 include README.rst
-include LICENSE.txt
+include LICENSE
 include MANIFEST.in
 include tests/test_pqdict.py
 recursive-include examples *
-recursive-include doc *
+recursive-include docs *
 global-exclude *.DS_Store
 prune doc/_build
 prune doc/_static
