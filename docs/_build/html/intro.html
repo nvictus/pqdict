@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quickstart &mdash; pqdict 0.6 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pqdict 0.6 documentation" href="index.html"/>
+        <link rel="next" title="Examples" href="examples.html"/>
+        <link rel="prev" title="Priority Queue Dictionary" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> pqdict
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-an-indexed-priority-queue">What is an &#8220;indexed&#8221; priority queue?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pqdict.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pqdict.html#pqdict-class">pqdict class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pqdict.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pqdict</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/intro.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-an-indexed-priority-queue">
+<h2>What is an &#8220;indexed&#8221; priority queue?<a class="headerlink" href="#what-is-an-indexed-priority-queue" title="Permalink to this headline">¶</a></h2>
+<p>A <a class="reference external" href="http://en.wikipedia.org/wiki/Priority_queue">priority queue</a> allows you to serve or retrieve items in a prioritized fashion. A priority queue supports inserting elements with priorities, and removing or peeking at the top priority element. The vanilla priority queue interface can be extended to support random access, insertion, removal and changing the priority of any element in the queue. An <em>indexed</em> priority queue does these latter operations efficiently.</p>
+<p>The priority queue is implemented as a binary heap of (key, priority value) pairs, which supports:</p>
+<ul class="simple">
+<li>O(1) search for the item with highest priority</li>
+<li>O(log n) removal of the item with highest priority</li>
+<li>O(log n) insertion of a new item</li>
+</ul>
+<p>An internal index maps elements to their location in the heap and is kept up to date as the heap is manipulated. As a result, pqdict also supports:</p>
+<ul class="simple">
+<li>O(1) lookup of any item by key</li>
+<li>O(log n) removal of any item</li>
+<li>O(log n) updating of any item&#8217;s priority level</li>
+</ul>
+<p>Indexed priority queues are useful in applications where priorities of already enqueued items may frequently change (e.g., schedulers, optimization algorithms, simulations, etc.).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The default heap is a min-heap, meaning <strong>smaller</strong> values give an item <strong>higher</strong> priority.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">pqdict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span> <span class="o">=</span> <span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pq</span><span class="o">.</span><span class="n">popkeys</span><span class="p">())</span>
+<span class="go">[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]</span>
+</pre></div>
+</div>
+<p>To create a max-heap instead (<strong>larger</strong> values give <strong>higher</strong> priority), pass in the option <code class="docutils literal"><span class="pre">reverse=True</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">pqdict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span> <span class="o">=</span> <span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">},</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pq</span><span class="o">.</span><span class="n">popkeys</span><span class="p">())</span>
+<span class="go">[&#39;c&#39;, &#39;b&#39;, &#39;a&#39;]</span>
+</pre></div>
+</div>
+<p>Alternatively, you can use the alias functions <code class="docutils literal"><span class="pre">minpq()</span></code> and <code class="docutils literal"><span class="pre">maxpq()</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">minpq</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span> <span class="o">=</span> <span class="n">minpq</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By default, items are ordered by <strong>value</strong>. Analogous to the built-in <code class="docutils literal"><span class="pre">sorted()</span></code>, you can provide a <strong>priority key function</strong> to transform the values for sorting.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">pqdict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span> <span class="o">=</span> <span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="s">&#39;b&#39;</span><span class="p">:(</span><span class="mi">8</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="s">&#39;c&#39;</span><span class="p">:(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">)},</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Views and regular iteration don&#8217;t affect the heap, but the output is <strong>unsorted</strong>. This applies to <code class="docutils literal"><span class="pre">pq.keys()</span></code>, <code class="docutils literal"><span class="pre">pq.values()</span></code>, <code class="docutils literal"><span class="pre">pq.items()</span></code> and using <code class="docutils literal"><span class="pre">iter()</span></code> (e.g., in a for loop).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">queue</span> <span class="o">=</span> <span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;Alice&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;Bob&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="k">for</span> <span class="n">customer</span> <span class="ow">in</span> <span class="n">queue</span><span class="p">:</span>
+    <span class="n">serve</span><span class="p">(</span><span class="n">customer</span><span class="p">)</span> <span class="c"># Bob may be served before Alice!</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">})</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">[&#39;a&#39;, &#39;c&#39;, &#39;b&#39;, &#39;d&#39;]</span>
+</pre></div>
+</div>
+<p>&#8220;Heapsort iterators&#8221; output data in <strong>descending order</strong> of priority by removing items from the collection. The following methods return heapsort iterators: <code class="docutils literal"><span class="pre">pq.popkeys()</span></code>, <code class="docutils literal"><span class="pre">pq.popvalues()</span></code>, and <code class="docutils literal"><span class="pre">pq.popitems()</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">for</span> <span class="n">customer</span> <span class="ow">in</span> <span class="n">queue</span><span class="o">.</span><span class="n">popkeys</span><span class="p">():</span>
+    <span class="n">serve</span><span class="p">(</span><span class="n">customer</span><span class="p">)</span> <span class="c"># Customer satisfaction guaranteed :)</span>
+<span class="c"># queue is now empty</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">pqdict</span></code> supports all Python dictionary methods...</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">pqdict</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span> <span class="o">=</span> <span class="n">pqdict</span><span class="p">({</span><span class="s">&#39;a&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="p">[</span><span class="s">&#39;d&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">6.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="p">[</span><span class="s">&#39;e&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="p">[</span><span class="s">&#39;f&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;f&#39;</span> <span class="ow">in</span> <span class="n">pq</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="p">[</span><span class="s">&#39;f&#39;</span><span class="p">]</span>
+<span class="go">-5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&#39;f&#39;</span><span class="p">)</span>
+<span class="go">-5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;f&#39;</span> <span class="ow">in</span> <span class="n">pq</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">pq</span><span class="p">[</span><span class="s">&#39;e&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;e&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+<span class="go">None</span>
+</pre></div>
+</div>
+<p>...and exposes a priority queue API.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">top</span><span class="p">()</span>
+<span class="go">&#39;c&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">topitem</span><span class="p">()</span>
+<span class="go">(&#39;c&#39;, 1)</span>
+<span class="go"># manual heapsort...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c"># no args</span>
+<span class="go">&#39;c&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+<span class="go">(&#39;a&#39;, 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+<span class="go">(&#39;b&#39;, 5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+<span class="go">(&#39;d&#39;, 6.5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pq</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>  <span class="c"># ...and we&#39;re empty!</span>
+<span class="go">KeyError</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Value mutability</strong>. If you use mutable objects as values in a <code class="docutils literal"><span class="pre">pqdict</span></code>, changes to the state of those objects can break the priority queue. If this does happen, the data structure can be repaired by calling <code class="docutils literal"><span class="pre">pq.heapify()</span></code>. (But you probably shouldn&#8217;t be using mutable values in the first place.)</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><strong>Custom precedence function</strong>. The only difference between a min-pq and max-pq is that precedence of items is determined by comparing priority keys with the builtin <code class="docutils literal"><span class="pre">&lt;</span></code> and <code class="docutils literal"><span class="pre">&gt;</span></code> operators, respectively. If you would like to further customize the way items are prioritized, you can pass a boolean function <code class="docutils literal"><span class="pre">precedes(pkey1,</span> <span class="pre">pkey2)</span></code> to the initializer.</p>
+</div>
+<p>The module functions <code class="docutils literal"><span class="pre">nsmallest</span></code> and <code class="docutils literal"><span class="pre">nlargest</span></code> work like the same functions in <code class="docutils literal"><span class="pre">heapq</span></code> but act on mappings instead of sequences, sorting by value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pqdict</span> <span class="kn">import</span> <span class="n">nlargest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">billionaires</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;Bill Gates&#39;</span><span class="p">:</span> <span class="mf">72.7</span><span class="p">,</span> <span class="s">&#39;Warren Buffett&#39;</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">top5_names</span> <span class="o">=</span> <span class="n">nlargest</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">billionaires</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>This module is released under the MIT license. The augmented heap implementation was adapted from the <code class="docutils literal"><span class="pre">heapq</span></code> module in the Python standard library, which was written by Kevin O&#8217;Connor and augmented by Tim Peters and Raymond Hettinger.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>Documentation is available at <a class="reference external" href="http://pythonhosted.org/pqdict">http://pythonhosted.org/pqdict</a>.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Priority Queue Dictionary" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Nezar Abdennur.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

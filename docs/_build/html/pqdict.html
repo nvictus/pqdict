@@ -1,0 +1,508 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; pqdict 0.6 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pqdict 0.6 documentation" href="index.html"/>
+        <link rel="prev" title="Examples" href="examples.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> pqdict
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-an-indexed-priority-queue">What is an &#8220;indexed&#8221; priority queue?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pqdict-class">pqdict class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">pqdict</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/pqdict.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<div class="section" id="pqdict-class">
+<h2>pqdict class<a class="headerlink" href="#pqdict-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pqdict.pqdict">
+<em class="property">class </em><code class="descclassname">pqdict.</code><code class="descname">pqdict</code><span class="sig-paren">(</span><em>data=None</em>, <em>key=None</em>, <em>reverse=False</em>, <em>precedes=&lt;built-in function lt&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection that maps hashable objects (keys) to priority-determining
+values. The mapping is mutable so items may be added, removed and have their
+priority level updated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : mapping or iterable, optional</p>
+<blockquote>
+<div><p>Input data, e.g. a dictionary or a sequence of items.</p>
+</div></blockquote>
+<p><strong>key</strong> : callable, optional</p>
+<blockquote>
+<div><p>Optional priority key function to transform values into priority keys
+for sorting. By default, the values are not transformed.</p>
+</div></blockquote>
+<p><strong>reverse</strong> : bool, optional</p>
+<blockquote>
+<div><p>If <code class="docutils literal"><span class="pre">True</span></code>, <em>larger</em> priority keys give items <em>higher</em> priority.
+Default is <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</div></blockquote>
+<p><strong>precedes</strong> : callable, optional (overrides <code class="docutils literal"><span class="pre">reverse</span></code>)</p>
+<blockquote class="last">
+<div><p>Function that determines precedence of a pair of priority keys. The
+default comparator is <code class="docutils literal"><span class="pre">operator.lt</span></code>, meaning <em>smaller</em> priority keys
+give items <em>higher</em> priority.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="classmethod">
+<dt id="pqdict.pqdict.fromkeys">
+<em class="property">classmethod </em><code class="descname">fromkeys</code><span class="sig-paren">(</span><em>iterable</em>, <em>value</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.fromkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new pqict mapping keys from an iterable to the same value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.heapify">
+<code class="descname">heapify</code><span class="sig-paren">(</span><span class="optional">[</span><em>key</em><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.heapify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.heapify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repair a broken heap. If the state of an item&#8217;s priority value changes 
+you can re-sort the relevant item only by providing <code class="docutils literal"><span class="pre">key</span></code>.</p>
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Properties</strong></p>
+<dl class="attribute">
+<dt id="pqdict.pqdict.keyfn">
+<code class="descname">keyfn</code><a class="headerlink" href="#pqdict.pqdict.keyfn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Priority key function</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pqdict.pqdict.precedes">
+<code class="descname">precedes</code><a class="headerlink" href="#pqdict.pqdict.precedes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Priority key precedence function</p>
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Dictionary API</strong></p>
+<p>These do as expected. See <code class="xref py py-class docutils literal"><span class="pre">dict</span></code> for more details.</p>
+<dl class="method">
+<dt id="pqdict.pqdict.len">
+<code class="descname">len</code><span class="sig-paren">(</span><em>pq</em><span class="sig-paren">)</span><a class="headerlink" href="#pqdict.pqdict.len" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">pq[key]</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">pq[key] = value</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">del pq[key]</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">key in pq</code></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>key</em><span class="optional">[</span>, <em>default</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#pqdict.pqdict.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.get(k[,d]) -&gt; D[k] if k in D, else d.  d defaults to None.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.pop">
+<code class="descname">pop</code><span class="sig-paren">(</span><span class="optional">[</span><em>key</em><span class="optional">[</span>, <em>default</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If <code class="docutils literal"><span class="pre">key</span></code> is in the pqdict, remove it and return its priority value,
+else return <code class="docutils literal"><span class="pre">default</span></code>. If <code class="docutils literal"><span class="pre">default</span></code> is not provided and <code class="docutils literal"><span class="pre">key</span></code> is
+not in the pqdict, raise a <code class="docutils literal"><span class="pre">KeyError</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; None.  Remove all items from D.<a class="headerlink" href="#pqdict.pqdict.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="optional">[</span><em>other</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#pqdict.pqdict.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.update([E, ]**F) -&gt; None.  Update D from mapping/iterable E and F.
+If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
+If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
+In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.setdefault">
+<code class="descname">setdefault</code><span class="sig-paren">(</span><em>key</em><span class="optional">[</span>, <em>default</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#pqdict.pqdict.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>D.setdefault(k[,d]) -&gt; D.get(k,d), also set D[k]=d if k not in D</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a shallow copy of a pqdict.</p>
+</dd></dl>
+
+<p>Iterators and Views</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">For the following sequences, order is arbitrary.</p>
+</div>
+<dl class="method">
+<dt id="pqdict.pqdict.iter">
+<code class="descname">iter</code><span class="sig-paren">(</span><em>pq</em><span class="sig-paren">)</span><a class="headerlink" href="#pqdict.pqdict.iter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.keys">
+<code class="descname">keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; a set-like object providing a view on D's keys<a class="headerlink" href="#pqdict.pqdict.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.values">
+<code class="descname">values</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; an object providing a view on D's values<a class="headerlink" href="#pqdict.pqdict.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.items">
+<code class="descname">items</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &rarr; a set-like object providing a view on D's items<a class="headerlink" href="#pqdict.pqdict.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In Python 2, the above methods return lists rather than views and <code class="docutils literal"><span class="pre">pqdict</span></code> includes additional iterator methods <code class="docutils literal"><span class="pre">iterkeys()</span></code>, <code class="docutils literal"><span class="pre">itervalues()</span></code> and <code class="docutils literal"><span class="pre">iteritems()</span></code>.</p>
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><strong>Priority Queue API</strong></p>
+<dl class="method">
+<dt id="pqdict.pqdict.top">
+<code class="descname">top</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.top"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.top" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the top priority key. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if pqdict is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt>
+<code class="descname">pop</code><span class="sig-paren">(</span><span class="optional">[</span><em>key</em><span class="optional">[</span>, <em>default</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.pop"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>If <code class="docutils literal"><span class="pre">key</span></code> is not provided, remove the top item and return its key, or
+raise <code class="docutils literal"><span class="pre">KeyError</span></code> if the pqdict is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.additem">
+<code class="descname">additem</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.additem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.additem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new item. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if key is already in the pqdict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.updateitem">
+<code class="descname">updateitem</code><span class="sig-paren">(</span><em>key</em>, <em>new_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.updateitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.updateitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the priority value of an existing item. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if
+key is not in the pqdict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.topitem">
+<code class="descname">topitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.topitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.topitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return top priority key and value. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if pqdict is
+empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.popitem">
+<code class="descname">popitem</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.popitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return top priority key and value. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if
+pqdict is empty.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.pushpopitem">
+<code class="descname">pushpopitem</code><span class="sig-paren">(</span><em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.pushpopitem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.pushpopitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to inserting a new item followed by removing the top priority
+item, but faster. Raises <code class="docutils literal"><span class="pre">KeyError</span></code> if the new key is already in the
+pqdict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.replace_key">
+<code class="descname">replace_key</code><span class="sig-paren">(</span><em>key</em>, <em>new_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.replace_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.replace_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the key of an existing heap node in place. Raises <code class="docutils literal"><span class="pre">KeyError</span></code>
+if the key to replace does not exist or if the new key is already in the
+pqdict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.swap_priority">
+<code class="descname">swap_priority</code><span class="sig-paren">(</span><em>key1</em>, <em>key2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.swap_priority"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.swap_priority" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fast way to swap the priority level of two items in the pqdict. Raises
+<code class="docutils literal"><span class="pre">KeyError</span></code> if either key does not exist.</p>
+</dd></dl>
+
+<p>Heapsort Iterators</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Iteration is in descending order of priority.</p>
+</div>
+<div class="admonition danger">
+<p class="first admonition-title">Danger</p>
+<p class="last">Heapsort iterators are destructive: they are generators that pop items out of the heap, which amounts to performing a heapsort.</p>
+</div>
+<dl class="method">
+<dt id="pqdict.pqdict.popkeys">
+<code class="descname">popkeys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.popkeys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.popkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructive heapsort iterator over keys, in descending order of priority
+level.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.popvalues">
+<code class="descname">popvalues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.popvalues"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.popvalues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructive heapsort iterator over priority values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pqdict.pqdict.popitems">
+<code class="descname">popitems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#pqdict.popitems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.pqdict.popitems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destructive heapsort iterator over items, ordered by priority level.</p>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The names of the heapsort iterators in v0.5 (iterkeys, itervalues, iteritems) were changed in v0.6 to be less ambiguous: These names are not provided at all in Python 3, and in Python 2 they are now part of the dictionary API.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="pqdict.nsmallest">
+<code class="descclassname">pqdict.</code><code class="descname">nsmallest</code><span class="sig-paren">(</span><em>n</em>, <em>mapping</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#nsmallest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.nsmallest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a mapping and returns the n keys associated with the smallest values
+in ascending order. If the mapping has fewer than n items, all its keys are
+returned.</p>
+<dl class="docutils">
+<dt>Equivalent to:</dt>
+<dd><code class="docutils literal"><span class="pre">next(zip(*heapq.nsmallest(mapping.items(),</span> <span class="pre">key=lambda</span> <span class="pre">x:</span> <span class="pre">x[1])))</span></code></dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of up to n keys from the mapping</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pqdict.nlargest">
+<code class="descclassname">pqdict.</code><code class="descname">nlargest</code><span class="sig-paren">(</span><em>n</em>, <em>mapping</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pqdict.html#nlargest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pqdict.nlargest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a mapping and returns the n keys associated with the largest values
+in descending order. If the mapping has fewer than n items, all its keys are
+returned.</p>
+<dl class="docutils">
+<dt>Equivalent to:</dt>
+<dd><code class="docutils literal"><span class="pre">next(zip(*heapq.nlargest(mapping.items(),</span> <span class="pre">key=lambda</span> <span class="pre">x:</span> <span class="pre">x[1])))</span></code></dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of up to n keys from the mapping</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="examples.html" class="btn btn-neutral" title="Examples" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Nezar Abdennur.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

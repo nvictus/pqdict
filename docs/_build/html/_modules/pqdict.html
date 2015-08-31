@@ -1,0 +1,761 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pqdict &mdash; pqdict 0.6 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="pqdict 0.6 documentation" href="../index.html"/>
+        <link rel="up" title="Module code" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../index.html" class="icon icon-home"> pqdict
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#what-is-an-indexed-priority-queue">What is an &#8220;indexed&#8221; priority queue?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#documentation">Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pqdict.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pqdict.html#pqdict-class">pqdict class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pqdict.html#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">pqdict</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      
+    <li>pqdict</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for pqdict</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Priority Queue Dictionary (pqdict)</span>
+<span class="sd">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+
+<span class="sd">A Pythonic indexed priority queue.</span>
+
+<span class="sd">A dict-like heap queue to prioritize hashable objects while providing random</span>
+<span class="sd">access and updatable priorities. Inspired by the ``heapq`` standard library</span>
+<span class="sd">module, which was written by Kevin O&#39;Connor and augmented by Tim Peters and</span>
+<span class="sd">Raymond Hettinger.</span>
+
+<span class="sd">The priority queue is implemented as a binary heap of (key, priority value)</span>
+<span class="sd">pairs, which supports:</span>
+
+<span class="sd">- O(1) search for the item with highest priority</span>
+
+<span class="sd">- O(log n) removal of the item with highest priority</span>
+
+<span class="sd">- O(log n) insertion of a new item</span>
+
+<span class="sd">Additionally, an index maps elements to their location in the heap and is kept</span>
+<span class="sd">up to date as the heap is manipulated. As a result, pqdict also supports:</span>
+
+<span class="sd">- O(1) lookup of any item by key</span>
+
+<span class="sd">- O(log n) removal of any item</span>
+
+<span class="sd">- O(log n) updating of any item&#39;s priority level</span>
+
+<span class="sd">Documentation at &lt;http://pythonhosted.com/pqdict&gt;.</span>
+
+<span class="sd">:copyright: (c) 2012-2015 by Nezar Abdennur.</span>
+<span class="sd">:license: MIT, see LICENSE.txt for more details.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">MutableMapping</span> <span class="k">as</span> <span class="n">_MutableMapping</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">lt</span><span class="p">,</span> <span class="n">gt</span>
+
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&#39;0.6.0&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;pqdict&#39;</span><span class="p">,</span> <span class="s">&#39;PQDict&#39;</span><span class="p">,</span> <span class="s">&#39;minpq&#39;</span><span class="p">,</span> <span class="s">&#39;maxpq&#39;</span><span class="p">,</span> <span class="s">&#39;nlargest&#39;</span><span class="p">,</span> <span class="s">&#39;nsmallest&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">_Node</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;key&#39;</span><span class="p">,</span> <span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="s">&#39;prio&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">prio</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prio</span> <span class="o">=</span> <span class="n">prio</span>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> \
+            <span class="s">&quot;(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prio</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="pqdict"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict">[docs]</a><span class="k">class</span> <span class="nc">pqdict</span><span class="p">(</span><span class="n">_MutableMapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A collection that maps hashable objects (keys) to priority-determining</span>
+<span class="sd">    values. The mapping is mutable so items may be added, removed and have their</span>
+<span class="sd">    priority level updated.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : mapping or iterable, optional</span>
+<span class="sd">        Input data, e.g. a dictionary or a sequence of items.</span>
+<span class="sd">    key : callable, optional</span>
+<span class="sd">        Optional priority key function to transform values into priority keys</span>
+<span class="sd">        for sorting. By default, the values are not transformed.</span>
+<span class="sd">    reverse : bool, optional</span>
+<span class="sd">        If ``True``, *larger* priority keys give items *higher* priority.</span>
+<span class="sd">        Default is ``False``.</span>
+<span class="sd">    precedes : callable, optional (overrides ``reverse``)</span>
+<span class="sd">        Function that determines precedence of a pair of priority keys. The</span>
+<span class="sd">        default comparator is ``operator.lt``, meaning *smaller* priority keys</span>
+<span class="sd">        give items *higher* priority.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">precedes</span><span class="o">=</span><span class="n">lt</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">reverse</span> <span class="ow">and</span> <span class="n">precedes</span> <span class="o">==</span> <span class="n">lt</span><span class="p">:</span>
+            <span class="n">precedes</span> <span class="o">=</span> <span class="n">gt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span> <span class="o">=</span> <span class="n">precedes</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heapify</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precedes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Priority key precedence function&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">keyfn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Priority key function&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">things</span> <span class="o">=</span> <span class="s">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+            <span class="s">&#39;</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">),</span> <span class="nb">repr</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;({&#39;</span> <span class="o">+</span> <span class="n">things</span> <span class="o">+</span> <span class="s">&#39;})&#39;</span>
+
+    <span class="c">############</span>
+    <span class="c"># dict API #</span>
+    <span class="c">############</span>
+    <span class="n">__marker</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+    <span class="n">__eq__</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">__eq__</span>
+    <span class="n">__ne__</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">__ne__</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">keys</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">items</span>
+    <span class="n">get</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">get</span>
+    <span class="n">clear</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">clear</span>
+    <span class="n">update</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">update</span>
+    <span class="n">setdefault</span> <span class="o">=</span> <span class="n">_MutableMapping</span><span class="o">.</span><span class="n">setdefault</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="pqdict.fromkeys"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.fromkeys">[docs]</a>    <span class="k">def</span> <span class="nf">fromkeys</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new pqict mapping keys from an iterable to the same value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return number of items in the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return ``True`` if key is in the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator over the keys of the pqdict. The order of iteration</span>
+<span class="sd">        is arbitrary! Use ``popkeys`` to iterate over keys in priority order.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the priority value of ``key``. Raises a ``KeyError`` if not in</span>
+<span class="sd">        the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span><span class="o">.</span><span class="n">value</span>  <span class="c"># raises KeyError</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">node_factory</span><span class="o">=</span><span class="n">_Node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assign a priority value to ``key``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="n">keygen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c"># add</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">heap</span><span class="p">)</span>
+            <span class="n">prio</span> <span class="o">=</span> <span class="n">keygen</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">keygen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="n">heap</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node_factory</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">prio</span><span class="p">))</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_swim</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># update</span>
+            <span class="n">prio</span> <span class="o">=</span> <span class="n">keygen</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">keygen</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="n">value</span>
+            <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span> <span class="o">=</span> <span class="n">prio</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reheapify</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove item. Raises a ``KeyError`` if key is not in the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c"># raises KeyError</span>
+        <span class="n">node_to_delete</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+        <span class="c"># Take the very last node and place it in the vacated spot. Let it</span>
+        <span class="c"># sink or swim until it reaches its new resting place.</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">heap</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">node_to_delete</span><span class="p">:</span>
+            <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">end</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reheapify</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">node_to_delete</span>
+
+<div class="viewcode-block" id="pqdict.copy"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a shallow copy of a pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span><span class="p">,</span> <span class="n">precedes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="pqdict.pop"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">__marker</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">__marker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If ``key`` is in the pqdict, remove it and return its priority value,</span>
+<span class="sd">        else return ``default``. If ``default`` is not provided and ``key`` is</span>
+<span class="sd">        not in the pqdict, raise a ``KeyError``.</span>
+
+<span class="sd">        If ``key`` is not provided, remove the top item and return its key, or</span>
+<span class="sd">        raise ``KeyError`` if the pqdict is empty.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="c"># pq semantics: remove and return top *key* (value is discarded)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">__marker</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">heap</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;pqdict is empty&#39;</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">key</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">key</span>
+        <span class="c"># dict semantics: remove and return *value* mapped from key</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c"># raises KeyError</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">__marker</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="n">default</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node_to_delete</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">heap</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">node_to_delete</span><span class="p">:</span>
+                <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span>
+                <span class="n">position</span><span class="p">[</span><span class="n">end</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_reheapify</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">node_to_delete</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">del</span> <span class="n">node_to_delete</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+    <span class="c">######################</span>
+    <span class="c"># Priority Queue API #</span>
+    <span class="c">######################</span></div>
+<div class="viewcode-block" id="pqdict.top"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.top">[docs]</a>    <span class="k">def</span> <span class="nf">top</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the top priority key. Raises ``KeyError`` if pqdict is empty.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;pqdict is empty&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span>
+</div>
+<div class="viewcode-block" id="pqdict.popitem"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.popitem">[docs]</a>    <span class="k">def</span> <span class="nf">popitem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove and return top priority key and value. Raises ``KeyError`` if</span>
+<span class="sd">        pqdict is empty.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">heap</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;pqdict is empty&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">heap</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">end</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sink</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="k">del</span> <span class="n">position</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="pqdict.topitem"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.topitem">[docs]</a>    <span class="k">def</span> <span class="nf">topitem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return top priority key and value. Raises ``KeyError`` if pqdict is</span>
+<span class="sd">        empty.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;pqdict is empty&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="pqdict.additem"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.additem">[docs]</a>    <span class="k">def</span> <span class="nf">additem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new item. Raises ``KeyError`` if key is already in the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> is already in the queue&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="pqdict.pushpopitem"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.pushpopitem">[docs]</a>    <span class="k">def</span> <span class="nf">pushpopitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">node_factory</span><span class="o">=</span><span class="n">_Node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Equivalent to inserting a new item followed by removing the top priority</span>
+<span class="sd">        item, but faster. Raises ``KeyError`` if the new key is already in the</span>
+<span class="sd">        pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="n">precedes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span>
+        <span class="n">prio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyfn</span> <span class="k">else</span> <span class="n">value</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node_factory</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">prio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> is already in the queue&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">heap</span> <span class="ow">and</span> <span class="n">precedes</span><span class="p">(</span><span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+            <span class="n">node</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">node</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">del</span> <span class="n">position</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sink</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="pqdict.updateitem"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.updateitem">[docs]</a>    <span class="k">def</span> <span class="nf">updateitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the priority value of an existing item. Raises ``KeyError`` if</span>
+<span class="sd">        key is not in the pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_val</span>
+</div>
+<div class="viewcode-block" id="pqdict.replace_key"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.replace_key">[docs]</a>    <span class="k">def</span> <span class="nf">replace_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the key of an existing heap node in place. Raises ``KeyError``</span>
+<span class="sd">        if the key to replace does not exist or if the new key is already in the</span>
+<span class="sd">        pqdict.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> is already in the queue&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">new_key</span><span class="p">))</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c"># raises appropriate KeyError</span>
+        <span class="n">position</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">new_key</span>
+</div>
+<div class="viewcode-block" id="pqdict.swap_priority"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.swap_priority">[docs]</a>    <span class="k">def</span> <span class="nf">swap_priority</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key1</span><span class="p">,</span> <span class="n">key2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fast way to swap the priority level of two items in the pqdict. Raises</span>
+<span class="sd">        ``KeyError`` if either key does not exist.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="k">if</span> <span class="n">key1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span> <span class="ow">or</span> <span class="n">key2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span>
+        <span class="n">pos1</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="n">key1</span><span class="p">],</span> <span class="n">position</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span>
+        <span class="n">heap</span><span class="p">[</span><span class="n">pos1</span><span class="p">]</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos2</span><span class="p">]</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">key2</span><span class="p">,</span> <span class="n">key1</span>
+        <span class="n">position</span><span class="p">[</span><span class="n">key1</span><span class="p">],</span> <span class="n">position</span><span class="p">[</span><span class="n">key2</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos2</span><span class="p">,</span> <span class="n">pos1</span>
+</div>
+<div class="viewcode-block" id="pqdict.popkeys"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.popkeys">[docs]</a>    <span class="k">def</span> <span class="nf">popkeys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructive heapsort iterator over keys, in descending order of priority</span>
+<span class="sd">        level.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">popitem</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="pqdict.popvalues"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.popvalues">[docs]</a>    <span class="k">def</span> <span class="nf">popvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructive heapsort iterator over priority values.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">popitem</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="pqdict.popitems"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.popitems">[docs]</a>    <span class="k">def</span> <span class="nf">popitems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Destructive heapsort iterator over items, ordered by priority level.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="pqdict.heapify"><a class="viewcode-back" href="../pqdict.html#pqdict.pqdict.heapify">[docs]</a>    <span class="k">def</span> <span class="nf">heapify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">__marker</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Repair a broken heap. If the state of an item&#39;s priority value changes </span>
+<span class="sd">        you can re-sort the relevant item only by providing ``key``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">__marker</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_heap</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">//</span><span class="mi">2</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sink</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reheapify</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="c"># Heap algorithms </span>
+    <span class="c"># The names of the heap operations in `heapq` (sift up/down) refer to the</span>
+    <span class="c"># motion of the nodes being compared to, rather than the node being operated</span>
+    <span class="c"># on as is usually done in textbooks (i.e. bubble down/up, instead). Here I</span>
+    <span class="c"># use the sink/swim nomenclature from http://algs4.cs.princeton.edu/24pq/.</span>
+    <span class="c"># The way I like to think of it, an item that is too &quot;heavy&quot; (low-priority) </span>
+    <span class="c"># should sink down the tree, while one that is too &quot;light&quot; should float or </span>
+    <span class="c"># swim up.</span></div>
+    <span class="k">def</span> <span class="nf">_reheapify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="c"># update existing node:</span>
+        <span class="c"># bubble up or down depending on values of parent and children</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">precedes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span>
+        <span class="n">parent_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+        <span class="n">child_pos</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">parent_pos</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">precedes</span><span class="p">(</span><span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="n">parent_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_swim</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">child_pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">heap</span><span class="p">):</span>
+            <span class="n">other_pos</span> <span class="o">=</span> <span class="n">child_pos</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">other_pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">heap</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">precedes</span><span class="p">(</span>
+                    <span class="n">heap</span><span class="p">[</span><span class="n">child_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="n">other_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+                <span class="n">child_pos</span> <span class="o">=</span> <span class="n">other_pos</span>
+            <span class="k">if</span> <span class="n">precedes</span><span class="p">(</span><span class="n">heap</span><span class="p">[</span><span class="n">child_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sink</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_sink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c"># &quot;Sink-to-the-bottom-then-swim&quot; algorithm (Floyd, 1964)</span>
+        <span class="c"># Tends to reduce the number of comparisons when inserting &quot;heavy&quot; items</span>
+        <span class="c"># at the top, e.g. during a heap pop. See heapq for more details.</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="n">precedes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span>
+        <span class="n">endpos</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">heap</span><span class="p">)</span>
+        <span class="c"># Grab the top node</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">top</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+        <span class="c"># Sift up a chain of child nodes</span>
+        <span class="n">child_pos</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">child_pos</span> <span class="o">&lt;</span> <span class="n">endpos</span><span class="p">:</span>
+            <span class="c"># Choose the smaller child.</span>
+            <span class="n">other_pos</span> <span class="o">=</span> <span class="n">child_pos</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">other_pos</span> <span class="o">&lt;</span> <span class="n">endpos</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">precedes</span><span class="p">(</span>
+                    <span class="n">heap</span><span class="p">[</span><span class="n">child_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">heap</span><span class="p">[</span><span class="n">other_pos</span><span class="p">]</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+                <span class="n">child_pos</span> <span class="o">=</span> <span class="n">other_pos</span>
+            <span class="n">child_node</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">child_pos</span><span class="p">]</span>
+            <span class="c"># Move it up one level.</span>
+            <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">child_node</span>
+            <span class="n">position</span><span class="p">[</span><span class="n">child_node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+            <span class="c"># Next level</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">child_pos</span>
+            <span class="n">child_pos</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c"># We are left with a &quot;vacant&quot; leaf. Put our node there and let it swim</span>
+        <span class="c"># until it reaches its new resting place.</span>
+        <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="n">position</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_swim</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">top</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_swim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">heap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heap</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+        <span class="n">precedes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precedes</span>
+        <span class="c"># Grab the node from its place</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+        <span class="c"># Sift parents down until we find a place where the node fits.</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">&gt;</span> <span class="n">top</span><span class="p">:</span>
+            <span class="n">parent_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+            <span class="n">parent_node</span> <span class="o">=</span> <span class="n">heap</span><span class="p">[</span><span class="n">parent_pos</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">precedes</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">prio</span><span class="p">,</span> <span class="n">parent_node</span><span class="o">.</span><span class="n">prio</span><span class="p">):</span>
+                <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent_node</span>
+                <span class="n">position</span><span class="p">[</span><span class="n">parent_node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">parent_pos</span>
+                <span class="k">continue</span>
+            <span class="k">break</span>
+        <span class="c"># Put node in its new place</span>
+        <span class="n">heap</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="n">position</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+
+
+<span class="c">###########</span>
+<span class="c"># Aliases #</span>
+<span class="c">###########</span>
+</div>
+<span class="n">PQDict</span> <span class="o">=</span> <span class="n">pqdict</span>  <span class="c"># deprecated</span>
+
+
+<span class="k">def</span> <span class="nf">minpq</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pqdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">precedes</span><span class="o">=</span><span class="n">lt</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">maxpq</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pqdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">precedes</span><span class="o">=</span><span class="n">gt</span><span class="p">)</span>
+
+
+<span class="c">#############</span>
+<span class="c"># Functions #</span>
+<span class="c">#############</span>
+
+<div class="viewcode-block" id="nlargest"><a class="viewcode-back" href="../pqdict.html#pqdict.nlargest">[docs]</a><span class="k">def</span> <span class="nf">nlargest</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes a mapping and returns the n keys associated with the largest values</span>
+<span class="sd">    in descending order. If the mapping has fewer than n items, all its keys are</span>
+<span class="sd">    returned.</span>
+
+<span class="sd">    Equivalent to:</span>
+<span class="sd">        ``next(zip(*heapq.nlargest(mapping.items(), key=lambda x: x[1])))``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of up to n keys from the mapping</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">pq</span> <span class="o">=</span> <span class="n">minpq</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">additem</span><span class="p">(</span><span class="o">*</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">it</span><span class="p">:</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">pushpopitem</span><span class="p">(</span><span class="o">*</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pq</span><span class="o">.</span><span class="n">popkeys</span><span class="p">())</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+</div>
+<div class="viewcode-block" id="nsmallest"><a class="viewcode-back" href="../pqdict.html#pqdict.nsmallest">[docs]</a><span class="k">def</span> <span class="nf">nsmallest</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">mapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes a mapping and returns the n keys associated with the smallest values</span>
+<span class="sd">    in ascending order. If the mapping has fewer than n items, all its keys are</span>
+<span class="sd">    returned.</span>
+
+<span class="sd">    Equivalent to:</span>
+<span class="sd">        ``next(zip(*heapq.nsmallest(mapping.items(), key=lambda x: x[1])))``</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of up to n keys from the mapping</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">mapping</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">mapping</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="n">pq</span> <span class="o">=</span> <span class="n">maxpq</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">additem</span><span class="p">(</span><span class="o">*</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">it</span><span class="p">:</span>
+            <span class="n">pq</span><span class="o">.</span><span class="n">pushpopitem</span><span class="p">(</span><span class="o">*</span><span class="nb">next</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pq</span><span class="o">.</span><span class="n">popkeys</span><span class="p">())</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Nezar Abdennur.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
