@@ -57,8 +57,8 @@ class _Node(object):
 class pqdict(_MutableMapping):
     """
     A collection that maps hashable objects (keys) to priority-determining
-    values. The mapping is mutable so items may be added, removed and have their
-    priority level updated.
+    values. The mapping is mutable so items may be added, removed and have
+    their priority level updated.
 
     Parameters
     ----------
@@ -303,9 +303,9 @@ class pqdict(_MutableMapping):
 
     def pushpopitem(self, key, value, node_factory=_Node):
         """
-        Equivalent to inserting a new item followed by removing the top priority
-        item, but faster. Raises ``KeyError`` if the new key is already in the
-        pqdict.
+        Equivalent to inserting a new item followed by removing the top
+        priority item, but faster. Raises ``KeyError`` if the new key is
+        already in the pqdict.
 
         """
         heap = self._heap
@@ -335,8 +335,8 @@ class pqdict(_MutableMapping):
     def replace_key(self, key, new_key):
         """
         Replace the key of an existing heap node in place. Raises ``KeyError``
-        if the key to replace does not exist or if the new key is already in the
-        pqdict.
+        if the key to replace does not exist or if the new key is already in
+        the pqdict.
 
         """
         heap = self._heap
@@ -363,8 +363,8 @@ class pqdict(_MutableMapping):
 
     def popkeys(self):
         """
-        Destructive heapsort iterator over keys, in descending order of priority
-        level.
+        Destructive heapsort iterator over keys, in descending order of
+        priority level.
 
         """
         try:
@@ -397,7 +397,7 @@ class pqdict(_MutableMapping):
 
     def heapify(self, key=__marker):
         """
-        Repair a broken heap. If the state of an item's priority value changes 
+        Repair a broken heap. If the state of an item's priority value changes
         you can re-sort the relevant item only by providing ``key``.
 
         """
@@ -412,14 +412,14 @@ class pqdict(_MutableMapping):
                 raise KeyError(key)
             self._reheapify(pos)
 
-    # Heap algorithms 
+    # Heap algorithms
     # The names of the heap operations in `heapq` (sift up/down) refer to the
-    # motion of the nodes being compared to, rather than the node being operated
-    # on as is usually done in textbooks (i.e. bubble down/up, instead). Here I
-    # use the sink/swim nomenclature from http://algs4.cs.princeton.edu/24pq/.
-    # The way I like to think of it, an item that is too "heavy" (low-priority) 
-    # should sink down the tree, while one that is too "light" should float or 
-    # swim up.
+    # motion of the nodes being compared to, rather than the node being
+    # operated on as is usually done in textbooks (i.e. bubble down/up,
+    # instead). Here I use the sink/swim nomenclature from
+    # http://algs4.cs.princeton.edu/24pq/. The way I like to think of it, an
+    # item that is too "heavy" (low-priority) should sink down the tree, while
+    # one that is too "light" should float or swim up.
     def _reheapify(self, pos):
         # update existing node:
         # bubble up or down depending on values of parent and children
@@ -439,8 +439,8 @@ class pqdict(_MutableMapping):
 
     def _sink(self, top=0):
         # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
-        # Tends to reduce the number of comparisons when inserting "heavy" items
-        # at the top, e.g. during a heap pop. See heapq for more details.
+        # Tends to reduce the number of comparisons when inserting "heavy"
+        # items at the top, e.g. during a heap pop. See heapq for more details.
         heap = self._heap
         position = self._position
         precedes = self._precedes
@@ -512,8 +512,8 @@ def maxpq(*args, **kwargs):
 def nlargest(n, mapping):
     """
     Takes a mapping and returns the n keys associated with the largest values
-    in descending order. If the mapping has fewer than n items, all its keys are
-    returned.
+    in descending order. If the mapping has fewer than n items, all its keys
+    are returned.
 
     Equivalent to:
         ``next(zip(*heapq.nlargest(mapping.items(), key=lambda x: x[1])))``
