@@ -1,7 +1,9 @@
 *.py[co]
 __pycache__
 
-# setup and installation #
+# setup and build #
+*.egg-info/
+.tox/
 docs/_*
 dist/
 build/
