@@ -1,2 +1,3 @@
-sphinx
-numpydoc
+Sphinx
+sphinx-rtd-theme
+numpydoc==0.5
