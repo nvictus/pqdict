@@ -28,14 +28,18 @@ classifiers = """\
 
 def _read(*parts, **kwargs):
     filepath = os.path.join(os.path.dirname(__file__), *parts)
-    with io.open(filepath) as fh:
-          text = io.open(fh, encoding=kwargs.pop('encoding', 'utf-8')).read()
+    encoding = kwargs.pop('encoding', 'utf-8')
+    with io.open(filepath, encoding=encoding) as fh:
+        text = fh.read()
     return text
 
 
 def get_version():
-    regex = re.compile(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]')
-    return regex.search(_read('pqdict', '__init__.py')).group(1)
+    version = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        _read('pqdict', '__init__.py'), 
+        re.MULTILINE).group(1)
+    return version
 
 
 def get_long_description():
@@ -55,6 +59,7 @@ setup(
     packages=['pqdict'],
     zip_safe=False,
     classifiers=[s.strip() for s in classifiers.split('\n') if s],
+    install_requires=[],
     tests_require=['nose'],
     extras_require={'docs': ['Sphinx>=1.1', 'numpydoc']},
 )
