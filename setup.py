@@ -59,7 +59,7 @@ setup(
     packages=['pqdict'],
     zip_safe=False,
     classifiers=[s.strip() for s in classifiers.split('\n') if s],
-    install_requires=[],
+    install_requires=['six'],
     tests_require=['nose'],
     extras_require={'docs': ['Sphinx>=1.1', 'numpydoc']},
 )
