@@ -1,10 +1,17 @@
-include README.rst
 include LICENSE
-include MANIFEST.in
-include tests/test_pqdict.py
-recursive-include examples *
-recursive-include docs *
-global-exclude *.DS_Store
-prune doc/_build
-prune doc/_static
-prune doc/_templates
+include CHANGES
+include README.rst
+
+graft tests
+graft docs
+prune docs/_build
+prune docs/_static
+prune docs/_templates
+
+global-exclude __pycache__/*
+global-exclude *.so
+global-exclude *.pyd
+global-exclude *.pyc
+global-exclude .git*
+global-exclude .deps/*
+global-exclude .DS_Store

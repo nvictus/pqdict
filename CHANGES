@@ -1,46 +1,68 @@
-v0.1, 2013-07-17 -- First release.
+0.6 (2015-08-31)
+++++++++++++++++
 
-v0.2, 2013-07-18
-	* fixed error in __all__ list
+* Conceptual changes:
+	- Clearer terminology in API and documentation (e.g., value vs. priority 
+	  key).
+	- Functional philosophy: pqdict accepts optional sort key function and 
+	  precedence function.
+* API changes:
+	- PQDict name is deprecated.
+	- Several backwards-incompatible changes to fit the new conceptual model.
+	- Heapsort iterators (iterkeys, itervalues, iteritems) were renamed 
+	  (popkeys, popvalues, popitems). In Python 2, the old names persist as 
+	  regular iterators.
+	- Dropped module functions except for nlargest and nsmallest.
+* Docs:
+	- Revised and updated
+	- Switch to RTD theme
 
-v0.3, 2013-07-23
-	* bug fix:
-		off-by one error caused the queue to not reheapify properly in the special case when an existing item in position 1 had its pkey decreased below that of its parent at position 0 (the root).
+0.5 (2014-02-09)
+++++++++++++++++
 
-v0.4, 2013-12-08
-	* Several API changes:
-		- renamed peek() to top()
-		- semantics of top, pop, vs. topitem, popitem, *item, now hopefully more consistent
-		- prioritykeys() and iterprioritykeys() are aliases for values() and itervalues()
-	* Added new PQDict methods: 
-		- pushpopitem
-		- swap_priority
-		- replace_key
-	* Added new functions:
-		- nsmallest, nlargest
-		- consume
-	* Added Sphinx documentation
+* API changes:
+	- PQDict.pq_type property: 'min', 'max' or 'custom'
+	- fromkeys keyword 'sort_by' is replaced with 'rank_by'
+* Bug fixes:
+	- turns out PQDict.create and sort_by_value were broken! (oops!)
+	- consume: the collector was comparing the wrong pkeys
+* Improved test coverage:
+	- improved coverage of unit tests
+	- using travis-ci
 
-v0.5, 2014-02-09
-	* API changes:
-		- PQDict.pq_type is now a property: 'min', 'max' or 'custom'
-		- fromkeys keyword 'sort_by' is replaced with 'rank_by'
-	* Bug fixes:
-		- turns out PQDict.create and sort_by_value were broken! (oops!)
-		- consume: the collector was comparing the wrong pkeys
-	* Improved test coverage:
-		- all new features have unit tests now
-		- using travis-ci
 
-v0.6, 2015-08-31
-	* Conceptual changes:
-		- Clearer terminology in API and documentation (e.g., value vs. priority key).
-		- Functional philosophy: pqdict accepts optional sort key function and precedence function.
-	* API changes:
-		- ``PQDict`` name is deprecated.
-		- Several backwards-incompatible changes to fit the new conceptual model.Heapsort iterators (iterkeys, itervalues, iteritems) were renamed (popkeys, popvalues, popitems). In Python 2, the old names persist as regular iterators.
-		- Killed all module functions except for nlargest and nsmallest.
-	* Docs:
-		- Revised and updated
-		- Switch to RTD theme
+0.4 (2013-12-08)
+++++++++++++++++
 
+* API changes:
+	- renamed peek() to top()
+	- semantics of top, pop, vs. topitem, popitem, *item, now hopefully more 
+	  consistent
+	- prioritykeys() and iterprioritykeys() are aliases for values() and 
+	  itervalues()
+	- new methods: pushpopitem, swap_priority, replace_key
+* New functions:
+	- nsmallest, nlargest
+	- consume
+* Added Sphinx documentation
+
+
+0.3 (2013-07-23)
+++++++++++++++++
+
+* Bug fixes:
+	- off-by one error caused the queue to not reheapify properly in a special 
+	  case
+
+
+0.2 (2013-07-18)
+++++++++++++++++
+
+* Bug fixes:
+	- Fixed error in __all__ list
+
+
+0.1 (2013-07-17)
+++++++++++++++++
+
+* First release.
