@@ -6,6 +6,7 @@ python:
   - "3.5.0b3"
   - "nightly"
   - "pypy"
+  - "pypy3"
 # command to run tests
 script: nosetests
 sudo: false
