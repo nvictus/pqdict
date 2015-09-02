@@ -1,10 +1,18 @@
+1.0.0 (2015-09-02)
+++++++++++++++++++
+
+* Stable release.
+
+* Supporting 2.7+, 3.3+ and pypy. Dropped 3.2 support.
+
+
 0.6 (2015-08-31)
 ++++++++++++++++
 
 * Conceptual changes:
 	- Clearer terminology in API and documentation (e.g., value vs. priority 
 	  key).
-	- Functional philosophy: pqdict accepts optional sort key function and 
+	- Functional philosophy: pqdict accepts optional priority key function and 
 	  precedence function.
 * API changes:
 	- PQDict name is deprecated.
@@ -16,6 +24,7 @@
 * Docs:
 	- Revised and updated
 	- Switch to RTD theme
+
 
 0.5 (2014-02-09)
 ++++++++++++++++
