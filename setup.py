@@ -50,7 +50,7 @@ setup(
     name='pqdict',
     version=get_version(),
     license='MIT',
-    description='A dictionary-like indexed priority queue',
+    description='A Pythonic indexed priority queue',
     long_description=get_long_description(),
     keywords=['dict', 'priority queue', 'heap', 'scheduler', 'data structures'],
     author='Nezar Abdennur',
