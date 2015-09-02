@@ -112,7 +112,7 @@ pqdict class
     .. automethod:: popitems
 
     .. warning::
-        The names of the heapsort iterators in v0.5 (iterkeys, itervalues, iteritems) were changed in v0.6 to be less ambiguous: These names are not provided at all in Python 3, and in Python 2 they are now part of the dictionary API.
+        The names of the heapsort iterators in v0.5 (iterkeys, itervalues, iteritems) were changed in v0.6 to be more transparent: These names are not provided at all in Python 3, and in Python 2 they are now part of the dictionary API.
 
 
 Functions

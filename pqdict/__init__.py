@@ -247,7 +247,8 @@ class pqdict(_MutableMapping):
     ######################
     def top(self):
         """
-        Return the top priority key. Raises ``KeyError`` if pqdict is empty.
+        Return the key of the item with highest priority. Raises ``KeyError``
+        if pqdict is empty.
 
         """
         try:
@@ -258,8 +259,8 @@ class pqdict(_MutableMapping):
 
     def popitem(self):
         """
-        Remove and return top priority key and value. Raises ``KeyError`` if
-        pqdict is empty.
+        Remove and return the item with highest priority. Raises ``KeyError``
+        if pqdict is empty.
 
         """
         heap = self._heap
@@ -282,7 +283,7 @@ class pqdict(_MutableMapping):
 
     def topitem(self):
         """
-        Return top priority key and value. Raises ``KeyError`` if pqdict is
+        Return the item with highest priority. Raises ``KeyError`` if pqdict is
         empty.
 
         """
@@ -363,8 +364,7 @@ class pqdict(_MutableMapping):
 
     def popkeys(self):
         """
-        Destructive heapsort iterator over keys, in descending order of
-        priority level.
+        Heapsort iterator over keys in descending order of priority level.
 
         """
         try:
@@ -375,7 +375,7 @@ class pqdict(_MutableMapping):
 
     def popvalues(self):
         """
-        Destructive heapsort iterator over priority values.
+        Heapsort iterator over values in descending order of priority level.
 
         """
         try:
@@ -386,7 +386,7 @@ class pqdict(_MutableMapping):
 
     def popitems(self):
         """
-        Destructive heapsort iterator over items, ordered by priority level.
+        Heapsort iterator over items in descending order of priority level.
 
         """
         try:
