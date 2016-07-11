@@ -16,9 +16,6 @@ Works with Python 2.7+, 3.3+, and PyPy.
 .. image:: https://img.shields.io/pypi/v/pqdict.svg
     :target: https://pypi.python.org/pypi/pqdict
 
-.. image:: https://img.shields.io/pypi/dm/pqdict.svg
-    :target: https://pypi.python.org/pypi/pqdict
-
 The priority queue is implemented as a binary heap of (key, priority value)
 pairs, which supports:
 
