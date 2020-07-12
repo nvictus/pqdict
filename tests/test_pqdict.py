@@ -227,7 +227,7 @@ def test_iter():
 def test_keys():
     pq = pqdict(sample_items)
     assert sorted(sample_keys) == sorted(pq.keys())
-    assert sorted(sample_values), [pq[key] for key in pq.copy().popkeys()]
+    assert sorted(sample_values) == [pq[key] for key in pq.copy().popkeys()]
 
 
 def test_values():
@@ -239,7 +239,7 @@ def test_values():
 def test_items():
     pq = pqdict(sample_items)
     assert sorted(sample_items) == sorted(pq.items())
-    assert sorted(sample_values), [item[1] for item in pq.popitems()]
+    assert sorted(sample_values) == [item[1] for item in pq.popitems()]
 
 
 # The next group of tests were originally inclass TestPQAPI
@@ -261,7 +261,7 @@ def test_precedes():
     pq["b"] = (1,)
     pq["c"] = (1, 2)
     pq["d"] = (1, 2, 3)
-    assert list(pq.popvalues()), [(), (1,), (1, 2) == (1, 2, 3)]
+    assert list(pq.popvalues()) == [(), (1,), (1, 2), (1, 2, 3)]
 
 
 def test_pop():
@@ -292,7 +292,7 @@ def test_top():
     for num_items in range(1, 30):
         items = generate_data("float", num_items)
         pq = pqdict(items)
-        assert pq.top(), min(items, key=lambda x: x[1])[0]
+        assert pq.top() == min(items, key=lambda x: x[1])[0]
 
 
 def test_popitem():
@@ -312,7 +312,7 @@ def test_topitem():
     for num_items in range(1, 30):
         items = generate_data("float", num_items)
         pq = pqdict(items)
-        assert pq.topitem(), min(items, key=lambda x: x[1])
+        assert pq.topitem() == min(items, key=lambda x: x[1])
 
 
 def test_additem():
@@ -339,8 +339,8 @@ def test_updateitem():
 
 def test_pushpopitem():
     pq = minpq(A=5, B=8, C=1)
-    assert pq.pushpopitem("D", 10), "C" == 1
-    assert pq.pushpopitem("E", 5), "E" == 5
+    assert pq.pushpopitem("D", 10) == ("C", 1)
+    assert pq.pushpopitem("E", 5) == ("E", 5)
     with pytest.raises(KeyError):
         pq.pushpopitem("A", 99)
 
@@ -491,7 +491,7 @@ def test_datetime():
     pq["a"] = dt
     pq["b"] = dt + timedelta(days=5)
     pq["c"] = dt + timedelta(seconds=5)
-    assert list(pq.popkeys()), ["a", "c" == "b"]
+    assert list(pq.popkeys()) == ["a", "c", "b"]
 
 
 def test_repair():
@@ -507,6 +507,6 @@ def test_repair():
 # The next test was originally in class TestModuleFunctions
 def test_nbest():
     top3 = nlargest(3, dict(sample_items))
-    assert list(top3), ["F", "E" == "B"]
+    assert list(top3) == ["F", "E", "B"]
     bot3 = nsmallest(3, dict(sample_items))
     assert list(bot3) == ["G", "D", "A"]
