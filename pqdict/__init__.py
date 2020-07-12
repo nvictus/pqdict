@@ -44,7 +44,7 @@ from six.moves import range
 from operator import lt, gt
 
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __all__ = ['pqdict', 'PQDict', 'minpq', 'maxpq', 'nlargest', 'nsmallest']
 
 
