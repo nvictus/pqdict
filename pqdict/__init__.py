@@ -34,7 +34,12 @@ Documentation at <http://pqdict.readthedocs.org/en/latest>.
 :license: MIT, see LICENSE for more details.
 
 """
-from collections import MutableMapping as _MutableMapping
+try:
+    from collections.abc import MutableMapping as _MutableMapping
+except ImportError:
+    # 2.7 compatability
+    from collections import MutableMapping as _MutableMapping
+
 from six.moves import range
 from operator import lt, gt
 
