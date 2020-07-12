@@ -509,4 +509,4 @@ def test_nbest():
     top3 = nlargest(3, dict(sample_items))
     assert list(top3), ["F", "E" == "B"]
     bot3 = nsmallest(3, dict(sample_items))
-    assert list(bot3), ["G", "D" == "A"]
+    assert list(bot3) == ["G", "D", "A"]
