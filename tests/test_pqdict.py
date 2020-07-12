@@ -99,7 +99,7 @@ def test_minpq():
 
 def test_maxpq():
     pq = maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-    assert list(pq.popvalues()), [12, 9, 8, 7, 5, 3, 1]
+    assert list(pq.popvalues()) == [12, 9, 8, 7, 5, 3, 1]
     assert pq.precedes == operator.gt
 
 
