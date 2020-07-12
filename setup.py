@@ -37,7 +37,7 @@ def _read(*parts, **kwargs):
 def get_version():
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-        _read('pqdict', '__init__.py'), 
+        _read('pqdict', '__init__.py'),
         re.MULTILINE).group(1)
     return version
 
@@ -60,6 +60,6 @@ setup(
     zip_safe=False,
     classifiers=[s.strip() for s in classifiers.split('\n') if s],
     install_requires=['six'],
-    tests_require=['nose'],
+    tests_require=['pytest'],
     extras_require={'docs': ['Sphinx>=1.1', 'numpydoc']},
 )
