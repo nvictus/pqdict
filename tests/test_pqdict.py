@@ -93,7 +93,7 @@ def test_equality():
 
 def test_minpq():
     pq = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-    assert list(pq.popvalues()), [1, 3, 5, 7, 8, 9, 12]
+    assert list(pq.popvalues()) == [1, 3, 5, 7, 8, 9, 12]
     assert pq.precedes == operator.lt
 
 
