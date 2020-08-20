@@ -503,18 +503,20 @@ PQDict = pqdict  # deprecated
 
 
 def minpq(*args, **kwargs):
-    return pqdict(dict(*args, **kwargs), precedes=lt)
+    key = kwargs.pop('key', None)
+    return pqdict(dict(*args, **kwargs), key=key, precedes=lt)
 
 
 def maxpq(*args, **kwargs):
-    return pqdict(dict(*args, **kwargs), precedes=gt)
+    key = kwargs.pop('key', None)
+    return pqdict(dict(*args, **kwargs), key=key, precedes=gt)
 
 
 #############
 # Functions #
 #############
 
-def nlargest(n, mapping):
+def nlargest(n, mapping, key=None):
     """
     Takes a mapping and returns the n keys associated with the largest values
     in descending order. If the mapping has fewer than n items, all its keys
@@ -522,6 +524,17 @@ def nlargest(n, mapping):
 
     Equivalent to:
         ``next(zip(*heapq.nlargest(mapping.items(), key=lambda x: x[1])))``
+
+    Parameters
+    ----------
+    n : int
+        The number of keys associated with the largest values
+        in descending order
+    mapping : Mapping
+        A mapping object
+    key : callable, optional
+        Optional priority key function to transform values into priority keys
+        for sorting. By default, the values are not transformed.
 
     Returns
     -------
@@ -532,7 +545,7 @@ def nlargest(n, mapping):
         it = mapping.iteritems()
     except AttributeError:
         it = iter(mapping.items())
-    pq = minpq()
+    pq = minpq(key=key)
     try:
         for i in range(n):
             pq.additem(*next(it))
@@ -548,7 +561,7 @@ def nlargest(n, mapping):
     return out
 
 
-def nsmallest(n, mapping):
+def nsmallest(n, mapping, key=None):
     """
     Takes a mapping and returns the n keys associated with the smallest values
     in ascending order. If the mapping has fewer than n items, all its keys are
@@ -556,6 +569,17 @@ def nsmallest(n, mapping):
 
     Equivalent to:
         ``next(zip(*heapq.nsmallest(mapping.items(), key=lambda x: x[1])))``
+
+    Parameters
+    ----------
+    n : int
+        The number of keys associated with the largest values
+        in descending order
+    mapping : Mapping
+        A mapping object
+    key : callable, optional
+        Optional priority key function to transform values into priority keys
+        for sorting. By default, the values are not transformed.
 
     Returns
     -------
@@ -566,7 +590,7 @@ def nsmallest(n, mapping):
         it = mapping.iteritems()
     except AttributeError:
         it = iter(mapping.items())
-    pq = maxpq()
+    pq = maxpq(key=key)
     try:
         for i in range(n):
             pq.additem(*next(it))
