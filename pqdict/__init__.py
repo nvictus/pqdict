@@ -573,8 +573,8 @@ def nsmallest(n, mapping, key=None):
     Parameters
     ----------
     n : int
-        The number of keys associated with the largest values
-        in descending order
+        The number of keys associated with the smallest values
+        in ascending order
     mapping : Mapping
         A mapping object
     key : callable, optional
