@@ -2,8 +2,9 @@
 from datetime import datetime, timedelta
 from itertools import combinations
 import operator
-import random
 import sys
+import random
+
 import pytest
 
 from pqdict import pqdict, minpq, maxpq, nlargest, nsmallest
@@ -11,7 +12,11 @@ from pqdict import pqdict, minpq, maxpq, nlargest, nsmallest
 
 sample_keys = ["A", "B", "C", "D", "E", "F", "G"]
 sample_values = [5, 8, 7, 3, 9, 12, 1]
+sample_tuple_values = [
+    ("a", 5), ("b", 8), (None, 7), (2.5, 3), ("e", 9), ("f", 12), ("g", 1)
+]
 sample_items = list(zip(sample_keys, sample_values))
+sample_tuple_items = list(zip(sample_keys, sample_tuple_values))
 
 
 def generate_data(value_type, num_items=None):
@@ -509,4 +514,17 @@ def test_nbest():
     top3 = nlargest(3, dict(sample_items))
     assert list(top3) == ["F", "E", "B"]
     bot3 = nsmallest(3, dict(sample_items))
+    assert list(bot3) == ["G", "D", "A"]
+
+
+def test_nbest_key():
+    if sys.version_info.major > 2:
+        with pytest.raises(TypeError):
+            nlargest(3, dict(sample_tuple_items))
+        with pytest.raises(TypeError):
+            nsmallest(3, dict(sample_tuple_items))
+
+    top3 = nlargest(3, dict(sample_tuple_items), key=operator.itemgetter(1))
+    assert list(top3) == ["F", "E", "B"]
+    bot3 = nsmallest(3, dict(sample_tuple_items), key=operator.itemgetter(1))
     assert list(bot3) == ["G", "D", "A"]
