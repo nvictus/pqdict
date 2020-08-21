@@ -12,6 +12,8 @@ Release v\ |version|.
 
    pqdict
 
+   release
+
 
 * :ref:`genindex`
 
