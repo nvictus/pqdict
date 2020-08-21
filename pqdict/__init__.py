@@ -503,13 +503,11 @@ PQDict = pqdict  # deprecated
 
 
 def minpq(*args, **kwargs):
-    key = kwargs.pop('key', None)
-    return pqdict(dict(*args, **kwargs), key=key, precedes=lt)
+    return pqdict(dict(*args, **kwargs), precedes=lt)
 
 
 def maxpq(*args, **kwargs):
-    key = kwargs.pop('key', None)
-    return pqdict(dict(*args, **kwargs), key=key, precedes=gt)
+    return pqdict(dict(*args, **kwargs), precedes=gt)
 
 
 #############
