@@ -1,10 +1,17 @@
+1.1.0 (2020-08-21)
+++++++++++++++++++
+
+* API changes:
+	- ``nlargest`` and ``nsmallest`` now support an optional ``key`` parameter (#10). By `Eugene Prilepin <https://github.com/espdev>`_.
+
+
 1.0.1 (2020-07-12)
 ++++++++++++++++++
 
 * Maintenance:
 	- Dropped 3.3 support.
-	- Future-proofed for upcoming collections import breakage #6 (@rocky).
-	- Upgraded test suite from nose to pytest #7 (@rocky).
+	- Future-proofed for upcoming collections import breakage (#6). By `R. Bernstein <https://github.com/rocky>`_.
+	- Upgraded test suite from nose to pytest (#7). By `R. Bernstein <https://github.com/rocky>`_.
 
 
 1.0.0 (2015-09-02)
