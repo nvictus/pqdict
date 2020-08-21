@@ -545,7 +545,7 @@ def nlargest(n, mapping, key=None):
         it = mapping.iteritems()
     except AttributeError:
         it = iter(mapping.items())
-    pq = minpq(key=key)
+    pq = pqdict(key=key, precedes=lt)
     try:
         for i in range(n):
             pq.additem(*next(it))
