@@ -208,7 +208,10 @@ class pqdict(_MutableMapping):
         Return a shallow copy of a pqdict.
 
         """
-        return self.__class__(self, key=self._keyfn, precedes=self._precedes)
+        other = self.__class__(key=self._keyfn, precedes=self._precedes)
+        other._position = self._position.copy()
+        other._heap = [_Node(node.key, node.value, node.prio) for node in self._heap]
+        return other
 
     def pop(self, key=__marker, default=__marker):
         """
