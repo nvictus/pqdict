@@ -42,21 +42,14 @@ except ImportError:
 
 from six.moves import range
 from operator import lt, gt
+from collections import namedtuple
 
 
 __version__ = '1.1.0'
 __all__ = ['pqdict', 'PQDict', 'minpq', 'maxpq', 'nlargest', 'nsmallest']
 
 
-class _Node(object):
-    __slots__ = ('key', 'value', 'prio')
-    def __init__(self, key, value, prio):
-        self.key = key
-        self.value = value
-        self.prio = prio
-    def __repr__(self):
-        return self.__class__.__name__ + \
-            "(%s, %s, %s)" % (repr(self.key), repr(self.value), repr(self.prio))
+_Node = namedtuple('_Node', ['key', 'value', 'prio'])
 
 
 class pqdict(_MutableMapping):
@@ -161,7 +154,7 @@ class pqdict(_MutableMapping):
         """
         return self._heap[self._position[key]].value  # raises KeyError
 
-    def __setitem__(self, key, value, node_factory=_Node):
+    def __setitem__(self, key, value):
         """
         Assign a priority value to ``key``.
 
@@ -175,14 +168,13 @@ class pqdict(_MutableMapping):
             # add
             n = len(heap)
             prio = keygen(value) if keygen is not None else value
-            heap.append(node_factory(key, value, prio))
+            heap.append(_Node(key, value, prio))
             position[key] = n
             self._swim(n)
         else:
             # update
             prio = keygen(value) if keygen is not None else value
-            heap[pos].value = value
-            heap[pos].prio = prio
+            heap[pos] = _Node(key, value, prio)
             self._reheapify(pos)
 
     def __delitem__(self, key):
@@ -210,7 +202,7 @@ class pqdict(_MutableMapping):
         """
         other = self.__class__(key=self._keyfn, precedes=self._precedes)
         other._position = self._position.copy()
-        other._heap = [_Node(node.key, node.value, node.prio) for node in self._heap]
+        other._heap = self._heap[:]
         return other
 
     def pop(self, key=__marker, default=__marker):
@@ -310,7 +302,7 @@ class pqdict(_MutableMapping):
             raise KeyError('%s is already in the queue' % repr(key))
         self[key] = value
 
-    def pushpopitem(self, key, value, node_factory=_Node):
+    def pushpopitem(self, key, value):
         """
         Equivalent to inserting a new item followed by removing the top
         priority item, but faster. Raises ``KeyError`` if the new key is
@@ -321,7 +313,7 @@ class pqdict(_MutableMapping):
         position = self._position
         precedes = self._precedes
         prio = self._keyfn(value) if self._keyfn else value
-        node = node_factory(key, value, prio)
+        node = _Node(key, value, prio)
         if key in self:
             raise KeyError('%s is already in the queue' % repr(key))
         if heap and precedes(heap[0].prio, node.prio):
@@ -354,7 +346,8 @@ class pqdict(_MutableMapping):
             raise KeyError('%s is already in the queue' % repr(new_key))
         pos = position.pop(key)  # raises appropriate KeyError
         position[new_key] = pos
-        heap[pos].key = new_key
+        node = heap[pos]
+        heap[pos] = _Node(new_key, node.value, node.prio)
 
     def swap_priority(self, key1, key2):
         """
@@ -367,7 +360,12 @@ class pqdict(_MutableMapping):
         if key1 not in self or key2 not in self:
             raise KeyError
         pos1, pos2 = position[key1], position[key2]
-        heap[pos1].key, heap[pos2].key = key2, key1
+
+        node1 = heap[pos1]
+        heap[pos1] = _Node(key2, node1.value, node1.prio)
+        node2 = heap[pos2]
+        heap[pos2] = _Node(key1, node2.value, node2.prio)
+
         position[key1], position[key2] = pos2, pos1
 
     def popkeys(self):
