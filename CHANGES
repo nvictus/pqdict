@@ -1,6 +1,15 @@
 Release Notes
 =============
 
+1.1.1 (2020-09-21)
+++++++++++++++++++
+
+* Maintenance:
+	- Performance of ``copy`` improved by avoiding re-heapifying (#12). By `@palkeo <https://github.com/palkeo>`_.
+	- Removed redundant heapify call in constructor.
+	- Removed unused ``node_factory`` kwargs.
+	- Formatting with black.
+
 
 1.1.0 (2020-08-21)
 ++++++++++++++++++
