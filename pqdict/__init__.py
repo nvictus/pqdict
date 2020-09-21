@@ -186,7 +186,7 @@ class pqdict(_MutableMapping):
         """
         return self._heap[self._position[key]].value  # raises KeyError
 
-    def __setitem__(self, key, value, node_factory=_Node):
+    def __setitem__(self, key, value):
         """
         Assign a priority value to ``key``.
 
@@ -200,7 +200,7 @@ class pqdict(_MutableMapping):
             # add
             n = len(heap)
             prio = keygen(value) if keygen is not None else value
-            heap.append(node_factory(key, value, prio))
+            heap.append(_Node(key, value, prio))
             position[key] = n
             self._swim(n)
         else:
@@ -335,7 +335,7 @@ class pqdict(_MutableMapping):
             raise KeyError("%s is already in the queue" % repr(key))
         self[key] = value
 
-    def pushpopitem(self, key, value, node_factory=_Node):
+    def pushpopitem(self, key, value):
         """
         Equivalent to inserting a new item followed by removing the top
         priority item, but faster. Raises ``KeyError`` if the new key is
@@ -346,7 +346,7 @@ class pqdict(_MutableMapping):
         position = self._position
         precedes = self._precedes
         prio = self._keyfn(value) if self._keyfn else value
-        node = node_factory(key, value, prio)
+        node = _Node(key, value, prio)
         if key in self:
             raise KeyError("%s is already in the queue" % repr(key))
         if heap and precedes(heap[0].prio, node.prio):
