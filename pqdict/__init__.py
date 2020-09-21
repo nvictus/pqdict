@@ -44,19 +44,24 @@ from six.moves import range
 from operator import lt, gt
 
 
-__version__ = '1.1.0'
-__all__ = ['pqdict', 'PQDict', 'minpq', 'maxpq', 'nlargest', 'nsmallest']
+__version__ = "1.1.0"
+__all__ = ["pqdict", "PQDict", "minpq", "maxpq", "nlargest", "nsmallest"]
 
 
 class _Node(object):
-    __slots__ = ('key', 'value', 'prio')
+    __slots__ = ("key", "value", "prio")
+
     def __init__(self, key, value, prio):
         self.key = key
         self.value = value
         self.prio = prio
+
     def __repr__(self):
-        return self.__class__.__name__ + \
-            "(%s, %s, %s)" % (repr(self.key), repr(self.value), repr(self.prio))
+        return self.__class__.__name__ + "(%s, %s, %s)" % (
+            repr(self.key),
+            repr(self.value),
+            repr(self.prio),
+        )
 
 
 class pqdict(_MutableMapping):
@@ -81,16 +86,36 @@ class pqdict(_MutableMapping):
         give items *higher* priority.
 
     """
+
     def __init__(self, data=None, key=None, reverse=False, precedes=lt):
-        if reverse and precedes == lt:
-            precedes = gt
+        if reverse:
+            if precedes == lt:
+                precedes = gt
+            else:
+                raise ValueError("Got both `reverse=True` and a custom `precedes`.")
+
+        if key is None or callable(key):
+            self._keyfn = key
+        else:
+            raise ValueError(
+                "`key` function must be a callable; got {}".format(type(key))
+            )
+
+        if callable(precedes):
+            self._precedes = precedes
+        else:
+            raise ValueError(
+                "`precedes` function must be a callable; got {}".format(type(precedes))
+            )
+
+        # The heap
         self._heap = []
+
+        # The index
         self._position = {}
-        self._keyfn = key
-        self._precedes = precedes
+
         if data is not None:
             self.update(data)
-        self.heapify()
 
     @property
     def precedes(self):
@@ -103,10 +128,10 @@ class pqdict(_MutableMapping):
         return self._keyfn if self._keyfn is not None else lambda x: x
 
     def __repr__(self):
-        things = ', '.join([
-            '%s: %s' % (repr(node.key), repr(node.value))
-            for node in self._heap])
-        return self.__class__.__name__ + '({' + things + '})'
+        things = ", ".join(
+            ["%s: %s" % (repr(node.key), repr(node.value)) for node in self._heap]
+        )
+        return self.__class__.__name__ + "({" + things + "})"
 
     ############
     # dict API #
@@ -228,7 +253,7 @@ class pqdict(_MutableMapping):
         # pq semantics: remove and return top *key* (value is discarded)
         if key is self.__marker:
             if not heap:
-                raise KeyError('pqdict is empty')
+                raise KeyError("pqdict is empty")
             key = heap[0].key
             del self[key]
             return key
@@ -262,7 +287,7 @@ class pqdict(_MutableMapping):
         try:
             node = self._heap[0]
         except IndexError:
-            raise KeyError('pqdict is empty')
+            raise KeyError("pqdict is empty")
         return node.key
 
     def popitem(self):
@@ -277,7 +302,7 @@ class pqdict(_MutableMapping):
         try:
             end = heap.pop(-1)
         except IndexError:
-            raise KeyError('pqdict is empty')
+            raise KeyError("pqdict is empty")
 
         if heap:
             node = heap[0]
@@ -298,7 +323,7 @@ class pqdict(_MutableMapping):
         try:
             node = self._heap[0]
         except IndexError:
-            raise KeyError('pqdict is empty')
+            raise KeyError("pqdict is empty")
         return node.key, node.value
 
     def additem(self, key, value):
@@ -307,7 +332,7 @@ class pqdict(_MutableMapping):
 
         """
         if key in self._position:
-            raise KeyError('%s is already in the queue' % repr(key))
+            raise KeyError("%s is already in the queue" % repr(key))
         self[key] = value
 
     def pushpopitem(self, key, value, node_factory=_Node):
@@ -323,7 +348,7 @@ class pqdict(_MutableMapping):
         prio = self._keyfn(value) if self._keyfn else value
         node = node_factory(key, value, prio)
         if key in self:
-            raise KeyError('%s is already in the queue' % repr(key))
+            raise KeyError("%s is already in the queue" % repr(key))
         if heap and precedes(heap[0].prio, node.prio):
             node, heap[0] = heap[0], node
             position[key] = 0
@@ -351,7 +376,7 @@ class pqdict(_MutableMapping):
         heap = self._heap
         position = self._position
         if new_key in self:
-            raise KeyError('%s is already in the queue' % repr(new_key))
+            raise KeyError("%s is already in the queue" % repr(new_key))
         pos = position.pop(key)  # raises appropriate KeyError
         position[new_key] = pos
         heap[pos].key = new_key
@@ -411,7 +436,8 @@ class pqdict(_MutableMapping):
         """
         if key is self.__marker:
             n = len(self._heap)
-            for pos in reversed(range(n//2)):
+            # No need to look at any node without a child.
+            for pos in reversed(range(n // 2)):
                 self._sink(pos)
         else:
             try:
@@ -434,13 +460,14 @@ class pqdict(_MutableMapping):
         heap = self._heap
         precedes = self._precedes
         parent_pos = (pos - 1) >> 1
-        child_pos = 2*pos + 1
+        child_pos = 2 * pos + 1
         if parent_pos > -1 and precedes(heap[pos].prio, heap[parent_pos].prio):
             self._swim(pos)
         elif child_pos < len(heap):
             other_pos = child_pos + 1
             if other_pos < len(heap) and not precedes(
-                    heap[child_pos].prio, heap[other_pos].prio):
+                heap[child_pos].prio, heap[other_pos].prio
+            ):
                 child_pos = other_pos
             if precedes(heap[child_pos].prio, heap[pos].prio):
                 self._sink(pos)
@@ -457,12 +484,13 @@ class pqdict(_MutableMapping):
         pos = top
         node = heap[pos]
         # Sift up a chain of child nodes
-        child_pos = 2*pos + 1
+        child_pos = 2 * pos + 1
         while child_pos < endpos:
             # Choose the smaller child.
             other_pos = child_pos + 1
             if other_pos < endpos and not precedes(
-                    heap[child_pos].prio, heap[other_pos].prio):
+                heap[child_pos].prio, heap[other_pos].prio
+            ):
                 child_pos = other_pos
             child_node = heap[child_pos]
             # Move it up one level.
@@ -470,7 +498,7 @@ class pqdict(_MutableMapping):
             position[child_node.key] = pos
             # Next level
             pos = child_pos
-            child_pos = 2*pos + 1
+            child_pos = 2 * pos + 1
         # We are left with a "vacant" leaf. Put our node there and let it swim
         # until it reaches its new resting place.
         heap[pos] = node
@@ -516,6 +544,7 @@ def maxpq(*args, **kwargs):
 #############
 # Functions #
 #############
+
 
 def nlargest(n, mapping, key=None):
     """
