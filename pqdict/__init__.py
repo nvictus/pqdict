@@ -525,6 +525,21 @@ class pqdict(_MutableMapping):
         heap[pos] = node
         position[node.key] = pos
 
+    def topvalue(self, default=__marker):
+        """
+        :param default: if provided, then returning it when priority queue is empty.
+                        If default is not provided and priority queue is empty,
+                        then raising KeyError (as returned by ".topitem()")
+        :return: the top value from priority queue
+        """
+        try:
+            _, v = self.topitem()
+            return v
+        except KeyError:
+            if default is self.__marker:
+                raise  # no default value provided so raising the IndexError
+            else:
+                return default
 
 ###########
 # Aliases #
