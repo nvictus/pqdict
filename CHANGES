@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+1.2.0 (2022-10-14)
+++++++++++++++++++
+
+* API changes:
+	- Added ``topvalue`` method (#17). By `@ShivKJ <https://github.com/ShivKJ>`_
+
+* Maintenance:
+	- Replaced Travis CI with Github Actions.
+
+
 1.1.1 (2020-09-21)
 ++++++++++++++++++
 
