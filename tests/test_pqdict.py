@@ -467,6 +467,50 @@ def test_updates_and_deletes():
         _check_heap_invariant(pq)
         _check_index(pq)
 
+def test_topvalue1():
+    pq = maxpq()
+    pq['a'] = 10
+    pq['b'] = 20
+    pq['c'] = 5
+
+    assert pq.topvalue() == 20
+
+    pq.pop()
+
+    assert pq.topvalue() == 10
+
+    pq.pop()
+
+    assert pq.topvalue() == 5
+
+    pq.pop()
+
+    assert pq.topvalue(-1) == -1
+    assert pq.topvalue(default=-10) == -10
+
+def test_topvalue2():
+    rnd = random.Random(0)
+
+    n = 1_000
+    low, high = 0, 1_000_000
+
+    vals = []
+
+    pq = minpq()
+
+    for i in range(n):
+        v = rnd.randint(low, high)
+
+        pq[i] = v
+        vals.append(v)
+
+    popped_values = []
+
+    while pq:
+        popped_values.append(pq.topvalue())
+        pq.pop()
+
+    assert sorted(vals) == popped_values
 
 def test_edgecases():
     keys = ["A", "B", "C", "D", "E", "F", "G"]
