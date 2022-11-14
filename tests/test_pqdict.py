@@ -260,7 +260,7 @@ def test_precedes():
     assert pq.precedes == operator.lt
     pq = pqdict(reverse=True)
     assert pq.precedes == operator.gt
-    func = lambda x, y: len(x) < len(y)
+    func = lambda x, y: len(x) < len(y)  # noqa
     pq = pqdict(precedes=func)
     pq["a"] = ()
     pq["b"] = (1,)
@@ -467,6 +467,7 @@ def test_updates_and_deletes():
         _check_heap_invariant(pq)
         _check_index(pq)
 
+
 def test_topvalue1():
     pq = maxpq()
     pq['a'] = 10
@@ -487,6 +488,7 @@ def test_topvalue1():
 
     assert pq.topvalue(-1) == -1
     assert pq.topvalue(default=-10) == -10
+
 
 def test_topvalue2():
     rnd = random.Random(0)
@@ -511,6 +513,7 @@ def test_topvalue2():
         pq.pop()
 
     assert sorted(vals) == popped_values
+
 
 def test_edgecases():
     keys = ["A", "B", "C", "D", "E", "F", "G"]
