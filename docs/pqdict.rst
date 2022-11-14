@@ -77,6 +77,8 @@ pqdict class
     **Priority Queue API**
 
     .. automethod:: top
+
+    .. automethod:: topvalue
     
     .. method:: pop([key[, default]])
 
