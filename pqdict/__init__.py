@@ -537,7 +537,7 @@ class pqdict(_MutableMapping):
             return v
         except KeyError:
             if default is self.__marker:
-                raise  # no default value provided so raising the IndexError
+                raise  # no default value provided so raising the KeyError
             else:
                 return default
 
