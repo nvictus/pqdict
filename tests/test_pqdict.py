@@ -493,8 +493,8 @@ def test_topvalue1():
 def test_topvalue2():
     rnd = random.Random(0)
 
-    n = 1_000
-    low, high = 0, 1_000_000
+    n = 1000
+    low, high = 0, 1000000
 
     vals = []
 
