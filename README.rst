@@ -5,9 +5,9 @@ A priority queue dictionary maps hashable objects (keys) to priority-determining
 
 Works with Python 2.7+, 3.4+, and PyPy.
 
-.. image:: https://travis-ci.org/nvictus/priority-queue-dictionary.png?branch=master   
-    :target: https://travis-ci.org/nvictus/priority-queue-dictionary
-    :alt: CI Build State
+.. image:: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml/badge.svg
+    :target: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml
+    :alt: CI
 
 .. image:: https://readthedocs.org/projects/pqdict/badge/?version=latest
     :target: https://readthedocs.org/projects/pqdict/
