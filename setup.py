@@ -62,6 +62,9 @@ setup(
     author_email='nabdennur@gmail.com',
     url='https://github.com/nvictus/priority-queue-dictionary',
     packages=['pqdict'],
+    package_data={
+        'pqdict': ['py.typed', '*.pyi'],
+    },
     zip_safe=False,
     classifiers=[s.strip() for s in classifiers.split('\n') if s],
     install_requires=['six'],
