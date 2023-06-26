@@ -38,7 +38,7 @@ try:
     from collections.abc import MutableMapping as _MutableMapping
 except ImportError:
     # 2.7 compatability
-    from collections import MutableMapping as _MutableMapping
+    from collections import MutableMapping as _MutableMapping  # type: ignore
 
 from six.moves import range
 from operator import lt, gt
@@ -64,7 +64,7 @@ class _Node(object):
         )
 
 
-class pqdict(_MutableMapping):
+class pqdict(_MutableMapping):  # pyright: ignore # Argument to class must be a base class (reportGeneralTypeIssues
     """
     A collection that maps hashable objects (keys) to priority-determining
     values. The mapping is mutable so items may be added, removed and have
