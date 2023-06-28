@@ -60,7 +60,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'pqdict'
 year = datetime.now().year
-copyright = '2015-{}, Nezar Abdennur'.format(year)
+copyright = '2013-{}, Nezar Abdennur'.format(year)
 author = 'Nezar Abdennur'
 
 # The version info for the project you're documenting, acts as replacement for
