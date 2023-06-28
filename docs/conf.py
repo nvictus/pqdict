@@ -17,6 +17,7 @@ import sys
 import os
 import shlex
 import re
+from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -58,7 +59,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'pqdict'
-copyright = '2015, Nezar Abdennur'
+year = datetime.now().year
+copyright = '2015-{}, Nezar Abdennur'.format(year)
 author = 'Nezar Abdennur'
 
 # The version info for the project you're documenting, acts as replacement for
