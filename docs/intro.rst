@@ -8,19 +8,19 @@ A `priority queue <http://en.wikipedia.org/wiki/Priority_queue>`__ allows you to
 
 The priority queue is implemented as a binary heap of (key, priority value) pairs, which supports:
 
-- O(1) search for the item with highest priority
+* O(1) search for the item with highest priority
 
-- O(log n) removal of the item with highest priority
+* O(log n) removal of the item with highest priority
 
-- O(log n) insertion of a new item
+* O(log n) insertion of a new item
 
 An internal index maps elements to their location in the heap and is kept up to date as the heap is manipulated. As a result, pqdict also supports:
 
-- O(1) lookup of any item by key
+* O(1) lookup of any item by key
 
-- O(log n) removal of any item          
+* O(log n) removal of any item          
 
-- O(log n) updating of any item's priority level
+* O(log n) updating of any item's priority level
 
 Indexed priority queues are useful in applications where priorities of already enqueued items may frequently change (e.g., schedulers, optimization algorithms, simulations, etc.).
 
@@ -123,7 +123,7 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
     KeyError
 
 
-.. note:: 
+.. warning:: 
     **Value mutability**. If you use mutable objects as values in a ``pqdict``, changes to the state of those objects can break the priority queue. If this does happen, the data structure can be repaired by calling ``pq.heapify()``. (But you probably shouldn't be using mutable values in the first place.)
 
 .. note::
