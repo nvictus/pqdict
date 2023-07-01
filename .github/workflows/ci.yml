@@ -19,10 +19,16 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.x"
-    - run: |
+    - name: Install package and dependencies
+      run: |
         python -m pip install --upgrade pip
         pip install -e .[test]
+    - name: Lint with ruff
+      run: |
         ruff pqdict tests
+    - name: Static type check with mypy
+      run: |
+        mypy pqdict tests
 
   Test:
     runs-on: ubuntu-20.04  # py36 is EOL on ubuntu-latest
@@ -36,11 +42,10 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Install package and dependencies
       run: |
         python -m pip install --upgrade pip
-    - name: Install package
-      run: python -m pip install -e .[test]
+        python -m pip install -e .[test]
     - name: Test with pytest
       run: |
         pytest
