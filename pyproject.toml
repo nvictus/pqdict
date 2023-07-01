@@ -42,6 +42,7 @@ test = [
     "mypy",
     "pytest",
     "pyupgrade",
+    "ruff",
 ]
 docs = [
     "numpydoc",
