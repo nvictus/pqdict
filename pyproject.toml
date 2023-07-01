@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pqdict"
 description = "A Pythonic indexed priority queue."
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 license = {text = "MIT"}
 authors = [
   {name = "Nezar Abdennur", email = "nabdennur@gmail.com"},
@@ -23,7 +23,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",

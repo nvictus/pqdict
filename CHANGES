@@ -9,7 +9,7 @@ Release Notes
 	- Added ``default`` argument to ``top`` and support for ``default`` using ``pop`` with PQ semantics, to return when the collection is empty.
 
 * Maintenance:
-	- Dropped support for Python 2.7, 3.4, and 3.5 (#22).
+	- Dropped support for Python 2.7, 3.4, 3.5, and 3.6 (#22).
 	- Inlined type annotations and removed stub file. Thanks for advice from `@aqeelat <https://github.com/aqeelat>_`.
 	- Migrate to pyproject.toml
 
