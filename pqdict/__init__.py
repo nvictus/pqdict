@@ -51,7 +51,6 @@ from typing import (
 )
 from warnings import warn
 
-
 __version__ = "1.3.0-dev"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
 
@@ -84,7 +83,8 @@ class pqdict(MutableMapping):
     The default behavior is that of a min-priority queue, i.e. the item with
     the *smallest* priority value is given *highest* priority. This behavior
     can be reversed by specifying ``reverse=True`` or by providing a custom
-    comparator function via the ``precedes`` keyword argument.
+    precedence function via the ``precedes`` keyword argument. Alternatively,
+    use the explicit :meth:`pqdict.minpq` or :meth:`pqdict.maxpq` class methods.
 
     Parameters
     ----------
@@ -97,12 +97,12 @@ class pqdict(MutableMapping):
     reverse : bool, optional [default: ``False``]
         If ``True``, *larger* priority keys give items *higher* priority.
         Default is ``False``.
-    precedes : callable, optional (overrides ``reverse``) [default: ``operator.lt``]
+    precedes : callable, optional [default: ``operator.lt``]
         Function that determines precedence of a pair of priority keys. The
         default comparator is ``operator.lt``, meaning *smaller* priority keys
         give items *higher* priority. The callable must have the form
         ``precedes(prio1, prio2) -> bool`` and return ``True`` if ``prio1``
-        has higher priority than ``prio2``.
+        has higher priority than ``prio2``. Overrides ``reverse``.
     """
 
     _heap: List[Node]
@@ -156,10 +156,12 @@ class pqdict(MutableMapping):
 
     @classmethod
     def minpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
+        """Create a pqdict with min-priority semantics: smallest is highest."""
         return cls(dict(*args, **kwargs), precedes=lt)
 
     @classmethod
     def maxpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
+        """Create a pqdict with max-priority semantics: largest is highest."""
         return cls(dict(*args, **kwargs), precedes=gt)
 
     ############
@@ -181,7 +183,7 @@ class pqdict(MutableMapping):
         cls: Type[Tpqdict], iterable: Iterable, value: Any, **kwargs: Any
     ) -> Tpqdict:
         """
-        Return a new pqict mapping keys from an iterable to the same value.
+        Return a new pqdict mapping keys from an iterable to the same value.
         """
         return cls(((k, value) for k in iterable), **kwargs)
 
@@ -347,6 +349,36 @@ class pqdict(MutableMapping):
                 return default
         return node.value
 
+    def topitem(self) -> Tuple[Any, Any]:
+        """
+        Return the item with highest priority. Raises ``KeyError`` if pqdict is
+        empty.
+        """
+        try:
+            node = self._heap[0]
+        except IndexError:
+            raise KeyError("pqdict is empty")
+        return node.key, node.value
+
+    def popvalue(self, default: Any = __marker) -> Any:
+        """
+        Remove and return the value of the item with highest priority. If
+        ``default`` is provided and pqdict is empty, then return``default``,
+        otherwise raise ``KeyError``.
+        """
+        heap = self._heap
+        position = self._position
+
+        if not heap:
+            if default is self.__marker:
+                raise KeyError("pqdict is empty")
+            else:
+                return default
+
+        value = heap[0].value
+        del self[heap[0].key]
+        return value
+
     def popitem(self) -> Tuple[Any, Any]:
         """
         Remove and return the item with highest priority. Raises ``KeyError``
@@ -368,17 +400,6 @@ class pqdict(MutableMapping):
         else:
             node = end
         del position[node.key]
-        return node.key, node.value
-
-    def topitem(self) -> Tuple[Any, Any]:
-        """
-        Return the item with highest priority. Raises ``KeyError`` if pqdict is
-        empty.
-        """
-        try:
-            node = self._heap[0]
-        except IndexError:
-            raise KeyError("pqdict is empty")
         return node.key, node.value
 
     def additem(self, key: Any, value: Any) -> None:
@@ -447,7 +468,7 @@ class pqdict(MutableMapping):
 
     def popkeys(self) -> Iterator[Any]:
         """
-        Heapsort iterator over keys in descending order of priority level.
+        Remove items, returning keys in descending order of priority rank.
         """
         try:
             while True:
@@ -457,7 +478,7 @@ class pqdict(MutableMapping):
 
     def popvalues(self) -> Iterator[Any]:
         """
-        Heapsort iterator over values in descending order of priority level.
+        Remove items, returning values in descending order of priority rank.
         """
         try:
             while True:
@@ -467,7 +488,7 @@ class pqdict(MutableMapping):
 
     def popitems(self) -> Iterator[Tuple[Any, Any]]:
         """
-        Heapsort iterator over items in descending order of priority level.
+        Remove and return items in descending order of priority rank.
         """
         try:
             while True:
@@ -610,9 +631,6 @@ def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = Non
     in descending order. If the mapping has fewer than n items, all its keys
     are returned.
 
-    Equivalent to:
-        ``next(zip(*heapq.nlargest(mapping.items(), key=lambda x: x[1])))``
-
     Parameters
     ----------
     n : int
@@ -627,6 +645,12 @@ def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = Non
     Returns
     -------
     list of up to n keys from the mapping associated with the largest values
+
+    Notes
+    -----
+    This function is equivalent to:
+
+    >>> [item[0] for item in heapq.nlargest(n, mapping.items(), lambda x: x[1])]
     """
     it = iter(mapping.items())
     pq = pqdict(key=key, precedes=lt)
@@ -651,9 +675,6 @@ def nsmallest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = No
     in ascending order. If the mapping has fewer than n items, all its keys are
     returned.
 
-    Equivalent to:
-        ``next(zip(*heapq.nsmallest(mapping.items(), key=lambda x: x[1])))``
-
     Parameters
     ----------
     n : int
@@ -668,6 +689,12 @@ def nsmallest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = No
     Returns
     -------
     list of up to n keys from the mapping associated with the smallest values
+
+    Notes
+    -----
+    This function is equivalent to:
+
+    >>> [item[0] for item in heapq.nsmallest(n, mapping.items(), lambda x: x[1])]
     """
     it = iter(mapping.items())
     pq = pqdict(key=key, precedes=gt)

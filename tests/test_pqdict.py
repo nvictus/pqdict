@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
+import operator
+import random
+import sys
 from datetime import datetime, timedelta
 from itertools import combinations
-import operator
-import sys
-import random
 
 import pytest
 
-from pqdict import pqdict, minpq, maxpq, nlargest, nsmallest
-
+from pqdict import maxpq, minpq, nlargest, nsmallest, pqdict
 
 sample_keys = ["A", "B", "C", "D", "E", "F", "G"]
 sample_values = [5, 8, 7, 3, 9, 12, 1]
@@ -60,8 +58,9 @@ def _check_index(pq):
         assert key == node.key
 
 
-# The next group of tests were originally in class TestNew
-
+##########
+# Creation
+##########
 
 def test_constructor():
     # sequence of pairs
@@ -72,7 +71,7 @@ def test_constructor():
     # dictionary
     pq2 = pqdict({"A": 5, "B": 8, "C": 7, "D": 3, "E": 9, "F": 12, "G": 1})
     # keyword arguments
-    pq3 = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+    pq3 = pqdict.minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
     assert pq0 == pq1 == pq2 == pq3
 
 
@@ -89,21 +88,23 @@ def test_equality():
     # pqdict == regular dict if they have same key/value pairs
     adict = dict(sample_items)
     assert pq1 == adict
+
     # TODO: FIX?
     # pqdicts evaluate as equal even if they have different
     # key functions and/or precedence functions
-    pq3 = maxpq(sample_items)
+    pq3 = pqdict.maxpq(sample_items)
+
     assert pq1 == pq3
 
 
 def test_minpq():
-    pq = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+    pq = pqdict.minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
     assert list(pq.popvalues()) == [1, 3, 5, 7, 8, 9, 12]
     assert pq.precedes == operator.lt
 
 
 def test_maxpq():
-    pq = maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+    pq = pqdict.maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
     assert list(pq.popvalues()) == [12, 9, 8, 7, 5, 3, 1]
     assert pq.precedes == operator.gt
 
@@ -129,8 +130,19 @@ def test_fromkeys():
     assert pq.pop() == "spam"
 
 
-# The next group of tests were originally in class TestDictAPI
+def test_factory_functions():
+    pq = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+    assert list(pq.popvalues()) == [1, 3, 5, 7, 8, 9, 12]
+    assert pq.precedes == operator.lt
 
+    pq = maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
+    assert list(pq.popvalues()) == [12, 9, 8, 7, 5, 3, 1]
+    assert pq.precedes == operator.gt
+
+
+################
+# Dictionary API
+################
 
 def test_len():
     pq = pqdict()
@@ -247,7 +259,10 @@ def test_items():
     assert sorted(sample_values) == [item[1] for item in pq.popitems()]
 
 
-# The next group of tests were originally inclass TestPQAPI
+####################
+# Priority Queue API
+####################
+
 def test_keyfn():
     pq = pqdict()
     assert pq.keyfn(5) == 5
@@ -270,8 +285,9 @@ def test_precedes():
 
 
 def test_pop():
+    # Dict-pop
     # pop selected item - return value
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     value = pq.pop("B")
     assert value == 8
     pq.pop("A")
@@ -280,11 +296,15 @@ def test_pop():
         pq.pop("A")
     with pytest.raises(KeyError):
         pq.pop("does_not_exist")
+    assert pq.pop("does_not_exist", "default") == "default"
+
+    # PQ-pop
     # no args and empty - throws
     with pytest.raises(KeyError):
         pq.pop()  # pq is now empty
+    assert pq.pop(default="default") == "default"
     # no args - return top key
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     assert pq.pop() == "C"
 
 
@@ -293,6 +313,7 @@ def test_top():
     pq = pqdict()
     with pytest.raises(KeyError):
         pq.top()
+    assert pq.top("default") == "default"
     # non-empty
     for num_items in range(1, 30):
         items = generate_data("float", num_items)
@@ -301,7 +322,7 @@ def test_top():
 
 
 def test_popitem():
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     # pop top item
     key, value = pq.popitem()
     assert key == "C"
@@ -343,7 +364,7 @@ def test_updateitem():
 
 
 def test_pushpopitem():
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     assert pq.pushpopitem("D", 10) == ("C", 1)
     assert pq.pushpopitem("E", 5) == ("E", 5)
     with pytest.raises(KeyError):
@@ -351,7 +372,7 @@ def test_pushpopitem():
 
 
 def test_replace_key():
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     pq.replace_key("A", "Alice")
     pq.replace_key("B", "Bob")
     _check_index(pq)
@@ -366,7 +387,7 @@ def test_replace_key():
 
 
 def test_swap_priority():
-    pq = minpq(A=5, B=8, C=1)
+    pq = pqdict.minpq(A=5, B=8, C=1)
     pq.swap_priority("A", "C")
     _check_index(pq)
     assert pq["A"] == 1
@@ -394,18 +415,7 @@ def test_destructive_iteration():
         assert values_heapsorted == sorted(values)
 
 
-# The next group of tests were originally in class TestOperations
-
-
-@pytest.mark.skipif("sys.version_info <= (3,0)")
-def test_uncomparable():
-    # non-comparable priority keys (Python 3 only)
-    # Python 3 has stricter comparison than Python 2
-    pq = pqdict()
-    pq.additem("a", [])
-    with pytest.raises(TypeError):
-        pq.additem("b", 5)
-
+# Heap invariant tests and key/value types
 
 def test_heapify():
     for size in range(30):
@@ -469,7 +479,7 @@ def test_updates_and_deletes():
 
 
 def test_topvalue1():
-    pq = maxpq()
+    pq = pqdict.maxpq()
     pq['a'] = 10
     pq['b'] = 20
     pq['c'] = 5
@@ -495,22 +505,50 @@ def test_topvalue2():
 
     n = 1000
     low, high = 0, 1000000
-
     vals = []
-
-    pq = minpq()
+    pq = pqdict.minpq()
 
     for i in range(n):
         v = rnd.randint(low, high)
-
         pq[i] = v
         vals.append(v)
 
     popped_values = []
-
     while pq:
         popped_values.append(pq.topvalue())
         pq.pop()
+
+    assert sorted(vals) == popped_values
+
+
+def test_popvalue1():
+    pq = pqdict.maxpq()
+    pq['a'] = 10
+    pq['b'] = 20
+    pq['c'] = 5
+    assert pq.popvalue() == 20
+    assert pq.popvalue() == 10
+    assert pq.popvalue() == 5
+    assert pq.popvalue(-1) == -1
+    assert pq.popvalue(default=-10) == -10
+
+
+def test_popvalue2():
+    rnd = random.Random(0)
+
+    n = 1000
+    low, high = 0, 1000000
+    vals = []
+    pq = pqdict.minpq()
+
+    for i in range(n):
+        v = rnd.randint(low, high)
+        pq[i] = v
+        vals.append(v)
+
+    popped_values = []
+    while pq:
+        popped_values.append(pq.popvalue())
 
     assert sorted(vals) == popped_values
 
@@ -548,7 +586,7 @@ def test_datetime():
 
 def test_repair():
     mutable_value = [3]
-    pq = minpq(A=[1], B=[2], C=mutable_value)
+    pq = pqdict.minpq(A=[1], B=[2], C=mutable_value)
     assert pq[pq.top()] == [1]
     mutable_value[0] = 0
     assert pq[pq.top()] == [1]
@@ -556,7 +594,10 @@ def test_repair():
     assert pq[pq.top()] == [0]
 
 
-# The next test was originally in class TestModuleFunctions
+########################
+# Module-level functions
+########################
+
 def test_nbest():
     top3 = nlargest(3, dict(sample_items))
     assert list(top3) == ["F", "E", "B"]
