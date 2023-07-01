@@ -367,7 +367,6 @@ class pqdict(MutableMapping):
         otherwise raise ``KeyError``.
         """
         heap = self._heap
-        position = self._position
 
         if not heap:
             if default is self.__marker:

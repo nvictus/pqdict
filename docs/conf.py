@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # pqdict documentation build configuration file, created by
 # sphinx-quickstart on Sat Aug 29 16:46:59 2015.
@@ -13,10 +12,9 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
-import shlex
 import re
+import sys
 from datetime import datetime
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -60,7 +58,7 @@ master_doc = 'index'
 # General information about the project.
 project = 'pqdict'
 year = datetime.now().year
-copyright = '2013-{}, Nezar Abdennur'.format(year)
+copyright = f'2013-{year}, Nezar Abdennur'
 author = 'Nezar Abdennur'
 
 # The version info for the project you're documenting, acts as replacement for
