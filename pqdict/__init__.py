@@ -29,7 +29,7 @@ up to date as the heap is manipulated. As a result, pqdict also supports:
 
 Documentation at <http://pqdict.readthedocs.org/en/latest>.
 
-:copyright: (c) 2013-2023 by Nezar Abdennur.
+:copyright: (c) 2012-2023 by Nezar Abdennur.
 :license: MIT, see LICENSE for more details.
 
 """
@@ -272,15 +272,16 @@ class pqdict(MutableMapping):
         """
         Hybrid pop method.
 
-        Dictionary pop with ``key``:
-        * If ``key`` is provided and is in the pqdict, remove the item and
-          return its **value**.
+        With ``key``, perform a dictionary pop:
+
+        * If ``key`` is in the pqdict, remove the item and return its
+          **value**.
         * If ``key`` is not in the pqdict, return ``default`` if provided,
           otherwise raise a ``KeyError``.
 
-        Priority Queue pop without ``key``:
-        * If ``key`` is not provided, remove the top item and return its
-          **key**.
+        Without ``key``, perform a priority queue pop:
+
+        * Remove the top item and return its **key**.
         * If the pqdict is empty, return ``default`` if provided, otherwise
           raise a ``KeyError``.
         """
