@@ -12,9 +12,11 @@ pqdict class
 .. autoclass:: pqdict
     :no-members:
 
-    .. automethod:: fromkeys
+    .. automethod:: minpq
 
-    .. automethod:: heapify([key])
+    .. automethod:: maxpq
+    
+    .. automethod:: fromkeys
 
     |
 
@@ -44,9 +46,14 @@ pqdict class
 
     .. method:: pop([key[, default]])
 
-        If ``key`` is in the pqdict, remove it and return its priority value,
-        else return ``default``. If ``default`` is not provided and ``key`` is
-        not in the pqdict, raise a ``KeyError``.
+        Hybrid pop method.
+
+        With ``key``, perform a dictionary pop:
+        
+        * If ``key`` is in the pqdict, remove the item and return its
+          **value**.
+        * If ``key`` is not in the pqdict, return ``default`` if provided,
+          otherwise raise a ``KeyError``.
 
     .. automethod:: clear 
     
@@ -59,7 +66,9 @@ pqdict class
     Iterators and Views
 
     .. warning:: 
-        For the following sequences, order is arbitrary.
+        For the sequences returned by the following methods, the **iteration order is arbitrary**.
+
+        See further below for sorted iterators :meth:`popkeys`, :meth:`popvalues`, and :meth:`popitems`.
 
     .. method:: iter(pq)
 
@@ -69,9 +78,6 @@ pqdict class
 
     .. automethod:: items
 
-    .. note::
-        In Python 2, the above methods return lists rather than views and ``pqdict`` includes additional iterator methods ``iterkeys()``, ``itervalues()`` and ``iteritems()``.
-
     |
 
     **Priority Queue API**
@@ -79,19 +85,26 @@ pqdict class
     .. automethod:: top
 
     .. automethod:: topvalue
-    
-    .. method:: pop([key[, default]])
 
-        If ``key`` is not provided, remove the top item and return its key, or
-        raise ``KeyError`` if the pqdict is empty.
+    .. automethod:: topitem
+    
+    .. method:: pop(*, [default])
+
+        Hybrid pop method.
+
+        Without ``key``, perform a priority queue pop:
+
+        * Remove the top item and return its **key**.
+        * If the pqdict is empty, return ``default`` if provided, otherwise
+          raise a ``KeyError``.
+
+    .. automethod:: popvalue
+    
+    .. automethod:: popitem
 
     .. automethod:: additem
 
     .. automethod:: updateitem
-
-    .. automethod:: topitem
-
-    .. automethod:: popitem
 
     .. automethod:: pushpopitem(key, value)
 
@@ -99,22 +112,21 @@ pqdict class
 
     .. automethod:: swap_priority
 
-    Heapsort Iterators
+    .. automethod:: heapify([key])
+
+    Sorted Iterators
 
     .. note::
         Iteration is in descending order of priority.
 
-    .. danger::
-        Heapsort iterators are destructive: they are generators that pop items out of the heap, which amounts to performing a heapsort.
+    .. warning::
+        Sorted iterators are destructive: they are generators that pop items out of the heap, which amounts to performing a heapsort.
 
     .. automethod:: popkeys
 
     .. automethod:: popvalues 
 
     .. automethod:: popitems
-
-    .. warning::
-        The names of the heapsort iterators in v0.5 (iterkeys, itervalues, iteritems) were changed in v0.6 to be more transparent: These names are not provided at all in Python 3, and in Python 2 they are now part of the dictionary API.
 
 
 Functions
