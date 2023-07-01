@@ -29,11 +29,11 @@ up to date as the heap is manipulated. As a result, pqdict also supports:
 
 Documentation at <http://pqdict.readthedocs.org/en/latest>.
 
-:copyright: (c) 2012-2023 by Nezar Abdennur.
+:copyright: (c) 2013-2023 by Nezar Abdennur.
 :license: MIT, see LICENSE for more details.
 
 """
-from collections.abc import Iterable, Mapping, MutableMapping
+from collections.abc import MutableMapping
 from operator import gt, lt
 from typing import (
     Any,
@@ -44,15 +44,18 @@ from typing import (
     List,
     Mapping,
     Optional,
-    Self,
     Tuple,
+    Type,
+    TypeVar,
     Union,
 )
 
-__version__ = "1.2.1"
+
+__version__ = "1.3.0-dev"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
 
 DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]
+Tpqdict = TypeVar("Tpqdict", bound="pqdict")
 
 
 class Node:
@@ -100,6 +103,7 @@ class pqdict(MutableMapping):
         ``precedes(prio1, prio2) -> bool`` and return ``True`` if ``prio1``
         has higher priority than ``prio2``.
     """
+
     _heap: List[Node]
     _position: Dict[Any, int]
 
@@ -150,11 +154,11 @@ class pqdict(MutableMapping):
         return f"{self.__class__.__name__}({things})"
 
     @classmethod
-    def minpq(cls, *args: Any, **kwargs: Any) -> Self:
+    def minpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
         return cls(dict(*args, **kwargs), precedes=lt)
 
     @classmethod
-    def maxpq(cls, *args: Any, **kwargs: Any) -> Self:
+    def maxpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
         return cls(dict(*args, **kwargs), precedes=gt)
 
     ############
@@ -172,7 +176,9 @@ class pqdict(MutableMapping):
     # setdefault = MutableMapping.setdefault
 
     @classmethod
-    def fromkeys(cls, iterable: Iterable, value: Any, **kwargs: Any) -> Self:
+    def fromkeys(
+        cls: Type[Tpqdict], iterable: Iterable, value: Any, **kwargs: Any
+    ) -> Tpqdict:
         """
         Return a new pqict mapping keys from an iterable to the same value.
         """
@@ -246,7 +252,7 @@ class pqdict(MutableMapping):
             self._reheapify(pos)
         del node_to_delete
 
-    def copy(self) -> Self:
+    def copy(self: Tpqdict) -> Tpqdict:
         """
         Return a shallow copy of a pqdict.
         """
@@ -261,15 +267,19 @@ class pqdict(MutableMapping):
         default: Any = __marker,
     ) -> Any:
         """
-        Dict-style pop:
-        If ``key`` is provided and is in the pqdict, remove the item and return
-        its priority value. If ``key`` is not in the pqdict, return ``default``
-        if provided, otherwise raise a ``KeyError``.
+        Hybrid pop method.
 
-        Priority queue-style pop:
-        If ``key`` is not provided, remove the top item and return its key. If
-        the pqdict is empty, return ``default`` if provided, otherwise raise a
-        ``KeyError``.
+        Dictionary pop with ``key``:
+        * If ``key`` is provided and is in the pqdict, remove the item and
+          return its **value**.
+        * If ``key`` is not in the pqdict, return ``default`` if provided,
+          otherwise raise a ``KeyError``.
+
+        Priority Queue pop without ``key``:
+        * If ``key`` is not provided, remove the top item and return its
+          **key**.
+        * If the pqdict is empty, return ``default`` if provided, otherwise
+          raise a ``KeyError``.
         """
         heap = self._heap
         position = self._position
@@ -481,7 +491,9 @@ class pqdict(MutableMapping):
                 raise KeyError(key)
             self._reheapify(pos)
 
-    # Heap algorithms
+    ###################
+    # Heap algorithms #
+    ###################
     # The names of the heap operations in `heapq` (sift up/down) refer to the
     # motion of the nodes being compared to, rather than the node being
     # operated on as is usually done in textbooks (i.e. bubble down/up,
