@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=43.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pqdict"
+description = "A Pythonic indexed priority queue."
+requires-python = ">=3.6"
+license = {text = "MIT"}
+authors = [
+  {name = "Nezar Abdennur", email = "nabdennur@gmail.com"},
+]
+keywords = [
+    "dict", 
+    "priority queue", 
+    "heap", 
+    "scheduler", 
+    "data structures",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+dynamic = ["readme", "version"]
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "isort",
+    "mypy",
+    "pytest",
+    "pyupgrade",
+]
+docs = [
+    "numpydoc",
+    "Sphinx<7.0.0",
+    "sphinx-autobuild",
+    "sphinx_rtd_theme",
+]
+
+[project.urls]
+homepage = "https://github.com/nvictus/priority-queue-dictionary"
+documentation = "https://pqdict.readthedocs.io"
+repository = "https://github.com/nvictus/priority-queue-dictionary"
+changelog = "https://github.com/nvictus/priority-queue-dictionary/blob/master/CHANGES"
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.rst"] }
+version = { attr = "pqdict.__version__" }
+
+[tool.setuptools.package-data]
+pqdict = ['py.typed']
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+
+[tool.ruff]
+extend-select = [
+    "E",  # style errors
+    # "D",  # pydocstyle
+    "F",  # pyflakes
+    "I",  # isort
+    "RUF", # ruff-specific rules
+    "UP", # pyupgrade
+    "W",  # style  warnings
+]
