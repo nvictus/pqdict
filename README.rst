@@ -3,8 +3,8 @@ Priority Queue Dictionary (pqdict)
 
 A priority queue dictionary maps hashable objects (keys) to priority-determining values. It provides a hybrid dictionary/priority queue API. 
 
-.. image:: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml/badge.svg
-    :target: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml
+.. image:: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/ci.yml
     :alt: CI
 
 .. image:: https://readthedocs.org/projects/pqdict/badge/?version=latest
