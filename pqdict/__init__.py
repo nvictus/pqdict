@@ -51,7 +51,7 @@ from typing import (
 )
 from warnings import warn
 
-__version__ = "1.3.0-dev"
+__version__ = "1.3.0"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
 
 DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]
