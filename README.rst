@@ -3,8 +3,6 @@ Priority Queue Dictionary (pqdict)
 
 A priority queue dictionary maps hashable objects (keys) to priority-determining values. It provides a hybrid dictionary/priority queue API. 
 
-Works with Python 2.7+, 3.4+, and PyPy.
-
 .. image:: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml/badge.svg
     :target: https://github.com/nvictus/priority-queue-dictionary/actions/workflows/package_lint-test.yml
     :alt: CI
