@@ -49,6 +49,7 @@ from typing import (
     TypeVar,
     Union,
 )
+from warnings import warn
 
 
 __version__ = "1.3.0-dev"
@@ -579,10 +580,22 @@ class pqdict(MutableMapping):
 
 
 def minpq(*args: Any, **kwargs: Any) -> pqdict:
+    warn(
+        "The `minpq` module function is deprecated and will be removed in v1.4. "
+        "Use the classmethod `pqdict.minpq()` instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     return pqdict(dict(*args, **kwargs), precedes=lt)
 
 
 def maxpq(*args: Any, **kwargs: Any) -> pqdict:
+    warn(
+        "The `maxpq` module function is deprecated and will be removed in v1.4. "
+        "Use the classmethod `pqdict.maxpq()` instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     return pqdict(dict(*args, **kwargs), precedes=gt)
 
 
