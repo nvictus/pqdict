@@ -43,6 +43,7 @@ from typing import (
     Iterator,
     List,
     Mapping,
+    NamedTuple,
     Optional,
     Tuple,
     Type,
@@ -56,6 +57,8 @@ __all__ = ["pqdict", "nlargest", "nsmallest"]
 
 DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]
 Tpqdict = TypeVar("Tpqdict", bound="pqdict")
+PrioKeyFn = Callable[[Any], Any]
+PrecedesFn = Callable[[Any, Any], bool]
 
 
 class Empty(KeyError):
@@ -65,20 +68,10 @@ class Empty(KeyError):
     pass
 
 
-class Node:
-    __slots__ = ("key", "value", "prio")
-
+class Node(NamedTuple):
     key: Any
     value: Any
     prio: Any
-
-    def __init__(self, key: Any, value: Any, prio: Any) -> None:
-        self.key = key
-        self.value = value
-        self.prio = prio
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.key}, {self.value}, {self.prio})"
 
 
 ###################
@@ -94,9 +87,9 @@ class Node:
 
 
 def _sink(
-    heap: list,
-    position: dict,
-    precedes: Callable,
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
     top: int = 0
 ) -> None:
     # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
@@ -130,9 +123,9 @@ def _sink(
 
 
 def _swim(
-    heap: list,
-    position: dict,
-    precedes: Callable,
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
     pos: int,
     top: int = 0
 ) -> None:
@@ -153,14 +146,23 @@ def _swim(
     position[node.key] = pos
 
 
-def heapify(heap: list, position: dict, precedes: Callable) -> None:
+def heapify(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn
+) -> None:
     n = len(heap)
     # No need to look at any leaf nodes.
     for pos in reversed(range(n // 2)):
         _sink(heap, position, precedes, pos)
 
 
-def heaprepair(heap: list, position: dict, precedes: Callable, pos: int) -> None:
+def heaprepair(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
+    pos: int
+) -> None:
     # Repair the position of a modified node.
     # Bubble up or down depending on values of parent and children.
     parent_pos = (pos - 1) >> 1
@@ -177,7 +179,12 @@ def heaprepair(heap: list, position: dict, precedes: Callable, pos: int) -> None
             _sink(heap, position, precedes, pos)
 
 
-def heappop(heap: list, position: dict, precedes: Callable, pos: int = 0) -> Node:
+def heappop(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
+    pos: int = 0
+) -> Node:
     # Take the very last node and place it in the vacated spot. Let it
     # sink or swim until it reaches its new resting place.
     node_to_replace = heap[pos]
@@ -190,21 +197,35 @@ def heappop(heap: list, position: dict, precedes: Callable, pos: int = 0) -> Nod
     return node_to_replace
 
 
-def heappush(heap: list, position: dict, precedes: Callable, node: Node) -> None:
+def heappush(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
+    node: Node
+) -> None:
     n = len(heap)
     heap.append(node)
     position[node.key] = n
     _swim(heap, position, precedes, n)
 
 
-def heapupdate(heap: list, position: dict, precedes: Callable, node: Node) -> None:
+def heapupdate(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
+    node: Node
+) -> None:
     pos = position[node.key]
-    heap[pos].value = node.value
-    heap[pos].prio = node.prio
+    heap[pos] = node
     heaprepair(heap, position, precedes, pos)
 
 
-def heappushpop(heap: list, position: dict, precedes: Callable, node: Node) -> Node:
+def heappushpop(
+    heap: List[Node],
+    position: Dict[Any, int],
+    precedes: PrecedesFn,
+    node: Node
+) -> Node:
     key = node.key
     if heap and precedes(heap[0].prio, node.prio):
         node, heap[0] = heap[0], node
@@ -371,7 +392,7 @@ class pqdict(MutableMapping):
         Assign a priority value to ``key``. If ``key`` is already in the
         pqdict, its priority value is updated.
         """
-        prio = self._keyfn(value) if self._keyfn is not None else value
+        prio = self._keyfn(value) if self._keyfn else value
         node = Node(key, value, prio)
         if key in self._position:
             heapupdate(self._heap, self._position, self._precedes, node)
@@ -392,7 +413,7 @@ class pqdict(MutableMapping):
         """
         other = self.__class__(key=self._keyfn, precedes=self._precedes)
         other._position = self._position.copy()
-        other._heap = [Node(node.key, node.value, node.prio) for node in self._heap]
+        other._heap = self._heap[:]
         return other
 
     def pop(
@@ -549,7 +570,8 @@ class pqdict(MutableMapping):
             raise KeyError(f"{new_key} is already in the queue")
         pos = self._position.pop(key)  # raises appropriate KeyError
         self._position[new_key] = pos
-        self._heap[pos].key = new_key
+        node = self._heap[pos]
+        self._heap[pos] = Node(new_key, node.value, node.prio)
 
     def swap_priority(self, key1: Any, key2: Any) -> None:
         """
@@ -563,7 +585,9 @@ class pqdict(MutableMapping):
         if key2 not in position:
             raise KeyError(key2)
         pos1, pos2 = position[key1], position[key2]
-        heap[pos1].key, heap[pos2].key = key2, key1
+        node1, node2 = heap[pos1], heap[pos2]
+        heap[pos1] = Node(key2, node1.value, node1.prio)
+        heap[pos2] = Node(key1, node2.value, node2.prio)
         position[key1], position[key2] = pos2, pos1
 
     def popkeys(self) -> Iterator[Any]:
