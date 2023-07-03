@@ -50,7 +50,6 @@ from typing import (
     TypeVar,
     Union,
 )
-from warnings import warn
 
 __version__ = "1.3.0"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
@@ -87,10 +86,7 @@ class Node(NamedTuple):
 
 
 def _sink(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    top: int = 0
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, top: int = 0
 ) -> None:
     # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
     # Tends to reduce the number of comparisons when inserting "heavy"
@@ -127,7 +123,7 @@ def _swim(
     position: Dict[Any, int],
     precedes: PrecedesFn,
     pos: int,
-    top: int = 0
+    top: int = 0,
 ) -> None:
     # Grab the node from its place
     node = heap[pos]
@@ -146,11 +142,7 @@ def _swim(
     position[node.key] = pos
 
 
-def heapify(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn
-) -> None:
+def heapify(heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn) -> None:
     n = len(heap)
     # No need to look at any leaf nodes.
     for pos in reversed(range(n // 2)):
@@ -158,10 +150,7 @@ def heapify(
 
 
 def heaprepair(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    pos: int
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, pos: int
 ) -> None:
     # Repair the position of a modified node.
     # Bubble up or down depending on values of parent and children.
@@ -180,10 +169,7 @@ def heaprepair(
 
 
 def heappop(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    pos: int = 0
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, pos: int = 0
 ) -> Node:
     # Take the very last node and place it in the vacated spot. Let it
     # sink or swim until it reaches its new resting place.
@@ -198,10 +184,7 @@ def heappop(
 
 
 def heappush(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    node: Node
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> None:
     n = len(heap)
     heap.append(node)
@@ -210,10 +193,7 @@ def heappush(
 
 
 def heapupdate(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    node: Node
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> None:
     pos = position[node.key]
     heap[pos] = node
@@ -221,10 +201,7 @@ def heapupdate(
 
 
 def heappushpop(
-    heap: List[Node],
-    position: Dict[Any, int],
-    precedes: PrecedesFn,
-    node: Node
+    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> Node:
     key = node.key
     if heap and precedes(heap[0].prio, node.prio):
@@ -456,7 +433,6 @@ class pqdict(MutableMapping):
         else:
             return default
 
-
     ######################
     # Priority Queue API #
     ######################
@@ -630,9 +606,7 @@ class pqdict(MutableMapping):
         else:
             if key not in self._position:
                 raise KeyError(key)
-            heaprepair(
-                self._heap, self._position, self._precedes, self._position[key]
-            )
+            heaprepair(self._heap, self._position, self._precedes, self._position[key])
 
 
 #############

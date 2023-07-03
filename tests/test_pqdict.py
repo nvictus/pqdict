@@ -6,7 +6,7 @@ from itertools import combinations
 
 import pytest
 
-from pqdict import nlargest, nsmallest, pqdict, Empty
+from pqdict import Empty, nlargest, nsmallest, pqdict
 
 sample_keys = ["A", "B", "C", "D", "E", "F", "G"]
 sample_values = [5, 8, 7, 3, 9, 12, 1]
