@@ -6,7 +6,7 @@ from itertools import combinations
 
 import pytest
 
-from pqdict import maxpq, minpq, nlargest, nsmallest, pqdict
+from pqdict import nlargest, nsmallest, pqdict, Empty
 
 sample_keys = ["A", "B", "C", "D", "E", "F", "G"]
 sample_values = [5, 8, 7, 3, 9, 12, 1]
@@ -128,16 +128,6 @@ def test_fromkeys():
         assert pq[k] == float("-inf")
     pq["spam"] = 10
     assert pq.pop() == "spam"
-
-
-def test_factory_functions():
-    pq = minpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-    assert list(pq.popvalues()) == [1, 3, 5, 7, 8, 9, 12]
-    assert pq.precedes == operator.lt
-
-    pq = maxpq(A=5, B=8, C=7, D=3, E=9, F=12, G=1)
-    assert list(pq.popvalues()) == [12, 9, 8, 7, 5, 3, 1]
-    assert pq.precedes == operator.gt
 
 
 ################
@@ -300,7 +290,7 @@ def test_pop():
 
     # PQ-pop
     # no args and empty - throws
-    with pytest.raises(KeyError):
+    with pytest.raises(Empty):
         pq.pop()  # pq is now empty
     assert pq.pop(default="default") == "default"
     # no args - return top key
@@ -311,7 +301,7 @@ def test_pop():
 def test_top():
     # empty
     pq = pqdict()
-    with pytest.raises(KeyError):
+    with pytest.raises(Empty):
         pq.top()
     assert pq.top("default") == "default"
     # non-empty
@@ -332,7 +322,7 @@ def test_popitem():
 def test_topitem():
     # empty
     pq = pqdict()
-    with pytest.raises(KeyError):
+    with pytest.raises(Empty):
         pq.top()
     # non-empty
     for num_items in range(1, 30):
