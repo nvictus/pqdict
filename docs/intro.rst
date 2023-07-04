@@ -45,19 +45,21 @@ To create a max-heap instead (**larger** values give **higher** priority), pass 
     >>> list(pq.popkeys())
     ['c', 'b', 'a']
 
-Alternatively, you can use the alias functions ``minpq()`` and ``maxpq()``.
+Alternatively, you can use the constructors :meth:`~pqdict.pqdict.minpq` and :meth:`~pqdict.pqdict.maxpq`.
 
 .. code-block:: python
 
-    >>> from pqdict import minpq
-    >>> pq = minpq(a=3, b=5, c=8)
+    >>> from pqdict import pqdict
+    >>> pq = pqdict.minpq(a=3, b=5, c=8)
 
 By default, items are ordered by **value**. Analogous to the built-in ``sorted()``, you can provide a **priority key function** to transform the values for sorting.
 
 .. code-block:: python
     
     >>> from pqdict import pqdict
-    >>> pq = pqdict({'a':(2,3), 'b':(8,5), 'c':(10,8)}, key=lambda x: x[1])
+    >>> pq = pqdict({'a':(10, 3), 'b':(8, 5), 'c':(3, 8)}, key=lambda x: x[1])
+    >>> list(pq.popkeys())
+    ['a', 'b', 'c']
 
 Views and regular iteration don't affect the heap, but the output is **unsorted**. This applies to ``pq.keys()``, ``pq.values()``, ``pq.items()`` and using ``iter()`` (e.g., in a for loop).
 
@@ -69,11 +71,11 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
 
 .. code-block:: python 
 
-    >>> list(pqdict({'a': 1, 'b': 2, 'c': 3, 'd': 4}).keys())
+    >>> list(pqdict({'a': 1, 'c': 3, 'b': 2, 'd': 4}).keys())
     ['a', 'c', 'b', 'd']
 
 
-"Heapsort iterators" output data in **descending order** of priority by removing items from the collection. The following methods return heapsort iterators: ``pq.popkeys()``, ``pq.popvalues()``, and ``pq.popitems()``.
+"Heapsort iterators" output data in **descending order of priority** by removing items from the collection. The following methods return heapsort iterators: ``pq.popkeys()``, ``pq.popvalues()``, and ``pq.popitems()``.
 
 .. code-block:: python 
 
@@ -81,7 +83,13 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
         serve(customer) # Customer satisfaction guaranteed :) 
     # queue is now empty
 
-``pqdict`` supports all Python dictionary methods...
+.. code-block:: python 
+
+    >>> list(pqdict({'a': 1, 'c': 3, 'b': 2, 'd': 4}).popkeys())
+    ['a', 'b', 'c', 'd']
+
+
+:class:`~pqdict.pqdict` supports all Python dictionary methods...
 
 .. code-block:: python
 
@@ -108,6 +116,8 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
 
     >>> pq.top()
     'c'
+    >>> pq.topvalue()
+    1
     >>> pq.topitem()
     ('c', 1)
     # manual heapsort...
@@ -124,12 +134,12 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
 
 
 .. warning:: 
-    **Value mutability**. If you use mutable objects as values in a ``pqdict``, changes to the state of those objects can break the priority queue. If this does happen, the data structure can be repaired by calling ``pq.heapify()``. (But you probably shouldn't be using mutable values in the first place.)
+    **Value mutability**. If you use mutable objects as values in a :class:`~pqdict.pqdict`, changes to the state of those objects can break the priority queue. If this does happen, the data structure can be repaired by calling ``pq.heapify()``. (But you probably shouldn't be using mutable values in the first place.)
 
 .. note::
     **Custom precedence function**. The only difference between a min-pq and max-pq is that precedence of items is determined by comparing priority keys with the builtin ``<`` and ``>`` operators, respectively. If you would like to further customize the way items are prioritized, you can pass a boolean function ``precedes(pkey1, pkey2)`` to the initializer.
 
-The module functions ``nsmallest`` and ``nlargest`` work like the same functions in ``heapq`` but act on mappings instead of sequences, sorting by value:
+The module functions :func:`~pqdict.nsmallest` and :func:`~pqdict.nlargest` work like the same functions in :mod:`heapq` but act on mappings instead of sequences, sorting by value:
 
 .. code-block:: python
 
@@ -141,7 +151,7 @@ The module functions ``nsmallest`` and ``nlargest`` work like the same functions
 License 
 -------
 
-This module is released under the MIT license. The augmented heap implementation was adapted from the ``heapq`` module in the Python standard library, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
+This module is released under the MIT license. The augmented heap implementation was adapted from the :mod:`heapq` module in the Python standard library, which was written by Kevin O'Connor and augmented by Tim Peters and Raymond Hettinger.
 
 
 Documentation
