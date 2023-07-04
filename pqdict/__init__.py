@@ -436,7 +436,7 @@ class pqdict(MutableMapping):
     def top(self, default: Any = __marker) -> Any:
         """Return the key of the item with highest priority.
 
-        If ``default`` is provided and pqdict is empty, then return``default``,
+        If ``default`` is provided and pqdict is empty, then return ``default``,
         otherwise raise ``Empty``.
         """
         if self._heap:
@@ -449,7 +449,7 @@ class pqdict(MutableMapping):
     def topvalue(self, default: Any = __marker) -> Any:
         """Return the value of the item with highest priority.
 
-        If ``default`` is provided and pqdict is empty, then return``default``,
+        If ``default`` is provided and pqdict is empty, then return ``default``,
         otherwise raise ``Empty``.
         """
         if self._heap:
@@ -475,7 +475,7 @@ class pqdict(MutableMapping):
     def popvalue(self, default: Any = __marker) -> Any:
         """Remove and return the value of the item with highest priority.
 
-        If ``default`` is provided and pqdict is empty, then return``default``,
+        If ``default`` is provided and pqdict is empty, then return ``default``,
         otherwise raise ``Empty``.
         """
         if self._heap:
