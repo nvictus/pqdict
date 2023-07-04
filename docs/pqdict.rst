@@ -12,6 +12,8 @@ pqdict class
 .. autoclass:: pqdict
     :no-members:
 
+    .. automethod:: __init__
+
     .. automethod:: minpq
 
     .. automethod:: maxpq

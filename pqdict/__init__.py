@@ -211,10 +211,10 @@ def heappushpop(
 
 
 class pqdict(MutableMapping):
-    """A mutable dict/priority queue mapping hashable keys to priority values.
+    """A mutable dict/priority queue that maps hashable keys to priority values.
 
     As a priority queue, items can be added and the top-priority item can be
-    viewed or dequeued. In addition, arbitrary items may be removed, retrieved,
+    viewed or dequeued. In addition, arbitrary items may be retrieved, removed,
     and have their priorities updated by key.
     """
 
@@ -250,10 +250,10 @@ class pqdict(MutableMapping):
 
         Notes
         -----
-        The default behavior is that of a min-priority queue, i.e. the item
-        with the *smallest* priority value is given *highest* priority. This
-        behavior can be reversed by specifying ``reverse=True`` or by providing
-        a custom precedence function via the ``precedes`` keyword argument.
+        The default behavior is that of a **min**-priority queue, i.e. the item
+        with the *smallest* value is given *highest* priority. This behavior
+        can be reversed by specifying ``reverse=True`` or by providing a custom
+        precedence function via the ``precedes`` keyword argument.
         Alternatively, use the explicit :meth:`pqdict.minpq` or
         :meth:`pqdict.maxpq` class methods.
         """
@@ -299,23 +299,23 @@ class pqdict(MutableMapping):
 
     @classmethod
     def minpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
-        """Create a pqdict with min-priority semantics: smallest is highest.
+        """Create a pqdict with min-priority semantics: smallest value is highest.
 
-        pqdict.minpq() -> new empty pqdict with min-priority semantics
-        pqdict.minpq(mapping) -> new minpq initialized from a mapping
-        pqdict.minpq(iterable) -> new minpq initialized from an iterable of pairs
-        pqdict.minpq(**kwargs) -> new minpq initialized with name=value pairs
+        * ``pqdict.minpq()`` -> new empty pqdict with min-priority semantics
+        * ``pqdict.minpq(mapping)`` -> new minpq initialized from a mapping
+        * ``pqdict.minpq(iterable)`` -> new minpq initialized from an iterable of pairs
+        * ``pqdict.minpq(**kwargs)`` -> new minpq initialized with name=value pairs
         """
         return cls(dict(*args, **kwargs), precedes=lt)
 
     @classmethod
     def maxpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
-        """Create a pqdict with max-priority semantics: largest is highest.
+        """Create a pqdict with max-priority semantics: largest value is highest.
 
-        pqdict.maxpq() -> new empty pqdict with max-priority semantics
-        pqdict.maxpq(mapping) -> new maxpq initialized from a mapping
-        pqdict.maxpq(iterable) -> new maxpq initialized from an iterable of pairs
-        pqdict.maxpq(**kwargs) -> new maxpq initialized with name=value pairs
+        * ``pqdict.maxpq()`` -> new empty pqdict with max-priority semantics
+        * ``pqdict.maxpq(mapping)`` -> new maxpq initialized from a mapping
+        * ``pqdict.maxpq(iterable)`` -> new maxpq initialized from an iterable of pairs
+        * ``pqdict.maxpq(**kwargs)`` -> new maxpq initialized with name=value pairs
         """
         return cls(dict(*args, **kwargs), precedes=gt)
 
@@ -377,7 +377,10 @@ class pqdict(MutableMapping):
             heappush(self._heap, self._position, self._precedes, node)
 
     def __delitem__(self, key: Any) -> None:
-        """Remove item. Raises a ``KeyError`` if key is not in the pqdict."""
+        """Remove item.
+
+        Raises a ``KeyError`` if key is not in the pqdict.
+        """
         if key not in self._position:
             raise KeyError(key)
         heappop(self._heap, self._position, self._precedes, self._position[key])
@@ -496,7 +499,10 @@ class pqdict(MutableMapping):
             return default
 
     def additem(self, key: Any, value: Any) -> None:
-        """Add a new item. Raises ``KeyError`` if key is already in the pqdict."""
+        """Add a new item.
+
+        Raises ``KeyError`` if key is already in the pqdict.
+        """
         if key in self._position:
             raise KeyError(f"{key} is already in the queue")
         prio = self._keyfn(value) if self._keyfn else value
@@ -615,7 +621,7 @@ def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = Non
         The number of keys associated with the largest values
         in descending order
     mapping : Mapping
-        A mapping object
+        A dict-like object
     key : callable, optional
         Optional priority key function to transform values into priority keys
         for sorting. By default, the values are not transformed.
@@ -660,7 +666,7 @@ def nsmallest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = No
         The number of keys associated with the smallest values
         in ascending order
     mapping : Mapping
-        A mapping object
+        A dict-like object
     key : callable, optional
         Optional priority key function to transform values into priority keys
         for sorting. By default, the values are not transformed.
