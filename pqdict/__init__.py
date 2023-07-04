@@ -1,6 +1,4 @@
-"""
-Priority Queue Dictionary (pqdict)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"""Priority Queue Dictionary (pqdict).
 
 A Pythonic indexed priority queue.
 
@@ -51,7 +49,7 @@ from typing import (
     Union,
 )
 
-__version__ = "1.3.0"
+__version__ = "1.4.0-dev"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
 
 DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]
@@ -213,34 +211,11 @@ def heappushpop(
 
 
 class pqdict(MutableMapping):
-    """
-    A collection that maps hashable objects (keys) to priority-determining
-    values. The mapping is mutable so items may be added, removed and have
-    their priority level updated.
+    """A mutable dict/priority queue mapping hashable keys to priority values.
 
-    The default behavior is that of a min-priority queue, i.e. the item with
-    the *smallest* priority value is given *highest* priority. This behavior
-    can be reversed by specifying ``reverse=True`` or by providing a custom
-    precedence function via the ``precedes`` keyword argument. Alternatively,
-    use the explicit :meth:`pqdict.minpq` or :meth:`pqdict.maxpq` class methods.
-
-    Parameters
-    ----------
-    data : mapping or iterable, optional
-        Input data, e.g. a dictionary or a sequence of items.
-    key : callable, optional
-        Optional priority key function to transform values into priority keys
-        for comparison. By default, the values are used directly as priority
-        keys and are not transformed.
-    reverse : bool, optional [default: ``False``]
-        If ``True``, *larger* priority keys give items *higher* priority.
-        Default is ``False``.
-    precedes : callable, optional [default: ``operator.lt``]
-        Function that determines precedence of a pair of priority keys. The
-        default comparator is ``operator.lt``, meaning *smaller* priority keys
-        give items *higher* priority. The callable must have the form
-        ``precedes(prio1, prio2) -> bool`` and return ``True`` if ``prio1``
-        has higher priority than ``prio2``. Overrides ``reverse``.
+    As a priority queue, items can be added and the top-priority item can be
+    viewed or dequeued. In addition, arbitrary items may be removed, retrieved,
+    and have their priorities updated by key.
     """
 
     _heap: List[Node]
@@ -253,6 +228,35 @@ class pqdict(MutableMapping):
         reverse: bool = False,
         precedes: Callable[[Any, Any], bool] = lt,
     ) -> None:
+        """Create a new priority queue dictionary.
+
+        Parameters
+        ----------
+        data : mapping or iterable, optional
+            Input data, e.g. a dictionary or a sequence of items.
+        key : callable, optional
+            Optional priority key function to transform values into priority
+            keys for comparison. By default, the values are used directly as
+            priority keys and are not transformed.
+        reverse : bool, optional [default: ``False``]
+            If ``True``, *larger* priority keys give items *higher* priority.
+            Default is ``False``.
+        precedes : callable, optional [default: ``operator.lt``]
+            Function that determines precedence of a pair of priority keys. The
+            default comparator is ``operator.lt``, meaning *smaller* priority
+            keys give items *higher* priority. The callable must have the form
+            ``precedes(prio1, prio2) -> bool`` and return ``True`` if ``prio1``
+            has higher priority than ``prio2``. Overrides ``reverse``.
+
+        Notes
+        -----
+        The default behavior is that of a min-priority queue, i.e. the item
+        with the *smallest* priority value is given *highest* priority. This
+        behavior can be reversed by specifying ``reverse=True`` or by providing
+        a custom precedence function via the ``precedes`` keyword argument.
+        Alternatively, use the explicit :meth:`pqdict.minpq` or
+        :meth:`pqdict.maxpq` class methods.
+        """
         if reverse:
             if precedes == lt:
                 precedes = gt
@@ -280,15 +284,16 @@ class pqdict(MutableMapping):
 
     @property
     def precedes(self) -> Callable[[Any, Any], bool]:
-        """Priority key precedence function"""
+        """Priority key precedence function."""
         return self._precedes
 
     @property
     def keyfn(self) -> Callable[[Any], Any]:
-        """Priority key function"""
+        """Priority key function."""
         return self._keyfn if self._keyfn is not None else lambda x: x
 
     def __repr__(self) -> str:
+        """Return a string representation of the pqdict."""
         things = ", ".join([f"{node.key}: {node.value}" for node in self._heap])
         return f"{self.__class__.__name__}({things})"
 
@@ -332,42 +337,37 @@ class pqdict(MutableMapping):
     def fromkeys(
         cls: Type[Tpqdict], iterable: Iterable, value: Any, **kwargs: Any
     ) -> Tpqdict:
-        """
-        Return a new pqdict mapping keys from an iterable to the same value.
-        """
+        """Return a new pqdict mapping keys from an iterable to the same value."""
         return cls(((k, value) for k in iterable), **kwargs)
 
     def __len__(self) -> int:
-        """
-        Return number of items in the pqdict.
-        """
+        """Return number of items in the pqdict."""
         return len(self._heap)
 
     def __contains__(self, key: Any) -> bool:
-        """
-        Return ``True`` if key is in the pqdict.
-        """
+        """Return ``True`` if key is in the pqdict."""
         return key in self._position
 
     def __iter__(self) -> Iterator[Any]:
-        """
-        Return an iterator over the keys of the pqdict. The order of iteration
-        is arbitrary! Use ``popkeys`` to iterate over keys in priority order.
+        """Return an iterator over the keys of the pqdict.
+
+        The order of iteration is arbitrary! Use ``popkeys`` to iterate over
+        keys in priority order.
         """
         for node in self._heap:
             yield node.key
 
     def __getitem__(self, key: Any) -> Any:
-        """
-        Return the priority value of ``key``. Raises a ``KeyError`` if not in
-        the pqdict.
+        """Return the priority value of ``key``.
+
+        Raises a ``KeyError`` if not in the pqdict.
         """
         return self._heap[self._position[key]].value  # raises KeyError
 
     def __setitem__(self, key: Any, value: Any) -> None:
-        """
-        Assign a priority value to ``key``. If ``key`` is already in the
-        pqdict, its priority value is updated.
+        """Assign a priority value to ``key``.
+
+        If ``key`` is already in the pqdict, its priority value is updated.
         """
         prio = self._keyfn(value) if self._keyfn else value
         node = Node(key, value, prio)
@@ -377,17 +377,13 @@ class pqdict(MutableMapping):
             heappush(self._heap, self._position, self._precedes, node)
 
     def __delitem__(self, key: Any) -> None:
-        """
-        Remove item. Raises a ``KeyError`` if key is not in the pqdict.
-        """
+        """Remove item. Raises a ``KeyError`` if key is not in the pqdict."""
         if key not in self._position:
             raise KeyError(key)
         heappop(self._heap, self._position, self._precedes, self._position[key])
 
     def copy(self: Tpqdict) -> Tpqdict:
-        """
-        Return a shallow copy of a pqdict.
-        """
+        """Return a shallow copy of a pqdict."""
         other = self.__class__(key=self._keyfn, precedes=self._precedes)
         other._position = self._position.copy()
         other._heap = self._heap[:]
@@ -398,8 +394,7 @@ class pqdict(MutableMapping):
         key: Any = __marker,
         default: Any = __marker,
     ) -> Any:
-        """
-        Hybrid pop method.
+        """Hybrid pop method.
 
         With ``key``, perform a dictionary pop:
 
@@ -414,7 +409,6 @@ class pqdict(MutableMapping):
         * If the pqdict is empty, return ``default`` if provided, otherwise
           raise ``Empty``.
         """
-
         # pq semantics: remove and return top *key* (value is discarded)
         if key is self.__marker:
             if self._heap:
@@ -437,10 +431,10 @@ class pqdict(MutableMapping):
     # Priority Queue API #
     ######################
     def top(self, default: Any = __marker) -> Any:
-        """
-        Return the key of the item with highest priority. If ``default`` is
-        provided and pqdict is empty, then return``default``, otherwise raise
-        ``Empty``.
+        """Return the key of the item with highest priority.
+
+        If ``default`` is provided and pqdict is empty, then return``default``,
+        otherwise raise ``Empty``.
         """
         if self._heap:
             return self._heap[0].key
@@ -450,10 +444,10 @@ class pqdict(MutableMapping):
             return default
 
     def topvalue(self, default: Any = __marker) -> Any:
-        """
-        Return the value of the item with highest priority. If ``default`` is
-        provided and pqdict is empty, then return``default``, otherwise raise
-        ``Empty``.
+        """Return the value of the item with highest priority.
+
+        If ``default`` is provided and pqdict is empty, then return``default``,
+        otherwise raise ``Empty``.
         """
         if self._heap:
             return self._heap[0].value
@@ -463,9 +457,9 @@ class pqdict(MutableMapping):
             return default
 
     def topitem(self, default: Any = __marker) -> Tuple[Any, Any]:
-        """
-        Return the item with highest priority. Raises ``Empty`` if pqdict is
-        empty.
+        """Return the item with highest priority.
+
+        Raises ``Empty`` if pqdict is empty.
         """
         if self._heap:
             node = self._heap[0]
@@ -476,9 +470,9 @@ class pqdict(MutableMapping):
             return default
 
     def popvalue(self, default: Any = __marker) -> Any:
-        """
-        Remove and return the value of the item with highest priority. If
-        ``default`` is provided and pqdict is empty, then return``default``,
+        """Remove and return the value of the item with highest priority.
+
+        If ``default`` is provided and pqdict is empty, then return``default``,
         otherwise raise ``Empty``.
         """
         if self._heap:
@@ -489,9 +483,9 @@ class pqdict(MutableMapping):
             return default
 
     def popitem(self, default: Any = __marker) -> Tuple[Any, Any]:
-        """
-        Remove and return the item with highest priority. Raises ``Empty``
-        if pqdict is empty.
+        """Remove and return the item with highest priority.
+
+        Raises ``Empty`` if pqdict is empty.
         """
         if self._heap:
             node = heappop(self._heap, self._position, self._precedes)
@@ -502,9 +496,7 @@ class pqdict(MutableMapping):
             return default
 
     def additem(self, key: Any, value: Any) -> None:
-        """
-        Add a new item. Raises ``KeyError`` if key is already in the pqdict.
-        """
+        """Add a new item. Raises ``KeyError`` if key is already in the pqdict."""
         if key in self._position:
             raise KeyError(f"{key} is already in the queue")
         prio = self._keyfn(value) if self._keyfn else value
@@ -512,9 +504,9 @@ class pqdict(MutableMapping):
         heappush(self._heap, self._position, self._precedes, node)
 
     def updateitem(self, key: Any, new_val: Any) -> None:
-        """
-        Update the priority value of an existing item. Raises ``KeyError`` if
-        key is not in the pqdict.
+        """Update the priority value of an existing item.
+
+        Raises ``KeyError`` if key is not in the pqdict.
         """
         if key not in self._position:
             raise KeyError(key)
@@ -523,7 +515,8 @@ class pqdict(MutableMapping):
         heapupdate(self._heap, self._position, self._precedes, node)
 
     def pushpopitem(self, key: Any, value: Any) -> Tuple[Any, Any]:
-        """
+        """Insert a new item and return the top-priority item.
+
         Equivalent to inserting a new item followed by removing the top
         priority item, but faster. Raises ``KeyError`` if the new key is
         already in the pqdict.
@@ -537,10 +530,10 @@ class pqdict(MutableMapping):
         return node.key, node.value
 
     def replace_key(self, key: Any, new_key: Any) -> None:
-        """
-        Replace the key of an existing heap node in place. Raises ``KeyError``
-        if the key to replace does not exist or if the new key is already in
-        the pqdict.
+        """Replace the key of an existing heap node in place.
+
+        Raises ``KeyError`` if the key to replace does not exist or if the new
+        key is already in the pqdict.
         """
         if new_key in self._position:
             raise KeyError(f"{new_key} is already in the queue")
@@ -550,9 +543,9 @@ class pqdict(MutableMapping):
         self._heap[pos] = Node(new_key, node.value, node.prio)
 
     def swap_priority(self, key1: Any, key2: Any) -> None:
-        """
-        Fast way to swap the priority level of two items in the pqdict. Raises
-        ``KeyError`` if either key does not exist.
+        """Fast way to swap the priority level of two items in the pqdict.
+
+        Raises ``KeyError`` if either key does not exist.
         """
         heap = self._heap
         position = self._position
@@ -567,9 +560,7 @@ class pqdict(MutableMapping):
         position[key1], position[key2] = pos2, pos1
 
     def popkeys(self) -> Iterator[Any]:
-        """
-        Remove items, returning keys in descending order of priority rank.
-        """
+        """Remove items, returning keys in descending order of priority rank."""
         try:
             while True:
                 yield self.pop()
@@ -577,9 +568,7 @@ class pqdict(MutableMapping):
             return
 
     def popvalues(self) -> Iterator[Any]:
-        """
-        Remove items, returning values in descending order of priority rank.
-        """
+        """Remove items, returning values in descending order of priority rank."""
         try:
             while True:
                 yield self.popvalue()
@@ -587,9 +576,7 @@ class pqdict(MutableMapping):
             return
 
     def popitems(self) -> Iterator[Tuple[Any, Any]]:
-        """
-        Remove and return items in descending order of priority rank.
-        """
+        """Remove and return items in descending order of priority rank."""
         try:
             while True:
                 yield self.popitem()
@@ -597,9 +584,10 @@ class pqdict(MutableMapping):
             return
 
     def heapify(self, key: Any = __marker) -> None:
-        """
-        Repair a broken heap. If the state of an item's priority value changes
-        you can re-sort the relevant item only by providing ``key``.
+        """Repair a broken heap.
+
+        If the state of an item's priority value changes you can re-sort the
+        relevant item only by providing ``key``.
         """
         if key is self.__marker:
             heapify(self._heap, self._position, self._precedes)
@@ -615,7 +603,8 @@ class pqdict(MutableMapping):
 
 
 def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = None):
-    """
+    """Return the n keys associated with the largest values in a mapping.
+
     Takes a mapping and returns the n keys associated with the largest values
     in descending order. If the mapping has fewer than n items, all its keys
     are returned.
@@ -659,7 +648,8 @@ def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = Non
 
 
 def nsmallest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = None):
-    """
+    """Return the n keys associated with the smallest values in a mapping.
+
     Takes a mapping and returns the n keys associated with the smallest values
     in ascending order. If the mapping has fewer than n items, all its keys are
     returned.
