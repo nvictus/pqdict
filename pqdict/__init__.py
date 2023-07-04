@@ -224,9 +224,9 @@ class pqdict(MutableMapping):
     def __init__(
         self,
         data: Optional[DictInputs] = None,
-        key: Optional[Callable[[Any], Any]] = None,
+        key: Optional[PrioKeyFn] = None,
         reverse: bool = False,
-        precedes: Callable[[Any, Any], bool] = lt,
+        precedes: PrecedesFn = lt,
     ) -> None:
         """Create a new priority queue dictionary.
 
@@ -283,12 +283,12 @@ class pqdict(MutableMapping):
             self.update(data)
 
     @property
-    def precedes(self) -> Callable[[Any, Any], bool]:
+    def precedes(self) -> PrecedesFn:
         """Priority key precedence function."""
         return self._precedes
 
     @property
-    def keyfn(self) -> Callable[[Any], Any]:
+    def keyfn(self) -> PrioKeyFn:
         """Priority key function."""
         return self._keyfn if self._keyfn is not None else lambda x: x
 
@@ -608,7 +608,7 @@ class pqdict(MutableMapping):
 #############
 
 
-def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = None):
+def nlargest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
     """Return the n keys associated with the largest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the largest values
@@ -653,7 +653,7 @@ def nlargest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = Non
     return out
 
 
-def nsmallest(n: int, mapping: Mapping, key: Optional[Callable[[Any], Any]] = None):
+def nsmallest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
     """Return the n keys associated with the smallest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the smallest values
