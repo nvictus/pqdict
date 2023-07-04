@@ -1,4 +1,4 @@
-.PHONY: install test clean build publish
+.PHONY: install test clean build publish docs
 
 install:
 	pip install -e .
@@ -17,6 +17,9 @@ clean:
 build: clean
 	python setup.py sdist
 	python setup.py bdist_wheel
+
+docs:
+	sphinx-autobuild docs docs/_build/html
 
 publish: 
 	twine upload dist/*
