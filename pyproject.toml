@@ -73,7 +73,7 @@ skip_gitignore = true
 [tool.ruff]
 extend-select = [
     "E",  # style errors
-    "D",  # pydocstyle
+    # "D",  # pydocstyle
     "F",  # pyflakes
     "I",  # isort
     "RUF", # ruff-specific rules
