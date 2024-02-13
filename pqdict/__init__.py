@@ -49,7 +49,7 @@ from typing import (
     Union,
 )
 
-__version__ = "1.4.0-dev"
+__version__ = "1.4.0"
 __all__ = ["pqdict", "nlargest", "nsmallest"]
 
 DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]

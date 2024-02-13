@@ -1,6 +1,22 @@
 Release Notes
 =============
 
+1.4.0 (2024-02-14)
+++++++++++++++++++
+
+What's changed:
+
+* The deprecated module-level `minpq` and `maxpq` have been removed in favor of same-named classmethods introduced in v1.3.0 (#24)
+* Introduce a distinct `Empty` exception for operations that attempt to remove items from an empty pqdict, instead of raising a `KeyError`. (Note that `Empty` is derived from `KeyError` for subclass compatibility with `Mapping.popitem` and `Mapping.clear`.) (#24)
+* Make internal heap nodes immutable and fast copy as originally proposed by @palkeo in #14
+
+Maintenance:
+
+* Factored out indexed heap operations to reduce redundancy
+* Better docstrings and type annotations
+
+**Full Changelog**: https://github.com/nvictus/pqdict/compare/v1.3.0...v1.4.0
+
 1.3.0 (2023-07-01)
 ++++++++++++++++++
 
@@ -10,6 +26,7 @@ In turn, we now provide full static type annotations and have migrated to modern
 * API changes:
 	- Added ``popvalue`` method to mirror recent ``topvalue`` addition.
 	- Added ``default`` argument to ``top`` and support for ``default`` using ``pop`` with PQ semantics. If given, this value is returned when the collection is empty.
+	- ``minpq`` and ``maxpq`` module-level functions are deprecated in favor of `pqdict` classmethods and will be removed in v1.4.
 
 * Maintenance:
     - Dropped support for Python 2.7, 3.4, 3.5, and 3.6 (#22).
