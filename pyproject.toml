@@ -70,10 +70,10 @@ universal = true
 profile = "black"
 skip_gitignore = true
 
-[tool.ruff]
+[tool.ruff.lint]
 extend-select = [
     "E",  # style errors
-    # "D",  # pydocstyle
+    "D",  # pydocstyle
     "F",  # pyflakes
     "I",  # isort
     "RUF", # ruff-specific rules
@@ -81,6 +81,8 @@ extend-select = [
     "W",  # style  warnings
 ]
 ignore = [
+    "D100",
+    "D103",
     "D203",
     "D213",
 ]
