@@ -227,7 +227,7 @@ class pqdict(MutableMapping):
         key: Optional[PrioKeyFn] = None,
         reverse: bool = False,
         precedes: PrecedesFn = lt,
-    ) -> None:
+    ):
         """Create a new priority queue dictionary.
 
         Parameters

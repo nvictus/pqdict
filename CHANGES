@@ -6,8 +6,8 @@ Release Notes
 
 What's changed:
 
-* The deprecated module-level `minpq` and `maxpq` have been removed in favor of same-named classmethods introduced in v1.3.0 (#24)
-* Introduce a distinct `Empty` exception for operations that attempt to remove items from an empty pqdict, instead of raising a `KeyError`. (Note that `Empty` is derived from `KeyError` for subclass compatibility with `Mapping.popitem` and `Mapping.clear`.) (#24)
+* The deprecated module-level ``minpq`` and ``maxpq`` have been removed in favor of same-named classmethods introduced in v1.3.0 (#24)
+* Introduce a distinct ``Empty`` exception for operations that attempt to remove items from an empty pqdict, instead of raising a ``KeyError``. (Note that ``Empty`` is derived from ``KeyError`` for subclass compatibility with ``Mapping.popitem`` and ``Mapping.clear``.) (#24)
 * Make internal heap nodes immutable and fast copy as originally proposed by @palkeo in #14
 
 Maintenance:

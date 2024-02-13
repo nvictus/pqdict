@@ -98,7 +98,7 @@ pqdict class
 
         * Remove the top item and return its **key**.
         * If the pqdict is empty, return ``default`` if provided, otherwise
-          raise a ``KeyError``.
+          raise ``Empty``.
 
     .. automethod:: popvalue
     

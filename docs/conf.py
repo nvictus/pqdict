@@ -41,6 +41,11 @@ extensions = [
     "sphinx.ext.napoleon",
 ]
 
+# https://sphinx-themes.org/sample-sites/sphinx-rtd-theme/kitchen-sink/api/
+# Automatically extract typehints when specified and place them in
+# descriptions of the relevant function/method.
+autodoc_typehints = "description"
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
