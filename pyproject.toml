@@ -51,10 +51,10 @@ docs = [
 ]
 
 [project.urls]
-homepage = "https://github.com/nvictus/priority-queue-dictionary"
+homepage = "https://github.com/nvictus/pqdict"
 documentation = "https://pqdict.readthedocs.io"
-repository = "https://github.com/nvictus/priority-queue-dictionary"
-changelog = "https://github.com/nvictus/priority-queue-dictionary/blob/master/CHANGES"
+repository = "https://github.com/nvictus/pqdict"
+changelog = "https://github.com/nvictus/pqdict/blob/master/CHANGES"
 
 [tool.setuptools.dynamic]
 readme = { file = ["README.rst"] }
