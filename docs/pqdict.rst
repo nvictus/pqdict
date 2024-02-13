@@ -84,11 +84,11 @@ pqdict class
 
     **Priority Queue API**
 
-    .. automethod:: top
+    .. automethod:: top([default])
 
-    .. automethod:: topvalue
+    .. automethod:: topvalue([default])
 
-    .. automethod:: topitem
+    .. automethod:: topitem([default])
     
     .. method:: pop(*, [default])
 
@@ -100,15 +100,15 @@ pqdict class
         * If the pqdict is empty, return ``default`` if provided, otherwise
           raise ``Empty``.
 
-    .. automethod:: popvalue
+    .. automethod:: popvalue([default])
     
-    .. automethod:: popitem
+    .. automethod:: popitem([default])
 
     .. automethod:: additem
 
     .. automethod:: updateitem
 
-    .. automethod:: pushpopitem(key, value)
+    .. automethod:: pushpopitem
 
     .. automethod:: replace_key
 
