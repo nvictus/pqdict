@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=43.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pqdict"
@@ -32,7 +32,8 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 
-dynamic = ["readme", "version"]
+readme = "README.rst"
+dynamic = ["version"]
 dependencies = []
 
 [project.optional-dependencies]
@@ -56,15 +57,22 @@ documentation = "https://pqdict.readthedocs.io"
 repository = "https://github.com/nvictus/pqdict"
 changelog = "https://github.com/nvictus/pqdict/blob/master/CHANGES"
 
-[tool.setuptools.dynamic]
-readme = { file = ["README.rst"] }
-version = { attr = "pqdict.__version__" }
+[tool.hatch.version]
+path = "pqdict/__init__.py"
 
-[tool.setuptools.package-data]
-pqdict = ['py.typed']
+[tool.hatch.envs.default.scripts]
+lint = "ruff ."
+fix = "ruff --fix ."
+test = "pytest"
+docs = "sphinx-autobuild docs docs/_build/html"
 
-[tool.distutils.bdist_wheel]
-universal = true
+[tool.hatch.envs.test]
+template = "default"
+skip-install = false
+features = ["test"]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
 
 [tool.isort]
 profile = "black"
