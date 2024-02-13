@@ -256,6 +256,7 @@ class pqdict(MutableMapping):
         precedence function via the ``precedes`` keyword argument.
         Alternatively, use the explicit :meth:`pqdict.minpq` or
         :meth:`pqdict.maxpq` class methods.
+
         """
         if reverse:
             if precedes == lt:
@@ -635,6 +636,7 @@ def nlargest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
     This function is equivalent to:
 
     >>> [item[0] for item in heapq.nlargest(n, mapping.items(), lambda x: x[1])]
+
     """
     it = iter(mapping.items())
     pq = pqdict(key=key, precedes=lt)
@@ -680,6 +682,7 @@ def nsmallest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
     This function is equivalent to:
 
     >>> [item[0] for item in heapq.nsmallest(n, mapping.items(), lambda x: x[1])]
+
     """
     it = iter(mapping.items())
     pq = pqdict(key=key, precedes=gt)
