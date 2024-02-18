@@ -4,9 +4,9 @@ Quickstart
 What is an "indexed" priority queue?
 ------------------------------------
 
-A `priority queue <http://en.wikipedia.org/wiki/Priority_queue>`__ allows you to serve or retrieve items in a prioritized fashion. A priority queue supports inserting elements with priorities, and removing or peeking at the top priority element. The vanilla priority queue interface can be extended to support random access, insertion, removal and changing the priority of any element in the queue. An *indexed* priority queue does these latter operations efficiently.
+A `priority queue <http://en.wikipedia.org/wiki/Priority_queue>`__ allows you to serve or retrieve items in a prioritized fashion. A priority queue supports inserting elements with priorities, and removing or peeking at the top priority element. The vanilla priority queue interface can be extended to support **random access to any element** as well as **removing or changing the priority of any element** in the queue. An *indexed* priority queue does these latter operations efficiently. 
 
-The priority queue is implemented as a binary heap of (key, priority value) pairs, which supports:
+``pqdict`` exposes an indexed priority queue as a mapping from keys to priority-determining values. The priority queue itself is implemented as a binary heap of (key, priority value) elements, which supports:
 
 * O(1) search for the item with highest priority
 
@@ -14,7 +14,7 @@ The priority queue is implemented as a binary heap of (key, priority value) pair
 
 * O(log n) insertion of a new item
 
-An internal index maps elements to their location in the heap and is kept up to date as the heap is manipulated. As a result, pqdict also supports:
+An internal index maps each key to its element's location in the heap and is kept up to date as the heap is manipulated. As a result, ``pqdict`` also supports:
 
 * O(1) lookup of any item by key
 
@@ -130,7 +130,7 @@ Views and regular iteration don't affect the heap, but the output is **unsorted*
     >>> pq.popitem()
     ('d', 6.5)
     >>> pq.popitem()  # ...and we're empty!
-    KeyError
+    Empty
 
 
 .. warning:: 
@@ -157,4 +157,4 @@ This module is released under the MIT license. The augmented heap implementation
 Documentation
 -------------
 
-Documentation is available at http://pqdict.readthedocs.org/en/latest/.
+Documentation is available at http://pqdict.readthedocs.org/.

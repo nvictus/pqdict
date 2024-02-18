@@ -14,8 +14,7 @@ A priority queue dictionary maps hashable objects (keys) to priority-determining
 .. image:: https://img.shields.io/pypi/v/pqdict.svg
     :target: https://pypi.python.org/pypi/pqdict
 
-The priority queue is implemented as a binary heap of (key, priority value)
-pairs, which supports:
+The priority queue itself is implemented as a binary heap of (key, priority value) elements, which supports:
 
 - O(1) search for the item with highest priority
 
@@ -23,8 +22,8 @@ pairs, which supports:
 
 - O(log n) insertion of a new item
 
-Additionally, an index maps elements to their location in the heap and is kept
-up to date as the heap is manipulated. As a result, pqdict also supports:
+Additionally, an index maps each key to its element's location in the heap and is kept
+up to date as the heap is manipulated. As a result, ``pqdict`` also supports:
 
 - O(1) lookup of any item by key
 
@@ -36,7 +35,7 @@ up to date as the heap is manipulated. As a result, pqdict also supports:
 Documentation
 -------------
 
-Documentation is available at http://pqdict.readthedocs.org/en/latest/.
+Documentation is available at http://pqdict.readthedocs.org/.
 
 
 License 

@@ -8,7 +8,7 @@ module, which was written by Kevin O'Connor and augmented by Tim Peters and
 Raymond Hettinger.
 
 The priority queue is implemented as a binary heap of (key, priority value)
-pairs, which supports:
+elements, which supports:
 
 - O(1) search for the item with highest priority
 
@@ -16,8 +16,9 @@ pairs, which supports:
 
 - O(log n) insertion of a new item
 
-Additionally, an index maps elements to their location in the heap and is kept
-up to date as the heap is manipulated. As a result, pqdict also supports:
+Additionally, an index maps each key to its element's location in the heap
+and is kept up to date as the heap is manipulated. As a result, pqdict also
+supports:
 
 - O(1) lookup of any item by key
 
@@ -25,9 +26,9 @@ up to date as the heap is manipulated. As a result, pqdict also supports:
 
 - O(log n) updating of any item's priority level
 
-Documentation at <http://pqdict.readthedocs.org/en/latest>.
+Documentation at <http://pqdict.readthedocs.org/>.
 
-:copyright: (c) 2012-2023 by Nezar Abdennur.
+:copyright: (c) 2012-2024 by Nezar Abdennur.
 :license: MIT, see LICENSE for more details.
 
 """
@@ -593,8 +594,8 @@ class pqdict(MutableMapping):
     def heapify(self, key: Any = __marker) -> None:
         """Repair a broken heap.
 
-        If the state of an item's priority value changes you can re-sort the
-        relevant item only by providing ``key``.
+        If a change in a single, mutable value caused the break, you can
+        provide ``key`` to repair the heap by relocating that item.
         """
         if key is self.__marker:
             heapify(self._heap, self._position, self._precedes)
