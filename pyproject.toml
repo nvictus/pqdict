@@ -46,7 +46,7 @@ test = [
 ]
 docs = [
     "numpydoc",
-    "Sphinx<8.0.0",
+    "Sphinx<9.0.0",
     "sphinx-autobuild",
     "sphinx_rtd_theme",
 ]
