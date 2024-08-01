@@ -25,7 +25,7 @@ jobs:
         pip install -e .[test]
     - name: Lint with ruff
       run: |
-        ruff pqdict tests
+        ruff check pqdict tests
     - name: Static type check with mypy
       run: |
         mypy pqdict tests

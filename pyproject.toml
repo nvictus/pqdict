@@ -61,8 +61,8 @@ changelog = "https://github.com/nvictus/pqdict/blob/master/CHANGES"
 path = "pqdict/__init__.py"
 
 [tool.hatch.envs.default.scripts]
-lint = "ruff ."
-fix = "ruff --fix ."
+lint = "ruff check ."
+fix = "ruff check --fix ."
 test = "pytest"
 docs = "sphinx-autobuild docs docs/_build/html"
 
