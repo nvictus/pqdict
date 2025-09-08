@@ -22,7 +22,7 @@ jobs:
     - name: Install package and dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[test]
+        pip install -e .[dev]
     - name: Lint with ruff
       run: |
         ruff check pqdict tests
@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "pypy3.9"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.9"]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -45,7 +45,7 @@ jobs:
     - name: Install package and dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -e .[test]
+        python -m pip install -e .[dev]
     - name: Test with pytest
       run: |
         pytest
