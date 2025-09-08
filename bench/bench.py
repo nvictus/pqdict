@@ -26,7 +26,7 @@ def consume_dict(a):
         assert a.popitem()[1]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     random.seed(1298472)
 
     a = get_dict(10_000)
