@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from typing import Mapping, Self
 
     DictInputs = Mapping[Any, Any] | Iterable[tuple[Any, Any]]
-    PrioKeyFn = Callable[[Any], Any]
+    PriorityKeyFn = Callable[[Any], Any]
     PrecedesFn = Callable[[Any, Any], bool]
 
 try:
@@ -56,10 +56,15 @@ __all__ = ["nlargest", "nsmallest", "pqdict"]
 
 
 class Empty(KeyError):
-    # Why specialize KeyError? Why not reuse queue.Empty?
-    # The Mapping protocol expects KeyError when popping from an empty map.
-    # This lets us distinguish between a key not in the map and an empty map.
-    pass
+    """Exception raised on attempt to peek or pop from an empty pqdict.
+
+    Since the ``Mapping`` protocol requires a ``KeyError`` when popping from an
+    empty map, this specialized ``KeyError`` allows us to distinguish between
+    a failed key lookup and attempting to retrieve or remove the top item from
+    an empty pqdict.
+    """
+
+    ...
 
 
 class Node(NamedTuple):
@@ -217,11 +222,13 @@ class pqdict(MutableMapping):
 
     _heap: list[Node]
     _position: dict[Any, int]
+    _keyfn: PriorityKeyFn | None
+    _precedes: PrecedesFn
 
     def __init__(
         self,
         data: DictInputs | None = None,
-        key: PrioKeyFn | None = None,
+        key: PriorityKeyFn | None = None,
         reverse: bool = False,
         precedes: PrecedesFn = lt,
     ):
@@ -286,7 +293,7 @@ class pqdict(MutableMapping):
         return self._precedes
 
     @property
-    def keyfn(self) -> PrioKeyFn:
+    def keyfn(self) -> PriorityKeyFn:
         """Priority key function."""
         return self._keyfn if self._keyfn is not None else lambda x: x
 
@@ -604,7 +611,7 @@ class pqdict(MutableMapping):
 #############
 
 
-def nlargest(n: int, mapping: Mapping, key: PrioKeyFn | None = None):
+def nlargest(n: int, mapping: Mapping, key: PriorityKeyFn | None = None):
     """Return the n keys associated with the largest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the largest values
@@ -650,7 +657,7 @@ def nlargest(n: int, mapping: Mapping, key: PrioKeyFn | None = None):
     return out
 
 
-def nsmallest(n: int, mapping: Mapping, key: PrioKeyFn | None = None):
+def nsmallest(n: int, mapping: Mapping, key: PriorityKeyFn | None = None):
     """Return the n keys associated with the smallest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the smallest values
