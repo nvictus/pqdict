@@ -58,6 +58,14 @@ Tpqdict = TypeVar("Tpqdict", bound="pqdict")
 PrioKeyFn = Callable[[Any], Any]
 PrecedesFn = Callable[[Any, Any], bool]
 
+try:
+    from importlib.metadata import version
+except ImportError:  # Python < 3.8
+    from importlib_metadata import version  # type: ignore
+
+__version__ = version("pqdict")
+__all__ = ["nlargest", "nsmallest", "pqdict"]
+
 
 class Empty(KeyError):
     # Why specialize KeyError? Why not reuse queue.Empty?
