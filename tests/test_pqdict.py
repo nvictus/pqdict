@@ -1,6 +1,5 @@
 import operator
 import random
-import sys
 from datetime import datetime, timedelta
 from itertools import combinations
 
@@ -11,7 +10,13 @@ from pqdict import Empty, nlargest, nsmallest, pqdict
 sample_keys = ["A", "B", "C", "D", "E", "F", "G"]
 sample_values = [5, 8, 7, 3, 9, 12, 1]
 sample_tuple_values = [
-    ("a", 5), ("b", 8), (None, 7), (2.5, 3), ("e", 9), ("f", 12), ("g", 1)
+    ("a", 5),
+    ("b", 8),
+    (None, 7),
+    (2.5, 3),
+    ("e", 9),
+    ("f", 12),
+    ("g", 1),
 ]
 sample_items = list(zip(sample_keys, sample_values))
 sample_tuple_items = list(zip(sample_keys, sample_tuple_values))
@@ -61,6 +66,7 @@ def _check_index(pq):
 ##########
 # Creation
 ##########
+
 
 def test_constructor():
     # sequence of pairs
@@ -134,6 +140,7 @@ def test_fromkeys():
 # Dictionary API
 ################
 
+
 def test_len():
     pq = pqdict()
     assert len(pq) == 0
@@ -191,7 +198,7 @@ def test_get():
     assert pq.get("A") == 5
     assert pq.get("A", None) == 5
     assert pq.get("does_not_exist", None) is None
-    assert pq.get('does_not_exist') is None
+    assert pq.get("does_not_exist") is None
 
 
 def test_clear():
@@ -252,6 +259,7 @@ def test_items():
 ####################
 # Priority Queue API
 ####################
+
 
 def test_keyfn():
     pq = pqdict()
@@ -407,6 +415,7 @@ def test_destructive_iteration():
 
 # Heap invariant tests and key/value types
 
+
 def test_heapify():
     for size in range(30):
         items = generate_data("int", size)
@@ -470,9 +479,9 @@ def test_updates_and_deletes():
 
 def test_topvalue1():
     pq = pqdict.maxpq()
-    pq['a'] = 10
-    pq['b'] = 20
-    pq['c'] = 5
+    pq["a"] = 10
+    pq["b"] = 20
+    pq["c"] = 5
 
     assert pq.topvalue() == 20
 
@@ -513,9 +522,9 @@ def test_topvalue2():
 
 def test_popvalue1():
     pq = pqdict.maxpq()
-    pq['a'] = 10
-    pq['b'] = 20
-    pq['c'] = 5
+    pq["a"] = 10
+    pq["b"] = 20
+    pq["c"] = 5
     assert pq.popvalue() == 20
     assert pq.popvalue() == 10
     assert pq.popvalue() == 5
@@ -588,6 +597,7 @@ def test_repair():
 # Module-level functions
 ########################
 
+
 def test_nbest():
     top3 = nlargest(3, dict(sample_items))
     assert list(top3) == ["F", "E", "B"]
@@ -596,11 +606,10 @@ def test_nbest():
 
 
 def test_nbest_key():
-    if sys.version_info.major > 2:
-        with pytest.raises(TypeError):
-            nlargest(3, dict(sample_tuple_items))
-        with pytest.raises(TypeError):
-            nsmallest(3, dict(sample_tuple_items))
+    with pytest.raises(TypeError):
+        nlargest(3, dict(sample_tuple_items))
+    with pytest.raises(TypeError):
+        nsmallest(3, dict(sample_tuple_items))
 
     top3 = nlargest(3, dict(sample_tuple_items), key=operator.itemgetter(1))
     assert list(top3) == ["F", "E", "B"]
