@@ -1,25 +1,34 @@
-.PHONY: install test clean build publish docs
+.PHONY: install lint fmt test typecheck docs build clean publish 
 
 install:
-	pip install -e .
+	uv sync --extra dev --extra docs
+
+lint:
+	uv run ruff check
+
+fmt:
+	uv run ruff format
 
 test:
-	pytest
+	uv run pytest
+
+typecheck:
+	uv run mypy pqdict
+
+docs:
+	uv run sphinx-autobuild docs docs/_build/html
+
+build: clean
+	uv build
 
 clean:
 	find . -name '*.pyc' -exec rm --force {} +
 	find . -name '*.pyo' -exec rm --force {} +
 	find . -name '*~' -exec rm --force  {} +
-	rm -rf build/
 	rm -rf dist/
 	rm -rf .pytest_cache/
-
-build: clean
-	python setup.py sdist
-	python setup.py bdist_wheel
-
-docs:
-	sphinx-autobuild docs docs/_build/html
+	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
 
 publish: 
-	twine upload dist/*
+	uv run --with twine twine upload dist/*
