@@ -28,35 +28,23 @@ supports:
 
 Documentation at <http://pqdict.readthedocs.org/>.
 
-:copyright: (c) 2012-2024 by Nezar Abdennur.
+:copyright: (c) 2012-2025 by Nezar Abdennur.
 :license: MIT, see LICENSE for more details.
 
 """
+
+from __future__ import annotations
+
 from collections.abc import MutableMapping
 from operator import gt, lt
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, NamedTuple
 
-__version__ = "1.4.0"
-__all__ = ["pqdict", "nlargest", "nsmallest"]
+if TYPE_CHECKING:
+    from typing import Mapping, Self
 
-DictInputs = Union[Mapping[Any, Any], Iterable[Tuple[Any, Any]]]
-Tpqdict = TypeVar("Tpqdict", bound="pqdict")
-PrioKeyFn = Callable[[Any], Any]
-PrecedesFn = Callable[[Any, Any], bool]
+    DictInputs = Mapping[Any, Any] | Iterable[tuple[Any, Any]]
+    PrioKeyFn = Callable[[Any], Any]
+    PrecedesFn = Callable[[Any, Any], bool]
 
 try:
     from importlib.metadata import version
@@ -93,7 +81,7 @@ class Node(NamedTuple):
 
 
 def _sink(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, top: int = 0
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, top: int = 0
 ) -> None:
     # "Sink-to-the-bottom-then-swim" algorithm (Floyd, 1964)
     # Tends to reduce the number of comparisons when inserting "heavy"
@@ -126,8 +114,8 @@ def _sink(
 
 
 def _swim(
-    heap: List[Node],
-    position: Dict[Any, int],
+    heap: list[Node],
+    position: dict[Any, int],
     precedes: PrecedesFn,
     pos: int,
     top: int = 0,
@@ -149,7 +137,7 @@ def _swim(
     position[node.key] = pos
 
 
-def heapify(heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn) -> None:
+def heapify(heap: list[Node], position: dict[Any, int], precedes: PrecedesFn) -> None:
     n = len(heap)
     # No need to look at any leaf nodes.
     for pos in reversed(range(n // 2)):
@@ -157,7 +145,7 @@ def heapify(heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn) ->
 
 
 def heaprepair(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, pos: int
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, pos: int
 ) -> None:
     # Repair the position of a modified node.
     # Bubble up or down depending on values of parent and children.
@@ -176,7 +164,7 @@ def heaprepair(
 
 
 def heappop(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, pos: int = 0
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, pos: int = 0
 ) -> Node:
     # Take the very last node and place it in the vacated spot. Let it
     # sink or swim until it reaches its new resting place.
@@ -191,7 +179,7 @@ def heappop(
 
 
 def heappush(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> None:
     n = len(heap)
     heap.append(node)
@@ -200,7 +188,7 @@ def heappush(
 
 
 def heapupdate(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> None:
     pos = position[node.key]
     heap[pos] = node
@@ -208,7 +196,7 @@ def heapupdate(
 
 
 def heappushpop(
-    heap: List[Node], position: Dict[Any, int], precedes: PrecedesFn, node: Node
+    heap: list[Node], position: dict[Any, int], precedes: PrecedesFn, node: Node
 ) -> Node:
     key = node.key
     if heap and precedes(heap[0].prio, node.prio):
@@ -227,13 +215,13 @@ class pqdict(MutableMapping):
     and have their priorities updated by key.
     """
 
-    _heap: List[Node]
-    _position: Dict[Any, int]
+    _heap: list[Node]
+    _position: dict[Any, int]
 
     def __init__(
         self,
-        data: Optional[DictInputs] = None,
-        key: Optional[PrioKeyFn] = None,
+        data: DictInputs | None = None,
+        key: PrioKeyFn | None = None,
         reverse: bool = False,
         precedes: PrecedesFn = lt,
     ):
@@ -308,7 +296,7 @@ class pqdict(MutableMapping):
         return f"{self.__class__.__name__}({things})"
 
     @classmethod
-    def minpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
+    def minpq(cls, *args: Any, **kwargs: Any) -> Self:
         """Create a pqdict with min-priority semantics: smallest value is highest.
 
         * ``pqdict.minpq()`` -> new empty pqdict with min-priority semantics
@@ -319,7 +307,7 @@ class pqdict(MutableMapping):
         return cls(dict(*args, **kwargs), precedes=lt)
 
     @classmethod
-    def maxpq(cls: Type[Tpqdict], *args: Any, **kwargs: Any) -> Tpqdict:
+    def maxpq(cls, *args: Any, **kwargs: Any) -> Self:
         """Create a pqdict with max-priority semantics: largest value is highest.
 
         * ``pqdict.maxpq()`` -> new empty pqdict with max-priority semantics
@@ -344,9 +332,7 @@ class pqdict(MutableMapping):
     # setdefault = MutableMapping.setdefault
 
     @classmethod
-    def fromkeys(
-        cls: Type[Tpqdict], iterable: Iterable, value: Any, **kwargs: Any
-    ) -> Tpqdict:
+    def fromkeys(cls, iterable: Iterable, value: Any, **kwargs: Any) -> Self:
         """Return a new pqdict mapping keys from an iterable to the same value."""
         return cls(((k, value) for k in iterable), **kwargs)
 
@@ -395,7 +381,7 @@ class pqdict(MutableMapping):
             raise KeyError(key)
         heappop(self._heap, self._position, self._precedes, self._position[key])
 
-    def copy(self: Tpqdict) -> Tpqdict:
+    def copy(self) -> Self:
         """Return a shallow copy of a pqdict."""
         other = self.__class__(key=self._keyfn, precedes=self._precedes)
         other._position = self._position.copy()
@@ -469,7 +455,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def topitem(self, default: Any = __marker) -> Tuple[Any, Any]:
+    def topitem(self, default: Any = __marker) -> tuple[Any, Any]:
         """Return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.
@@ -495,7 +481,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def popitem(self, default: Any = __marker) -> Tuple[Any, Any]:
+    def popitem(self, default: Any = __marker) -> tuple[Any, Any]:
         """Remove and return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.
@@ -530,7 +516,7 @@ class pqdict(MutableMapping):
         node = Node(key, new_val, prio)
         heapupdate(self._heap, self._position, self._precedes, node)
 
-    def pushpopitem(self, key: Any, value: Any) -> Tuple[Any, Any]:
+    def pushpopitem(self, key: Any, value: Any) -> tuple[Any, Any]:
         """Insert a new item and return the top-priority item.
 
         Equivalent to inserting a new item followed by removing the top
@@ -591,7 +577,7 @@ class pqdict(MutableMapping):
         except Empty:
             return
 
-    def popitems(self) -> Iterator[Tuple[Any, Any]]:
+    def popitems(self) -> Iterator[tuple[Any, Any]]:
         """Remove and return items in descending order of priority rank."""
         try:
             while True:
@@ -618,7 +604,7 @@ class pqdict(MutableMapping):
 #############
 
 
-def nlargest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
+def nlargest(n: int, mapping: Mapping, key: PrioKeyFn | None = None):
     """Return the n keys associated with the largest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the largest values
@@ -664,7 +650,7 @@ def nlargest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
     return out
 
 
-def nsmallest(n: int, mapping: Mapping, key: Optional[PrioKeyFn] = None):
+def nsmallest(n: int, mapping: Mapping, key: PrioKeyFn | None = None):
     """Return the n keys associated with the smallest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the smallest values
