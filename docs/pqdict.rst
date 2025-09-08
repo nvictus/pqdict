@@ -91,6 +91,7 @@ pqdict class
     .. automethod:: topitem([default])
     
     .. method:: pop(*, [default])
+        :no-index:
 
         Hybrid pop method.
 
