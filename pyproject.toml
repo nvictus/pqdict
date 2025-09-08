@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
@@ -40,16 +40,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
-    "isort",
+dev = [
     "mypy",
     "pytest",
-    "pyupgrade",
     "ruff",
 ]
 docs = [
-    "numpydoc",
-    "Sphinx<9.0.0",
+    "Sphinx",
     "sphinx-autobuild",
     "sphinx_rtd_theme",
 ]
@@ -60,26 +57,11 @@ documentation = "https://pqdict.readthedocs.io"
 repository = "https://github.com/nvictus/pqdict"
 changelog = "https://github.com/nvictus/pqdict/blob/master/CHANGES"
 
-[tool.hatch.version]
-path = "pqdict/__init__.py"
-
-[tool.hatch.envs.default.scripts]
-lint = "ruff check ."
-fix = "ruff check --fix ."
-test = "pytest"
-docs = "sphinx-autobuild docs docs/_build/html"
-
-[tool.hatch.envs.test]
-template = "default"
-skip-install = false
-features = ["test"]
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11"]
-
-[tool.isort]
-profile = "black"
-skip_gitignore = true
+[tool.ruff]
+target-version = "py37"
+exclude = [
+    ".venv",
+]
 
 [tool.ruff.lint]
 extend-select = [
@@ -87,8 +69,8 @@ extend-select = [
     "D",  # pydocstyle
     "F",  # pyflakes
     "I",  # isort
-    "RUF", # ruff-specific rules
-    "UP", # pyupgrade
+    "RUF",  # ruff-specific rules
+    "UP",  # pyupgrade
     "W",  # style  warnings
 ]
 ignore = [
@@ -97,3 +79,9 @@ ignore = [
     "D203",
     "D213",
 ]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pqdict"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
