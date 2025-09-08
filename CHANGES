@@ -4,9 +4,15 @@ Release Notes
 1.4.1 (2025-09-07)
 ++++++++++++++++++
 
+This release does not change any runtime behavior but updates type annotations and the build backend. 
+
 * Maintenance:
 	- Modernized type annotations
+	- Switch to hatchling build system
 	- `importlib.metadata` for version retrieval
+	- Add timing script for benchmarking
+
+* Development:
 	- `napoleon` for numpydoc rendering
 	- `uv` for project management
 
