@@ -399,7 +399,7 @@ def test_destructive_iteration():
     for trial in range(100):
         size = random.randrange(1, 50)
         items = generate_data("float", size)
-        keys, values = zip(*items)
+        _keys, values = zip(*items)
         if trial & 1:  # Half of the time, heapify using the constructor
             pq = pqdict(items)
         else:  # The rest of the time, insert items sequentially
@@ -451,7 +451,7 @@ def test_heapsort():
 
 def test_updates():
     items = generate_data("int")
-    keys, values = zip(*items)
+    keys, _values = zip(*items)
     pq = pqdict(items)
     for _ in range(100):
         pq[random.choice(keys)] = random.randrange(25)
@@ -461,7 +461,7 @@ def test_updates():
 
 def test_updates_and_deletes():
     items = generate_data("int")
-    keys, values = zip(*items)
+    keys, _values = zip(*items)
     pq = pqdict(items)
     for oper in range(100):
         if oper & 1:  # update random item
