@@ -1,7 +1,7 @@
-.PHONY: install lint fmt test typecheck docs build clean publish 
+.PHONY: install lint fmt test typecheck-mypy typecheck-pyright typecheck-ty docs build clean publish
 
 install:
-	uv sync --extra dev --extra docs
+	uv sync
 
 lint:
 	uv run ruff check
@@ -12,11 +12,17 @@ fmt:
 test:
 	uv run pytest
 
-typecheck:
-	uv run mypy pqdict
+typecheck-mypy:
+	uv run mypy pqdict tests
+
+typecheck-pyright:
+	uv run pyright pqdict tests
+
+typecheck-ty:
+	uv run ty check pqdict tests
 
 docs:
-	uv run sphinx-autobuild docs docs/_build/html
+	uv run --group docs sphinx-autobuild docs docs/_build/html
 
 build: clean
 	uv build

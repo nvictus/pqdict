@@ -6,9 +6,9 @@ version: 2
 
 # Set the version of Python and other tools you might need
 build:
-  os: ubuntu-22.04
+  os: ubuntu-lts-latest
   tools:
-    python: "3.11"
+    python: "3"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -18,10 +18,13 @@ sphinx:
 # formats:
 #    - pdf
 
-# Optionally declare the Python requirements required to build your docs
+# Install the package and its PEP 735 "docs" dependency group via uv.
+# (extra_requirements is for [project.optional-dependencies] extras; dependency
+# groups are only installable through the uv method with command: sync, which
+# also respects the committed uv.lock.)
 python:
   install:
-    - method: pip
-      path: .
-      extra_requirements:
+    - method: uv
+      command: sync
+      groups:
         - docs

@@ -24,26 +24,29 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-requires-python = ">=3.7"
-dependencies = [
-    "importlib-metadata; python_version<'3.8'"
-]
+requires-python = ">=3.9"
+dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
+test = [
+    "pytest",
+    "typing-extensions",
+]
 dev = [
     "mypy",
-    "pytest",
+    "pyright",
     "ruff",
+    "ty",
+    {include-group = "test"},
 ]
 docs = [
     "Sphinx",
@@ -58,7 +61,7 @@ repository = "https://github.com/nvictus/pqdict"
 changelog = "https://github.com/nvictus/pqdict/blob/master/CHANGES"
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py39"
 exclude = [
     ".venv",
 ]
