@@ -1,4 +1,4 @@
-.PHONY: install lint fmt test typecheck typecheck-ty docs build clean publish
+.PHONY: install lint fmt test typecheck-mypy typecheck-pyright typecheck-ty docs build clean publish
 
 install:
 	uv sync
@@ -13,10 +13,10 @@ test:
 	uv run pytest
 
 typecheck-mypy:
-	uv run mypy pqdict
+	uv run mypy pqdict tests
 
 typecheck-pyright:
-	uv run pyright pqdict
+	uv run pyright pqdict tests
 
 typecheck-ty:
 	uv run ty check pqdict tests

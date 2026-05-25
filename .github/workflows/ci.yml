@@ -22,11 +22,11 @@ jobs:
       run: uv sync --locked
     - name: Lint with ruff
       run: uv run ruff check pqdict tests
-    - name: Static type check library with mypy
-      run: uv run mypy pqdict
-    - name: Static type check library with pyright
-      run: uv run pyright pqdict
-    - name: Static type check library and test suite with ty
+    - name: Static type check with mypy
+      run: uv run mypy pqdict tests
+    - name: Static type check with pyright
+      run: uv run pyright pqdict tests
+    - name: Static type check with ty
       run: uv run ty check pqdict tests
 
   Test:
