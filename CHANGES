@@ -1,6 +1,25 @@
 Release Notes
 =============
 
+1.5.0 (2026-05-25)
+++++++++++++++++++
+
+* Type annotations:
+	- Restored generic type parameters: ``pqdict`` is now ``pqdict[KT, VT]`` (subclassing ``MutableMapping[KT, VT]``). Keys and values type-check correctly (e.g. when iterating ``items()``) and are inferred from constructor input. (#38)
+	- An unparameterized ``pqdict`` is treated as ``pqdict[Any, Any]`` via PEP 696 type-variable defaults, so it still needs no annotation.
+	- Added type overloads so return types are inferred precisely: ``pop()`` yields a key while ``pop(key)`` yields a value; the peek/pop helpers (``top``, ``topvalue``, ``topitem``, ``popvalue``, ``popitem``) reflect a supplied ``default`` in their return type; and the ``minpq``/``maxpq`` constructors recover their key/value types from the arguments.
+
+* Maintenance:
+	- Dropped support for Python 3.7 and 3.8 (the minimum is now 3.9).
+	- Removed the ``importlib-metadata`` dependency; pqdict now has no runtime dependencies.
+	- Import ``Self`` and ``TypeVar`` from ``typing_extensions`` under ``TYPE_CHECKING`` only, keeping them out of the runtime import path.
+
+* Development:
+	- Migrated development, test, and docs dependencies to PEP 735 dependency groups.
+	- CI and the Read the Docs build now use ``uv``; the library and test suite are type-checked with mypy, pyright, and ty.
+	- Added type checking to CI.
+	- Added a ``test_typing.py`` regression suite (using ``assert_type``) that passes under mypy, pyright, and ty.
+
 1.4.1 (2025-09-07)
 ++++++++++++++++++
 
