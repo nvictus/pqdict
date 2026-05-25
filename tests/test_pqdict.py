@@ -43,6 +43,8 @@ def generate_data(value_type, num_items=None):
     elif value_type == "unique":
         values = list(range(num_items))
         random.shuffle(values)
+    else:
+        raise ValueError(f"Unknown value_type: {value_type!r}")
     return list(zip(keys, values))
 
 

@@ -477,7 +477,11 @@ class pqdict(MutableMapping[KT, VT]):
     ######################
     # Priority Queue API #
     ######################
-    def top(self, default: Any = __marker) -> KT:
+    @overload
+    def top(self) -> KT: ...
+    @overload
+    def top(self, default: _T) -> KT | _T: ...
+    def top(self, default: Any = __marker) -> Any:
         """Return the key of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -490,7 +494,11 @@ class pqdict(MutableMapping[KT, VT]):
         else:
             return default
 
-    def topvalue(self, default: Any = __marker) -> VT:
+    @overload
+    def topvalue(self) -> VT: ...
+    @overload
+    def topvalue(self, default: _T) -> VT | _T: ...
+    def topvalue(self, default: Any = __marker) -> Any:
         """Return the value of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -503,7 +511,11 @@ class pqdict(MutableMapping[KT, VT]):
         else:
             return default
 
-    def topitem(self, default: Any = __marker) -> tuple[KT, VT]:
+    @overload
+    def topitem(self) -> tuple[KT, VT]: ...
+    @overload
+    def topitem(self, default: _T) -> tuple[KT, VT] | _T: ...
+    def topitem(self, default: Any = __marker) -> Any:
         """Return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.
@@ -516,7 +528,11 @@ class pqdict(MutableMapping[KT, VT]):
         else:
             return default
 
-    def popvalue(self, default: Any = __marker) -> VT:
+    @overload
+    def popvalue(self) -> VT: ...
+    @overload
+    def popvalue(self, default: _T) -> VT | _T: ...
+    def popvalue(self, default: Any = __marker) -> Any:
         """Remove and return the value of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -529,7 +545,11 @@ class pqdict(MutableMapping[KT, VT]):
         else:
             return default
 
-    def popitem(self, default: Any = __marker) -> tuple[KT, VT]:
+    @overload
+    def popitem(self) -> tuple[KT, VT]: ...
+    @overload
+    def popitem(self, default: _T) -> tuple[KT, VT] | _T: ...
+    def popitem(self, default: Any = __marker) -> Any:
         """Remove and return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.

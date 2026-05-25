@@ -45,6 +45,26 @@ def test_peek_and_pop_types() -> None:
     assert_type(list(pq.popvalues()), list[int])
 
 
+def test_default_fallback_types() -> None:
+    # With a ``default``, the return type widens to include the default's type.
+    # (Unions are quoted so the file stays runtime-safe on Python 3.9, where
+    # ``X | Y`` is not evaluatable at runtime.)
+    pq: pqdict[str, int] = pqdict({"a": 1})
+    assert_type(pq.top(None), "str | None")
+    assert_type(pq.topvalue(None), "int | None")
+    assert_type(pq.topitem(None), "tuple[str, int] | None")
+    assert_type(pq.popvalue(None), "int | None")
+    assert_type(pq.popitem(None), "tuple[str, int] | None")
+
+
+def test_pop_types() -> None:
+    # Hybrid pop: a key with no arg, a value with a key, value-or-default with both.
+    pq: pqdict[str, int] = pqdict({"a": 1, "b": 2, "c": 3})
+    assert_type(pq.pop("a"), int)
+    assert_type(pq.pop("z", None), "int | None")
+    assert_type(pq.pop(), str)
+
+
 def test_module_function_types() -> None:
     assert_type(nlargest(2, {"a": 1}), list[str])
     assert_type(nsmallest(2, {1: "a"}), list[int])
