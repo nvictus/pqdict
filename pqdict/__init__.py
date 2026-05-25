@@ -436,6 +436,8 @@ class pqdict(MutableMapping[KT, VT]):
     def pop(self, key: KT, default: VT | _T, /) -> VT | _T: ...
     @overload
     def pop(self, *, default: _T) -> KT | _T: ...
+    # ``pop`` deliberately extends ``Mapping.pop`` with no-key priority-queue
+    # semantics. Pyright treats this as an incompatible override.
     def pop(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         key: Any = __marker,
