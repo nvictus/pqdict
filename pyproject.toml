@@ -51,7 +51,9 @@ dev = [
 docs = [
     "Sphinx",
     "sphinx-autobuild",
-    "sphinx_rtd_theme",
+    # Lower bound avoids the resolver selecting an ancient, unconstrained
+    # release (e.g. 0.5.1) that breaks on modern Sphinx.
+    "sphinx-rtd-theme>=3.0",
 ]
 
 [project.urls]
