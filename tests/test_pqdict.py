@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import operator
 import random
 from datetime import datetime, timedelta
@@ -162,7 +164,7 @@ def test_getitem():
 
 def test_setitem():
     n = len(sample_items)
-    pq = pqdict(sample_items)
+    pq: pqdict[str, float] = pqdict(sample_items)
     pq["new"] = 1.0  # add
     assert pq["new"] == 1.0
     assert len(pq) == n + 1
@@ -340,7 +342,7 @@ def test_topitem():
 
 
 def test_additem():
-    pq = pqdict(sample_items)
+    pq: pqdict[str, float] = pqdict(sample_items)
     pq.additem("new", 8.0)
     assert pq["new"] == 8.0
     with pytest.raises(KeyError):
@@ -348,7 +350,7 @@ def test_additem():
 
 
 def test_updateitem():
-    pq = pqdict(sample_items)
+    pq: pqdict[str, float] = pqdict(sample_items)
     key, value = random.choice(sample_items)
     # assign same value
     pq.updateitem(key, value)
@@ -566,7 +568,7 @@ def test_edgecases():
 def test_infvalue():
     keys = ["A", "B", "C", "D", "E", "F", "G"]
     values = [1, 2, 3, 4, 5, 6, 7]
-    pq = pqdict(zip(keys, values))
+    pq: pqdict[str, float] = pqdict(zip(keys, values))
     pq.additem("top", -float("inf"))
     pq.additem("bot", float("inf"))
     keys_sorted = [key for key in pq.popkeys()]

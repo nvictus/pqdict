@@ -35,21 +35,28 @@ Documentation at <http://pqdict.readthedocs.org/>.
 
 from __future__ import annotations
 
-from collections.abc import MutableMapping
+from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
+from importlib.metadata import version
 from operator import gt, lt
-from typing import TYPE_CHECKING, Any, Callable, Iterable, Iterator, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, overload
 
 if TYPE_CHECKING:
-    from typing import Mapping, Self
+    from typing_extensions import Self, TypeVar
 
-    DictInputs = Mapping[Any, Any] | Iterable[tuple[Any, Any]]
+    KT = TypeVar("KT", default=Any)  # dict key type
+    VT = TypeVar("VT", default=Any)  # dict value type
+    _K = TypeVar("_K")  # method-local key type for classmethod overloads
+    _V = TypeVar("_V")  # method-local value type for classmethod overloads
+    _T = TypeVar("_T")  # fallback type for pop's default
+
+    DictInputs = Mapping[KT, VT] | Iterable[tuple[KT, VT]]
     PriorityKeyFn = Callable[[Any], Any]
     PrecedesFn = Callable[[Any, Any], bool]
+else:
+    from typing import TypeVar
 
-try:
-    from importlib.metadata import version
-except ImportError:  # Python < 3.8
-    from importlib_metadata import version  # type: ignore
+    KT = TypeVar("KT")  # dict key type
+    VT = TypeVar("VT")  # dict value type
 
 __version__ = version("pqdict")
 __all__ = ["nlargest", "nsmallest", "pqdict"]
@@ -212,7 +219,7 @@ def heappushpop(
     return node
 
 
-class pqdict(MutableMapping):
+class pqdict(MutableMapping[KT, VT]):
     """A mutable dict/priority queue that maps hashable keys to priority values.
 
     As a priority queue, items can be added and the top-priority item can be
@@ -221,13 +228,13 @@ class pqdict(MutableMapping):
     """
 
     _heap: list[Node]
-    _position: dict[Any, int]
+    _position: dict[KT, int]
     _keyfn: PriorityKeyFn | None
     _precedes: PrecedesFn
 
     def __init__(
         self,
-        data: DictInputs | None = None,
+        data: DictInputs[KT, VT] | None = None,
         key: PriorityKeyFn | None = None,
         reverse: bool = False,
         precedes: PrecedesFn = lt,
@@ -302,8 +309,20 @@ class pqdict(MutableMapping):
         things = ", ".join([f"{node.key}: {node.value}" for node in self._heap])
         return f"{self.__class__.__name__}({things})"
 
+    @overload
     @classmethod
-    def minpq(cls, *args: Any, **kwargs: Any) -> Self:
+    def minpq(cls) -> pqdict[Any, Any]: ...
+    @overload
+    @classmethod
+    def minpq(cls, **kwargs: _V) -> pqdict[str, _V]: ...
+    @overload
+    @classmethod
+    def minpq(cls, mapping: Mapping[_K, _V], /) -> pqdict[_K, _V]: ...
+    @overload
+    @classmethod
+    def minpq(cls, iterable: Iterable[tuple[_K, _V]], /) -> pqdict[_K, _V]: ...
+    @classmethod
+    def minpq(cls, *args: Any, **kwargs: Any) -> pqdict[Any, Any]:
         """Create a pqdict with min-priority semantics: smallest value is highest.
 
         * ``pqdict.minpq()`` -> new empty pqdict with min-priority semantics
@@ -311,10 +330,23 @@ class pqdict(MutableMapping):
         * ``pqdict.minpq(iterable)`` -> new minpq initialized from an iterable of pairs
         * ``pqdict.minpq(**kwargs)`` -> new minpq initialized with name=value pairs
         """
-        return cls(dict(*args, **kwargs), precedes=lt)
+        data: Any = dict(*args, **kwargs)
+        return cls(data, precedes=lt)
 
+    @overload
     @classmethod
-    def maxpq(cls, *args: Any, **kwargs: Any) -> Self:
+    def maxpq(cls) -> pqdict[Any, Any]: ...
+    @overload
+    @classmethod
+    def maxpq(cls, **kwargs: _V) -> pqdict[str, _V]: ...
+    @overload
+    @classmethod
+    def maxpq(cls, mapping: Mapping[_K, _V], /) -> pqdict[_K, _V]: ...
+    @overload
+    @classmethod
+    def maxpq(cls, iterable: Iterable[tuple[_K, _V]], /) -> pqdict[_K, _V]: ...
+    @classmethod
+    def maxpq(cls, *args: Any, **kwargs: Any) -> pqdict[Any, Any]:
         """Create a pqdict with max-priority semantics: largest value is highest.
 
         * ``pqdict.maxpq()`` -> new empty pqdict with max-priority semantics
@@ -322,7 +354,8 @@ class pqdict(MutableMapping):
         * ``pqdict.maxpq(iterable)`` -> new maxpq initialized from an iterable of pairs
         * ``pqdict.maxpq(**kwargs)`` -> new maxpq initialized with name=value pairs
         """
-        return cls(dict(*args, **kwargs), precedes=gt)
+        data: Any = dict(*args, **kwargs)
+        return cls(data, precedes=gt)
 
     ############
     # dict API #
@@ -339,7 +372,7 @@ class pqdict(MutableMapping):
     # setdefault = MutableMapping.setdefault
 
     @classmethod
-    def fromkeys(cls, iterable: Iterable, value: Any, **kwargs: Any) -> Self:
+    def fromkeys(cls, iterable: Iterable[KT], value: VT, **kwargs: Any) -> Self:
         """Return a new pqdict mapping keys from an iterable to the same value."""
         return cls(((k, value) for k in iterable), **kwargs)
 
@@ -347,11 +380,11 @@ class pqdict(MutableMapping):
         """Return number of items in the pqdict."""
         return len(self._heap)
 
-    def __contains__(self, key: Any) -> bool:
+    def __contains__(self, key: object) -> bool:
         """Return ``True`` if key is in the pqdict."""
         return key in self._position
 
-    def __iter__(self) -> Iterator[Any]:
+    def __iter__(self) -> Iterator[KT]:
         """Return an iterator over the keys of the pqdict.
 
         The order of iteration is arbitrary! Use ``popkeys`` to iterate over
@@ -360,14 +393,14 @@ class pqdict(MutableMapping):
         for node in self._heap:
             yield node.key
 
-    def __getitem__(self, key: Any) -> Any:
+    def __getitem__(self, key: KT) -> VT:
         """Return the priority value of ``key``.
 
         Raises a ``KeyError`` if not in the pqdict.
         """
         return self._heap[self._position[key]].value  # raises KeyError
 
-    def __setitem__(self, key: Any, value: Any) -> None:
+    def __setitem__(self, key: KT, value: VT) -> None:
         """Assign a priority value to ``key``.
 
         If ``key`` is already in the pqdict, its priority value is updated.
@@ -379,7 +412,7 @@ class pqdict(MutableMapping):
         else:
             heappush(self._heap, self._position, self._precedes, node)
 
-    def __delitem__(self, key: Any) -> None:
+    def __delitem__(self, key: KT) -> None:
         """Remove item.
 
         Raises a ``KeyError`` if key is not in the pqdict.
@@ -395,7 +428,15 @@ class pqdict(MutableMapping):
         other._heap = self._heap[:]
         return other
 
-    def pop(
+    @overload
+    def pop(self) -> KT: ...
+    @overload
+    def pop(self, key: KT, /) -> VT: ...
+    @overload
+    def pop(self, key: KT, default: VT | _T, /) -> VT | _T: ...
+    @overload
+    def pop(self, *, default: _T) -> KT | _T: ...
+    def pop(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         key: Any = __marker,
         default: Any = __marker,
@@ -436,7 +477,7 @@ class pqdict(MutableMapping):
     ######################
     # Priority Queue API #
     ######################
-    def top(self, default: Any = __marker) -> Any:
+    def top(self, default: Any = __marker) -> KT:
         """Return the key of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -449,7 +490,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def topvalue(self, default: Any = __marker) -> Any:
+    def topvalue(self, default: Any = __marker) -> VT:
         """Return the value of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -462,7 +503,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def topitem(self, default: Any = __marker) -> tuple[Any, Any]:
+    def topitem(self, default: Any = __marker) -> tuple[KT, VT]:
         """Return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.
@@ -475,7 +516,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def popvalue(self, default: Any = __marker) -> Any:
+    def popvalue(self, default: Any = __marker) -> VT:
         """Remove and return the value of the item with highest priority.
 
         If ``default`` is provided and pqdict is empty, then return ``default``,
@@ -488,7 +529,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def popitem(self, default: Any = __marker) -> tuple[Any, Any]:
+    def popitem(self, default: Any = __marker) -> tuple[KT, VT]:
         """Remove and return the item with highest priority.
 
         Raises ``Empty`` if pqdict is empty.
@@ -501,7 +542,7 @@ class pqdict(MutableMapping):
         else:
             return default
 
-    def additem(self, key: Any, value: Any) -> None:
+    def additem(self, key: KT, value: VT) -> None:
         """Add a new item.
 
         Raises ``KeyError`` if key is already in the pqdict.
@@ -512,7 +553,7 @@ class pqdict(MutableMapping):
         node = Node(key, value, prio)
         heappush(self._heap, self._position, self._precedes, node)
 
-    def updateitem(self, key: Any, new_val: Any) -> None:
+    def updateitem(self, key: KT, new_val: VT) -> None:
         """Update the priority value of an existing item.
 
         Raises ``KeyError`` if key is not in the pqdict.
@@ -523,7 +564,7 @@ class pqdict(MutableMapping):
         node = Node(key, new_val, prio)
         heapupdate(self._heap, self._position, self._precedes, node)
 
-    def pushpopitem(self, key: Any, value: Any) -> tuple[Any, Any]:
+    def pushpopitem(self, key: KT, value: VT) -> tuple[KT, VT]:
         """Insert a new item and return the top-priority item.
 
         Equivalent to inserting a new item followed by removing the top
@@ -538,7 +579,7 @@ class pqdict(MutableMapping):
         )
         return node.key, node.value
 
-    def replace_key(self, key: Any, new_key: Any) -> None:
+    def replace_key(self, key: KT, new_key: KT) -> None:
         """Replace the key of an existing heap node in place.
 
         Raises ``KeyError`` if the key to replace does not exist or if the new
@@ -551,7 +592,7 @@ class pqdict(MutableMapping):
         node = self._heap[pos]
         self._heap[pos] = Node(new_key, node.value, node.prio)
 
-    def swap_priority(self, key1: Any, key2: Any) -> None:
+    def swap_priority(self, key1: KT, key2: KT) -> None:
         """Fast way to swap the priority level of two items in the pqdict.
 
         Raises ``KeyError`` if either key does not exist.
@@ -568,7 +609,7 @@ class pqdict(MutableMapping):
         heap[pos2] = Node(key1, node2.value, node2.prio)
         position[key1], position[key2] = pos2, pos1
 
-    def popkeys(self) -> Iterator[Any]:
+    def popkeys(self) -> Iterator[KT]:
         """Remove items, returning keys in descending order of priority rank."""
         try:
             while True:
@@ -576,7 +617,7 @@ class pqdict(MutableMapping):
         except Empty:
             return
 
-    def popvalues(self) -> Iterator[Any]:
+    def popvalues(self) -> Iterator[VT]:
         """Remove items, returning values in descending order of priority rank."""
         try:
             while True:
@@ -584,7 +625,7 @@ class pqdict(MutableMapping):
         except Empty:
             return
 
-    def popitems(self) -> Iterator[tuple[Any, Any]]:
+    def popitems(self) -> Iterator[tuple[KT, VT]]:
         """Remove and return items in descending order of priority rank."""
         try:
             while True:
@@ -611,7 +652,9 @@ class pqdict(MutableMapping):
 #############
 
 
-def nlargest(n: int, mapping: Mapping, key: PriorityKeyFn | None = None):
+def nlargest(
+    n: int, mapping: Mapping[KT, VT], key: PriorityKeyFn | None = None
+) -> list[KT]:
     """Return the n keys associated with the largest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the largest values
@@ -657,7 +700,9 @@ def nlargest(n: int, mapping: Mapping, key: PriorityKeyFn | None = None):
     return out
 
 
-def nsmallest(n: int, mapping: Mapping, key: PriorityKeyFn | None = None):
+def nsmallest(
+    n: int, mapping: Mapping[KT, VT], key: PriorityKeyFn | None = None
+) -> list[KT]:
     """Return the n keys associated with the smallest values in a mapping.
 
     Takes a mapping and returns the n keys associated with the smallest values
