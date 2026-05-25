@@ -28,7 +28,7 @@ supports:
 
 Documentation at <http://pqdict.readthedocs.org/>.
 
-:copyright: (c) 2012-2025 by Nezar Abdennur.
+:copyright: (c) 2012-2026 by Nezar Abdennur.
 :license: MIT, see LICENSE for more details.
 
 """

@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "pqdict"
 description = "A Pythonic indexed priority queue."
 readme = "README.rst"
-version = "1.4.1"
+version = "1.5.0"
 license = {text = "MIT"}
 authors = [
   {name = "Nezar Abdennur", email = "nabdennur@gmail.com"},
