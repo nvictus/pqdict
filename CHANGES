@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+1.5.1 (2026-05-25)
+++++++++++++++++++
+
+* Type annotations:
+	- Fixed ``pqdict.fromkeys()`` being inferred as ``pqdict[Any, Any]`` under pyright and ty. The classmethod now uses method-local typevars in ``@overload`` stubs so types are solved from the call arguments.
+	- Tightened ``pqdict.heapify(key)`` from ``key: Any`` to ``key: KT`` via overloads.
+
 1.5.0 (2026-05-25)
 ++++++++++++++++++
 
