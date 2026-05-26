@@ -371,8 +371,16 @@ class pqdict(MutableMapping[KT, VT]):
     # update = MutableMapping.update
     # setdefault = MutableMapping.setdefault
 
+    @overload
     @classmethod
-    def fromkeys(cls, iterable: Iterable[KT], value: VT, **kwargs: Any) -> Self:
+    def fromkeys(cls, iterable: Iterable[_K], value: _V, /) -> pqdict[_K, _V]: ...
+    @overload
+    @classmethod
+    def fromkeys(
+        cls, iterable: Iterable[_K], value: _V, **kwargs: Any
+    ) -> pqdict[_K, _V]: ...
+    @classmethod
+    def fromkeys(cls, iterable: Any, value: Any, **kwargs: Any) -> pqdict[Any, Any]:
         """Return a new pqdict mapping keys from an iterable to the same value."""
         return cls(((k, value) for k in iterable), **kwargs)
 
@@ -655,6 +663,10 @@ class pqdict(MutableMapping[KT, VT]):
         except Empty:
             return
 
+    @overload
+    def heapify(self) -> None: ...
+    @overload
+    def heapify(self, key: KT, /) -> None: ...
     def heapify(self, key: Any = __marker) -> None:
         """Repair a broken heap.
 

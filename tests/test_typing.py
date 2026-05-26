@@ -70,11 +70,17 @@ def test_module_function_types() -> None:
     assert_type(nsmallest(2, {1: "a"}), list[int])
 
 
-def test_fromkeys_typechecks() -> None:
-    # ``fromkeys`` parameterization is checker-dependent (mypy infers
-    # ``pqdict[str, int]``; pyright and ty fall back to ``pqdict[Any, Any]``),
-    # so we only assert that the call type-checks without error.
-    _ = pqdict.fromkeys(["a", "b"], 0)
+def test_fromkeys_inference() -> None:
+    # ``fromkeys`` uses method-local typevars in ``@overload`` stubs so that
+    # ``_K``/``_V`` are solved from the call arguments rather than the class
+    # generics (which a classmethod can't bind from its own args). Guards
+    # against regressing to the old ``Iterable[KT], VT -> Self`` shape, which
+    # collapsed to ``pqdict[Any, Any]`` at call sites under pyright/ty.
+    assert_type(pqdict.fromkeys(["a", "b"], 0), pqdict[str, int])
+    assert_type(
+        pqdict.fromkeys([1, 2], "x", precedes=lambda a, b: a < b),
+        pqdict[int, str],
+    )
 
 
 def test_unparameterized_defaults_to_any() -> None:
