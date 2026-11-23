@@ -619,3 +619,64 @@ def test_nbest_key():
     assert list(top3) == ["F", "E", "B"]
     bot3 = nsmallest(3, dict(sample_tuple_items), key=operator.itemgetter(1))
     assert list(bot3) == ["G", "D", "A"]
+
+
+class _FalsyPriority:
+    def __bool__(self):
+        return False
+
+    def __call__(self, value):
+        return -value
+
+
+class _EmptyPriority:
+    def __len__(self):
+        return 0
+
+    def __call__(self, value):
+        return -value
+
+
+class _UntruthablePriority:
+    def __bool__(self):
+        raise AssertionError("priority callable must not be truth-tested")
+
+    def __call__(self, value):
+        return -value
+
+
+@pytest.mark.parametrize(
+    "key", [_FalsyPriority(), _EmptyPriority(), _UntruthablePriority()]
+)
+@pytest.mark.parametrize(
+    "operation", ["construct", "assign", "add", "update", "pushpop"]
+)
+def test_priority_callable_without_truth_test(key, operation):
+    if operation == "construct":
+        pq = pqdict({"a": 1, "b": 2}, key=key)
+    else:
+        pq = pqdict(key=key)
+        pq["a"] = 1
+        if operation == "assign":
+            pq["b"] = 2
+        elif operation == "add":
+            pq.additem("b", 2)
+        elif operation == "update":
+            pq["b"] = 0
+            pq.updateitem("b", 2)
+        else:
+            assert pq.pushpopitem("b", 2) == ("b", 2)
+            assert list(pq.popitems()) == [("a", 1)]
+            return
+    assert pq.keyfn is key
+    assert list(pq.popitems()) == [("b", 2), ("a", 1)]
+
+
+@pytest.mark.parametrize(
+    "key", [_FalsyPriority(), _EmptyPriority(), _UntruthablePriority()]
+)
+@pytest.mark.parametrize(
+    "select, expected", [(nlargest, ["a", "b"]), (nsmallest, ["c", "b"])]
+)
+def test_selection_priority_callable_without_truth_test(key, select, expected):
+    assert select(2, {"a": 1, "b": 2, "c": 3}, key=key) == expected
