@@ -413,7 +413,7 @@ class pqdict(MutableMapping[KT, VT]):
 
         If ``key`` is already in the pqdict, its priority value is updated.
         """
-        prio = self._keyfn(value) if self._keyfn else value
+        prio = self._keyfn(value) if self._keyfn is not None else value
         node = Node(key, value, prio)
         if key in self._position:
             heapupdate(self._heap, self._position, self._precedes, node)
@@ -579,7 +579,7 @@ class pqdict(MutableMapping[KT, VT]):
         """
         if key in self._position:
             raise KeyError(f"{key} is already in the queue")
-        prio = self._keyfn(value) if self._keyfn else value
+        prio = self._keyfn(value) if self._keyfn is not None else value
         node = Node(key, value, prio)
         heappush(self._heap, self._position, self._precedes, node)
 
@@ -590,7 +590,7 @@ class pqdict(MutableMapping[KT, VT]):
         """
         if key not in self._position:
             raise KeyError(key)
-        prio = self._keyfn(new_val) if self._keyfn else new_val
+        prio = self._keyfn(new_val) if self._keyfn is not None else new_val
         node = Node(key, new_val, prio)
         heapupdate(self._heap, self._position, self._precedes, node)
 
@@ -603,7 +603,7 @@ class pqdict(MutableMapping[KT, VT]):
         """
         if key in self._position:
             raise KeyError(f"{key} is already in the queue")
-        prio = self._keyfn(value) if self._keyfn else value
+        prio = self._keyfn(value) if self._keyfn is not None else value
         node = heappushpop(
             self._heap, self._position, self._precedes, Node(key, value, prio)
         )
