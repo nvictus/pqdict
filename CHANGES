@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+1.5.2 (2026-11-23)
+++++++++++++++++++
+
+* Bug fixes:
+	- Honor priority ``key`` callables that are false-valued (e.g. define ``__bool__`` returning ``False`` or ``__len__`` returning 0). ``__setitem__``, ``additem``, ``updateitem``, ``pushpopitem``, ``nlargest`` and ``nsmallest`` previously ignored such a key and used raw values as priorities (#55).
+
 1.5.1 (2026-05-25)
 ++++++++++++++++++
 
